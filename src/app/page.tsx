@@ -1,69 +1,243 @@
-import Image from "next/image";
+"use client";
+
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { SiteFooter } from "@/components/site-footer";
+import { electionSnapshot, type Race } from "@/data/election";
+
+const suggestedQuestions = [
+  "What is driving the House forecast?",
+  "Which Senate race is closest?",
+  "How should I read a 62% probability?",
+];
+
+declare global {
+  interface Document {
+    readonly modelContext?: {
+      registerTool: (tool: {
+        name: string;
+        title: string;
+        description: string;
+        inputSchema: object;
+        annotations: { readOnlyHint: boolean; untrustedContentHint: boolean };
+        execute: (input: unknown) => unknown;
+      }, options?: { signal?: AbortSignal }) => void | Promise<void>;
+    };
+  }
+}
+
+function PartyBar({ democratic, republican }: { democratic: number; republican: number }) {
+  const undecided = Math.max(0, 100 - democratic - republican);
+  return (
+    <div className="party-bar" aria-label={`${democratic}% Democratic, ${republican}% Republican`}>
+      <span className="party-bar-dem" style={{ width: `${democratic}%` }} />
+      <span className="party-bar-undecided" style={{ width: `${undecided}%` }} />
+      <span className="party-bar-rep" style={{ width: `${republican}%` }} />
+    </div>
+  );
+}
+
+function Sparkline() {
+  const values = electionSnapshot.genericBallot.history;
+  const points = values.map((item, index) => {
+    const x = (index / (values.length - 1)) * 360;
+    const y = 76 - ((item.margin - 4) / 5) * 60;
+    return `${x},${y}`;
+  }).join(" ");
+
+  return (
+    <div className="sparkline-wrap" aria-label="Democratic generic ballot margin since May">
+      <svg viewBox="0 0 360 86" role="img">
+        <defs>
+          <linearGradient id="line-fill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor="#4f8cff" stopOpacity=".34" />
+            <stop offset="1" stopColor="#4f8cff" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={`M 0,86 L ${points} L 360,86 Z`} fill="url(#line-fill)" />
+        <polyline points={points} fill="none" stroke="#73a7ff" strokeWidth="3" />
+        {values.map((item, index) => {
+          const x = (index / (values.length - 1)) * 360;
+          const y = 76 - ((item.margin - 4) / 5) * 60;
+          return <circle key={item.date} cx={x} cy={y} r="4" fill="#d9e7ff" stroke="#2467d6" strokeWidth="2" />;
+        })}
+      </svg>
+      <div className="sparkline-axis"><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div>
+    </div>
+  );
+}
+
+function RaceRow({ race }: { race: Race }) {
+  const isDem = race.leader === "D";
+  return (
+    <button className="race-row" type="button" aria-label={`${race.state}: ${race.leader} leads by ${race.margin} points`}>
+      <span className="race-state"><b>{race.code}</b><span>{race.state}</span></span>
+      <span className="race-meter" aria-hidden="true"><i className={isDem ? "dem" : "rep"} style={{ width: `${Math.min(100, race.winProbability)}%` }} /></span>
+      <span className={`race-lead ${isDem ? "dem-text" : "rep-text"}`}>{race.leader}+{race.margin.toFixed(1)}</span>
+      <span className="race-prob">{race.winProbability}%</span>
+      <span className="arrow">↗</span>
+    </button>
+  );
+}
+
+function getFallbackAnswer(question: string) {
+  const normalized = question.toLowerCase();
+  if (normalized.includes("senate") || normalized.includes("closest")) {
+    return "Iowa is the closest Senate contest in this snapshot: Republicans lead the benchmark by 2.7 points with a 55% win probability. Alaska and Maine remain inside four points, so correlated national movement could change control quickly.";
+  }
+  if (normalized.includes("62") || normalized.includes("probab")) {
+    return "A 62% chance is an edge, not a call. In repeated elections under comparable assumptions, Democrats would win the Senate majority about six times in ten and fail about four times in ten. The uncertainty is concentrated in Iowa, Maine, Texas and Alaska.";
+  }
+  return "The House signal is being driven by a Democratic generic-ballot advantage of 7.4 points and a public benchmark projecting 231 Democratic seats. The main caveat is district geography: national vote movement does not translate evenly into all 435 seats.";
+}
 
 export default function Home() {
+  const [chamber, setChamber] = useState<"house" | "senate">("senate");
+  const [swing, setSwing] = useState(0);
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("Ask about the model, a race, or what changed. Every answer is constrained to the current snapshot.");
+  const [loading, setLoading] = useState(false);
+  const displayedRaces = useMemo(() => electionSnapshot.races.filter((race) => race.chamber === chamber), [chamber]);
+  const houseProbability = Math.max(5, Math.min(99, electionSnapshot.house.demMajority + swing * 4));
+  const senateProbability = Math.max(5, Math.min(95, electionSnapshot.senate.demMajority + swing * 5));
+
+  useEffect(() => {
+    const context = document.modelContext;
+    if (!context?.registerTool) return;
+    const lifecycle = new AbortController();
+    const register = (tool: Parameters<typeof context.registerTool>[0]) => {
+      void Promise.resolve(context.registerTool(tool, { signal: lifecycle.signal })).catch(() => undefined);
+    };
+
+    register({
+      name: "set_national_swing",
+      title: "Set national swing",
+      description: "Set the visible Scenario Lab national swing from R+5 to D+5 and return the updated control probabilities.",
+      inputSchema: { type: "object", properties: { swing: { type: "integer", minimum: -5, maximum: 5 } }, required: ["swing"], additionalProperties: false },
+      annotations: { readOnlyHint: false, untrustedContentHint: false },
+      execute(input) {
+        const value = (input as { swing?: unknown })?.swing;
+        if (!Number.isInteger(value) || Number(value) < -5 || Number(value) > 5) throw new Error("swing must be an integer from -5 to 5");
+        const next = Number(value);
+        setSwing(next);
+        return {
+          swing: next,
+          houseDemMajority: Math.max(5, Math.min(99, electionSnapshot.house.demMajority + next * 4)),
+          senateDemMajority: Math.max(5, Math.min(95, electionSnapshot.senate.demMajority + next * 5)),
+        };
+      },
+    });
+
+    register({
+      name: "select_race_chamber",
+      title: "Select race chamber",
+      description: "Switch the visible race board between Senate and House contests.",
+      inputSchema: { type: "object", properties: { chamber: { type: "string", enum: ["senate", "house"] } }, required: ["chamber"], additionalProperties: false },
+      annotations: { readOnlyHint: false, untrustedContentHint: false },
+      execute(input) {
+        const value = (input as { chamber?: unknown })?.chamber;
+        if (value !== "senate" && value !== "house") throw new Error("chamber must be senate or house");
+        setChamber(value);
+        return { chamber: value, visibleRaces: electionSnapshot.races.filter((race) => race.chamber === value).length };
+      },
+    });
+
+    return () => lifecycle.abort();
+  }, []);
+
+  async function askAnalyst(event: FormEvent) {
+    event.preventDefault();
+    if (!question.trim()) return;
+    setLoading(true);
+    try {
+      const response = await fetch("/api/analyst", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+      });
+      if (!response.ok) throw new Error("Analyst unavailable");
+      const data = (await response.json()) as { answer: string };
+      setAnswer(data.answer);
+    } catch {
+      setAnswer(getFallbackAnswer(question));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="page-main">
+      <section className="dashboard-shell" id="top">
+        <section className="brand-hero">
+          <div className="brand-hero-copy">
+            <p className="eyebrow">2026 U.S. MIDTERMS · ELECTION DESK</p>
+            <h1>Control of Congress,<br /><em>measured daily.</em></h1>
+            <p className="hero-deck">Forecasts, polling signals and electoral context—one transparent workspace for election night and every day before it.</p>
+            <div className="hero-actions"><Link className="primary-action" href="/polls">Explore polls</Link><Link className="secondary-action" href="/live">Open live desk <span>↗</span></Link></div>
+          </div>
+          <div className="countdown"><strong>{electionSnapshot.daysToElection}</strong><span>days to election</span><small>November 3, 2026</small></div>
+        </section>
+
+        <section className="forecast-grid" id="forecast" aria-label="Control forecast">
+          <article className="forecast-card house-card">
+            <div className="card-kicker"><span>HOUSE</span><small>435 seats</small></div>
+            <div className="probability-line"><strong>{houseProbability}%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
+            <div className="seat-line"><b className="dem-text">D {electionSnapshot.house.demSeats}</b><i>218 TO WIN</i><b className="rep-text">{electionSnapshot.house.repSeats} R</b></div>
+            <PartyBar democratic={electionSnapshot.house.demSeats / 4.35} republican={electionSnapshot.house.repSeats / 4.35} />
+            <p className="source-note">According to Vote-Scope · 50,000 simulations</p>
+          </article>
+
+          <article className="forecast-card senate-card">
+            <div className="card-kicker"><span>SENATE</span><small>100 seats</small></div>
+            <div className="probability-line"><strong>{senateProbability}%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
+            <div className="seat-line"><b className="dem-text">D {electionSnapshot.senate.demSeats}</b><i>51 TO WIN</i><b className="rep-text">{electionSnapshot.senate.repSeats} R</b></div>
+            <PartyBar democratic={electionSnapshot.senate.demSeats} republican={electionSnapshot.senate.repSeats} />
+            <p className="source-note">According to Vote-Scope · 50,000 simulations · Sep 18</p>
+          </article>
+
+          <article className="forecast-card ballot-card" id="polls">
+            <div className="card-kicker"><span>GENERIC BALLOT</span><small>polling average</small></div>
+            <div className="ballot-value"><strong>D+{electionSnapshot.genericBallot.margin.toFixed(1)}</strong><span>↑ 1.0 since Aug</span></div>
+            <PartyBar democratic={electionSnapshot.genericBallot.dem} republican={electionSnapshot.genericBallot.rep} />
+            <div className="ballot-labels"><b>D {electionSnapshot.genericBallot.dem}%</b><span>undecided {electionSnapshot.genericBallot.undecided}%</span><b>R {electionSnapshot.genericBallot.rep}%</b></div>
+            <Sparkline />
+          </article>
+        </section>
+
+        <section className="workbench-grid">
+          <article className="panel races-panel" id="races">
+            <div className="panel-head">
+              <div><p className="eyebrow">RACE BOARD</p><h2>Closest contests</h2></div>
+              <div className="segmented" role="group" aria-label="Choose chamber"><button className={chamber === "senate" ? "selected" : ""} onClick={() => setChamber("senate")}>Senate</button><button className={chamber === "house" ? "selected" : ""} onClick={() => setChamber("house")}>House</button></div>
+            </div>
+            <div className="race-header"><span>Race</span><span>Model confidence</span><span>Margin</span><span>Win prob.</span><span /></div>
+            <div className="race-list">{displayedRaces.map((race) => <RaceRow key={race.code} race={race} />)}</div>
+            <Link className="text-button" href="/polls">Explore all races <span>→</span></Link>
+          </article>
+
+          <aside className="panel analyst-panel">
+            <div className="analyst-title"><div className="pulse-orb"><span /></div><div><p className="eyebrow">AI ANALYST</p><h2>Ask the election desk</h2></div></div>
+            <div className="answer-box"><p>{loading ? "Reading the current snapshot…" : answer}</p><span>Sources: current snapshot · methodology notes</span></div>
+            <div className="suggestions">{suggestedQuestions.map((item) => <button key={item} type="button" onClick={() => setQuestion(item)}>{item}</button>)}</div>
+            <form onSubmit={askAnalyst}>
+              <label className="sr-only" htmlFor="analyst-question">Question for the AI analyst</label>
+              <input id="analyst-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask about a race or the model…" />
+              <button aria-label="Ask analyst" disabled={loading}>↗</button>
+            </form>
+          </aside>
+        </section>
+
+        <section className="panel simulator" id="methodology">
+          <div><p className="eyebrow">SCENARIO LAB</p><h2>Test a national swing</h2><p>Move the national environment to see how a uniform swing changes the provisional control probabilities. This is a sensitivity test, not a prediction.</p><div className="method-links"><a href="https://www.cookpolitical.com/ratings/house-race-ratings" target="_blank" rel="noreferrer">House ratings ↗</a><a href="https://vote-scope.com/en/us/senate/" target="_blank" rel="noreferrer">Senate benchmark ↗</a><a href="https://uspollingdata.com/polls/generic-ballot/" target="_blank" rel="noreferrer">Generic ballot ↗</a></div></div>
+          <div className="slider-block">
+            <div className="slider-labels"><span>R+5</span><strong>{swing === 0 ? "Current baseline" : `${swing > 0 ? "D" : "R"}+${Math.abs(swing)}`}</strong><span>D+5</span></div>
+            <input aria-label="National swing" type="range" min="-5" max="5" step="1" value={swing} onChange={(event) => setSwing(Number(event.target.value))} />
+            <button type="button" onClick={() => setSwing(0)}>Reset scenario</button>
+          </div>
+        </section>
+
+        <SiteFooter />
+      </section>
+    </main>
   );
 }

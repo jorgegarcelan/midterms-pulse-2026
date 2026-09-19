@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Midterm Pulse 2026
 
-## Getting Started
+A transparent election intelligence dashboard for the 2026 U.S. House and Senate elections. The project turns the exploratory notebook workflow of `US-Elections` into a deployable Next.js application with source attribution, interactive scenarios, and an AI analyst constrained to the current data snapshot.
 
-First, run the development server:
+## Product surfaces
+
+- **Dashboard** — House and Senate control benchmarks, generic-ballot trend, closest races, scenario lab and grounded AI analyst.
+- **Live** — device-local X/Twitter watchlist with embedded public timelines and an experimental Jev signal-triage panel.
+- **Polls** — poll feed, generic-ballot chart, battleground tile map and a local poll-entry workflow.
+- **History** — House seat-change chart, cycle comparison, turnout context and interactive historical map.
+- **Methodology** — model pipeline, current limitations and source register.
+- **Brand system** — original navigation mark, generated election-signal artwork, palette and typography guidance.
+
+The control forecast is currently a **sourced benchmark**, not yet a proprietary Midterm Pulse model. Forecast values are attributed to Vote-Scope. House race ratings and the generic ballot are cross-checked against Cook Political Report and public polling aggregators. The next model phase will replace the benchmark with a reproducible, backtested pipeline.
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## AI analyst
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app works without an API key. In that mode, `/api/analyst` returns deterministic answers grounded in the checked-in snapshot.
 
-## Learn More
+For live analysis, copy `.env.example` to `.env.local` and set:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+OPENAI_API_KEY=your_key
+OPENAI_MODEL=gpt-6-astra
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The API route uses the OpenAI Responses API, does not expose the key to the browser, sets `store: false`, and constrains responses to the snapshot and listed sources.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Jev pilot
 
-## Deploy on Vercel
+TypeSafe AI's Jev model is integrated as an optional signal-triage experiment on `/live`. It classifies an item's topic, 2026 relevance and urgency using typed probabilistic outputs. It is deliberately **not** used as the election forecast model or as a prose analyst.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+TYPESAFE_API_KEY=your_key
+TYPESAFE_MODEL=jev-latest
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Without a key, `/api/triage` uses a transparent deterministic fallback. See [`docs/JEV-EVALUATION.md`](docs/JEV-EVALUATION.md) for the recommendation and evaluation plan.
+
+## Live X timelines
+
+The watchlist uses X's public embed script and saves account choices in local browser storage. The page always exposes a direct profile link because embeds can be restricted by browser privacy settings or X availability. A future server-side real-time feed can use the official X API once credentials and a usage budget are configured.
+
+## Deploy to Vercel
+
+The production preview is at [midterm-pulse-2026.vercel.app](https://midterm-pulse-2026.vercel.app). Import this repository into Vercel; Next.js is detected automatically. Add `OPENAI_API_KEY` and/or `TYPESAFE_API_KEY` in the project settings for live AI services. Every page remains functional without either variable.
+
+## Repository map
+
+```text
+src/app/                  Next.js routes and dashboard
+src/app/api/analyst/      Server-side AI endpoint
+src/app/api/triage/       Optional Jev structured-decision endpoint
+src/components/           Shared navigation, maps and interactive workbenches
+src/data/                 Typed election snapshot
+src/lib/                  Prompt construction and shared logic
+docs/                     Methodology and data contracts
+public/                   Static brand assets
+```
+
+## Data policy
+
+Every displayed number must include a source, observation date, retrieval date, and transformation notes. Raw polls must preserve sponsor, population, sample size, field dates, mode, toplines, and source URL. See [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
+
+## Sources used in the prototype
+
+- [Vote-Scope U.S. Senate forecast](https://vote-scope.com/en/us/senate/)
+- [Vote-Scope public data API](https://vote-scope.com/api/)
+- [Cook Political Report House ratings](https://www.cookpolitical.com/ratings/house-race-ratings)
+- [U.S. Polling Data generic ballot](https://uspollingdata.com/polls/generic-ballot/)
+- [Federal Election Commission API](https://api.open.fec.gov/developers/)
+- [Census American Community Survey API](https://www.census.gov/programs-surveys/acs/data/data-via-api.html)
+- [TypeSafe AI Jev documentation](https://docs.typesafe.ai/introduction)
+- [X Developer Platform](https://docs.x.com/overview)
+
+## License
+
+Application code is intended for an MIT-licensed public repository. Upstream datasets retain their own terms and attribution requirements.
