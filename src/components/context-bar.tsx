@@ -40,6 +40,8 @@ export function ContextBar() {
         <a href="https://github.com/Polymarket/agent-skills/blob/main/market-data.md" target="_blank" rel="noreferrer"><i className="status-live" /><span><strong>Prediction markets</strong><small>Polymarket Gamma and CLOB APIs</small></span><b>5 min</b></a>
         <a href="https://electionlab.mit.edu/data" target="_blank" rel="noreferrer"><i className="status-static" /><span><strong>Historical results</strong><small>MIT Election Data and Science Lab</small></span><b>2016–24</b></a>
         <a href="https://www.census.gov/programs-surveys/acs/data/data-via-api.html" target="_blank" rel="noreferrer"><i className="status-static" /><span><strong>Demographics</strong><small>Census American Community Survey</small></span><b>ACS</b></a>
+        <a href="https://api.open.fec.gov/developers/" target="_blank" rel="noreferrer"><i className="status-live" /><span><strong>Candidates and finance</strong><small>Federal Election Commission filings</small></span><b>6 hr</b></a>
+        <a href="https://www.census.gov/geographies/mapping-files/2024/geo/carto-boundary-file.html" target="_blank" rel="noreferrer"><i className="status-static" /><span><strong>Congressional boundaries</strong><small>Census 2024 files · 119th Congress</small></span><b>2025–27</b></a>
       </div>
       <p className="source-drawer-note">Clicking a source opens its documentation. Every live feed has an explicit fallback and never silently substitutes invented current data.</p>
     </aside></div>}

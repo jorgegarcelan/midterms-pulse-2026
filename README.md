@@ -5,6 +5,9 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 ## Product surfaces
 
 - **Dashboard** — House and Senate control benchmarks, generic-ballot trend, closest races, scenario lab and grounded AI analyst.
+- **Model** — MP-26 v0.1 inputs, 50,000-draw seat distributions, explicit assumptions and an interactive swing test.
+- **District map** — official 119th Congress boundaries for all 435 voting districts, colored by the current model and linked to race profiles.
+- **Race profiles** — full House and Senate directory with model output, FEC candidates and finance, polling context, geography and source ledger.
 - **Workspace** — persistent national/state context with linked signals, territory comparison, scenario controls, event timeline and contextual AI.
 - **Explore** — national, state and county filters; a 3,000+ county map; 2016–2024 movement; county results and ACS context.
 - **Live** — device-local X/Twitter watchlist with embedded public timelines and an experimental Jev signal-triage panel.
@@ -14,7 +17,7 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 - **Methodology** — model pipeline, current limitations and source register.
 - **Brand system** — original navigation mark, generated election-signal artwork, palette and typography guidance.
 
-The control forecast is currently a **sourced benchmark**, not yet a proprietary Midterm Pulse model. Forecast values are attributed to Vote-Scope. House race ratings and the generic ballot are cross-checked against Cook Political Report and public polling aggregators. The next model phase will replace the benchmark with a reproducible, backtested pipeline.
+The control forecast now uses **MP-26 v0.1**, an owned and reproducible simulation layer anchored to Vote-Scope public data. It is deliberately labeled experimental because it is not yet historically calibrated. See [`docs/MODEL-V0.1.md`](docs/MODEL-V0.1.md) for every coefficient and limitation.
 
 ## Interaction model
 
@@ -53,13 +56,17 @@ TYPESAFE_MODEL=jev-latest
 
 Without a key, `/api/triage` uses a transparent deterministic fallback. See [`docs/JEV-EVALUATION.md`](docs/JEV-EVALUATION.md) for the recommendation and evaluation plan.
 
+## Candidate and finance data
+
+Race profiles use the official OpenFEC API. `DEMO_KEY` works for development; set `FEC_API_KEY=your_data_gov_key` in `.env.local` and Vercel for reliable production limits.
+
 ## Live X timelines
 
 The watchlist uses X's public embed script and saves account choices in local browser storage. The page always exposes a direct profile link because embeds can be restricted by browser privacy settings or X availability. A future server-side real-time feed can use the official X API once credentials and a usage budget are configured.
 
 ## Deploy to Vercel
 
-The production preview is at [midterm-pulse-2026.vercel.app](https://midterm-pulse-2026.vercel.app). Import this repository into Vercel; Next.js is detected automatically. Add `OPENAI_API_KEY` and/or `TYPESAFE_API_KEY` in the project settings for live AI services. Every page remains functional without either variable.
+The production preview is at [midterm-pulse-2026.vercel.app](https://midterm-pulse-2026.vercel.app). Import this repository into Vercel; Next.js is detected automatically. Add `OPENAI_API_KEY`, `TYPESAFE_API_KEY` and `FEC_API_KEY` in the project settings for reliable live services. Every page remains functional without these variables, with explicit fallbacks.
 
 ## Repository map
 
@@ -67,6 +74,8 @@ The production preview is at [midterm-pulse-2026.vercel.app](https://midterm-pul
 src/app/                  Next.js routes and dashboard
 src/app/api/analyst/      Server-side AI endpoint
 src/app/api/forecast/     Vote-Scope forecast adapter
+src/app/api/model/        Midterm Pulse deterministic simulation
+src/app/api/candidates/   OpenFEC candidate and finance adapter
 src/app/api/markets/      Polymarket Gamma and CLOB adapter
 src/app/api/polls/        Vote-Scope polling adapter
 src/app/api/triage/       Optional Jev structured-decision endpoint
@@ -74,7 +83,7 @@ src/components/           Shared navigation, maps and interactive workbenches
 src/data/                 Typed election snapshot
 src/lib/                  Prompt construction and shared logic
 docs/                     Methodology and data contracts
-public/                   Static brand assets
+public/                   Static brand assets and Census district boundaries
 ```
 
 ## Data policy

@@ -2,7 +2,7 @@
 
 ## Status
 
-The current interface is an MVP using dated public benchmarks. It deliberately does not label these numbers as a proprietary Midterm Pulse forecast. A first-party forecast should only replace them after the pipeline is reproducible and its historical calibration has been measured.
+The interface now includes `MP-26 v0.1`, an owned, deterministic simulation layer built on public inputs. It is explicitly labeled experimental because historical calibration is not complete. The external Vote-Scope forecast remains the seat-level anchor and is identified wherever it is used.
 
 ## Data contract
 
@@ -20,13 +20,15 @@ Each poll record should contain:
 
 Each race record should contain its office, geography, nominees, incumbency, prior result, district partisanship, fundraising totals, expert ratings, and demographic features.
 
-## Planned forecast
+## Current v0.1 forecast
 
-1. Estimate a national environment from generic-ballot polls with recency decay, sample-size weighting, population adjustments, and pollster house effects.
-2. Estimate each race from local polls and a fundamentals prior built from prior vote, incumbency, fundraising, candidate experience, demographics, and the national environment.
-3. Model correlated error across states and districts rather than treating races as independent.
-4. Run Monte Carlo simulations and publish seat distributions, majority probabilities, intervals, and race-level win probabilities.
-5. Backtest on the 2010–2024 midterm and presidential cycles without using information unavailable on each historical forecast date.
+1. Estimate a national environment from generic-ballot polls with recency, sample-size and population weights.
+2. Anchor expected chamber seats and individual races to the dated Vote-Scope public benchmark.
+3. Add a shared national error and separate chamber error across 50,000 seeded simulations.
+4. Publish seat distributions, majority probabilities, 80% intervals and adjusted race-level probabilities.
+5. Keep every coefficient visible in [`MODEL-V0.1.md`](MODEL-V0.1.md).
+
+Pollster house effects, candidate/fundraising fundamentals and historical calibration remain planned work.
 
 ## Validation gates
 

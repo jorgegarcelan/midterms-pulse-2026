@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "data:districts": "node scripts/convert-districts.mjs",
+    "data:forecast": "node scripts/build-forecast-snapshot.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",
@@ -26,6 +28,7 @@
     "@types/topojson-client": "^3.1.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "shapefile": "^0.6.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

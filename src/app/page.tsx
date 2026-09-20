@@ -6,6 +6,7 @@ import { useElectionContext } from "@/components/election-context";
 import { SiteFooter } from "@/components/site-footer";
 import { stateByCode } from "@/data/geography";
 import { electionSnapshot, type Race } from "@/data/election";
+import { raceSlug } from "@/lib/races";
 
 const suggestedQuestions = [
   "What is driving the House forecast?",
@@ -14,11 +15,13 @@ const suggestedQuestions = [
 ];
 
 type LiveForecast = {
-  updated: string;
-  house: { demMajority: number; demSeats: number; repSeats: number; polls: number };
-  senate: { demMajority: number; demSeats: number; repSeats: number; polls: number };
+  runDate: string;
+  version: string;
+  simulations: number;
+  house: { demMajority: number; demSeats: number; repSeats: number };
+  senate: { demMajority: number; demSeats: number; repSeats: number };
+  genericBallot: { dem: number; rep: number; margin: number; effectivePolls: number; latestPoll: string };
   races: Race[];
-  source: string;
 };
 
 declare global {
@@ -47,11 +50,14 @@ function PartyBar({ democratic, republican }: { democratic: number; republican: 
   );
 }
 
-function Sparkline() {
-  const values = electionSnapshot.genericBallot.history;
+function Sparkline({ currentMargin }: { currentMargin: number }) {
+  const values = [...electionSnapshot.genericBallot.history.slice(0, -1), { date: "2026-09-20", margin: currentMargin }];
+  const minimum = Math.floor(Math.min(...values.map((item) => item.margin)) - 1);
+  const maximum = Math.ceil(Math.max(...values.map((item) => item.margin)) + 1);
+  const span = Math.max(1, maximum - minimum);
   const points = values.map((item, index) => {
     const x = (index / (values.length - 1)) * 360;
-    const y = 76 - ((item.margin - 4) / 5) * 60;
+    const y = 76 - ((item.margin - minimum) / span) * 60;
     return `${x},${y}`;
   }).join(" ");
 
@@ -68,7 +74,7 @@ function Sparkline() {
         <polyline points={points} fill="none" stroke="#73a7ff" strokeWidth="3" />
         {values.map((item, index) => {
           const x = (index / (values.length - 1)) * 360;
-          const y = 76 - ((item.margin - 4) / 5) * 60;
+          const y = 76 - ((item.margin - minimum) / span) * 60;
           return <circle key={item.date} cx={x} cy={y} r="4" fill="#d9e7ff" stroke="#2467d6" strokeWidth="2" />;
         })}
       </svg>
@@ -80,13 +86,13 @@ function Sparkline() {
 function RaceRow({ race }: { race: Race }) {
   const isDem = race.leader === "D";
   return (
-    <button className="race-row" type="button" aria-label={`${race.state}: ${race.leader} leads by ${race.margin} points`}>
+    <Link className="race-row" href={`/races/${raceSlug(race)}`} aria-label={`${race.state}: ${race.leader} leads by ${race.margin} points`}>
       <span className="race-state"><b>{race.code}</b><span>{race.state}</span></span>
       <span className="race-meter" aria-hidden="true"><i className={isDem ? "dem" : "rep"} style={{ width: `${Math.min(100, race.winProbability)}%` }} /></span>
       <span className={`race-lead ${isDem ? "dem-text" : "rep-text"}`}>{race.leader}+{race.margin.toFixed(1)}</span>
       <span className="race-prob">{race.winProbability}%</span>
       <span className="arrow">↗</span>
-    </button>
+    </Link>
   );
 }
 
@@ -110,15 +116,16 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [liveForecast, setLiveForecast] = useState<LiveForecast | null>(null);
   const baselineRaces = liveForecast?.races || electionSnapshot.races;
-  const displayedRaces = useMemo(() => baselineRaces.filter((race) => race.chamber === chamber), [baselineRaces, chamber]);
+  const displayedRaces = useMemo(() => baselineRaces.filter((race) => race.chamber === chamber).sort((a, b) => a.margin - b.margin).slice(0, 6), [baselineRaces, chamber]);
   const house = liveForecast?.house || electionSnapshot.house;
   const senate = liveForecast?.senate || electionSnapshot.senate;
+  const ballot = liveForecast?.genericBallot || electionSnapshot.genericBallot;
   const houseProbability = Math.max(5, Math.min(99, house.demMajority + swing * 4));
   const senateProbability = Math.max(5, Math.min(95, senate.demMajority + swing * 5));
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/forecast").then((response) => {
+    fetch("/api/model").then((response) => {
       if (!response.ok) throw new Error("Forecast feed unavailable");
       return response.json() as Promise<LiveForecast>;
     }).then((payload) => { if (!cancelled) setLiveForecast(payload); }).catch(() => undefined);
@@ -197,7 +204,7 @@ export default function Home() {
             <p className="eyebrow">2026 U.S. MIDTERMS · NATIONAL OVERVIEW</p>
             <h1>Congressional outlook</h1>
             <p className="hero-deck">Current chamber forecasts, polling, prediction markets and historical election data.</p>
-            <div className="hero-actions"><Link className="primary-action" href="/explore">Explore the map</Link><Link className="secondary-action" href="/markets">Track markets <span>↗</span></Link></div>
+            <div className="hero-actions"><Link className="primary-action" href="/districts">Explore 435 districts</Link><Link className="secondary-action" href="/model">Inspect the model <span>→</span></Link></div>
           </div>
           <div className="countdown"><strong>{electionSnapshot.daysToElection}</strong><span>days to election</span><small>November 3, 2026</small></div>
         </section>
@@ -208,7 +215,7 @@ export default function Home() {
             <div className="probability-line"><strong>{houseProbability}%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
             <div className="seat-line"><b className="dem-text">D {house.demSeats}</b><i>218 TO WIN</i><b className="rep-text">{house.repSeats} R</b></div>
             <PartyBar democratic={house.demSeats / 4.35} republican={house.repSeats / 4.35} />
-            <p className="source-note">Vote-Scope · {"polls" in house ? house.polls : "public"} polls · {liveForecast?.updated || "dated snapshot"}</p>
+            <p className="source-note">{liveForecast ? `${liveForecast.version} · ${liveForecast.simulations.toLocaleString("en-US")} simulations · ${liveForecast.runDate}` : "Dated local snapshot"}</p>
           </article>
 
           <article className="forecast-card senate-card">
@@ -216,15 +223,15 @@ export default function Home() {
             <div className="probability-line"><strong>{senateProbability}%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
             <div className="seat-line"><b className="dem-text">D {senate.demSeats}</b><i>51 TO WIN</i><b className="rep-text">{senate.repSeats} R</b></div>
             <PartyBar democratic={senate.demSeats} republican={senate.repSeats} />
-            <p className="source-note">Vote-Scope · {"polls" in senate ? senate.polls : "public"} polls · {liveForecast?.updated || "dated snapshot"}</p>
+            <p className="source-note">{liveForecast ? `${liveForecast.version} · ${liveForecast.simulations.toLocaleString("en-US")} simulations · ${liveForecast.runDate}` : "Dated local snapshot"}</p>
           </article>
 
           <article className="forecast-card ballot-card" id="polls">
             <div className="card-kicker"><span>GENERIC BALLOT</span><small>polling average</small></div>
-            <div className="ballot-value"><strong>D+{electionSnapshot.genericBallot.margin.toFixed(1)}</strong><span>↑ 1.0 since Aug</span></div>
-            <PartyBar democratic={electionSnapshot.genericBallot.dem} republican={electionSnapshot.genericBallot.rep} />
-            <div className="ballot-labels"><b>D {electionSnapshot.genericBallot.dem}%</b><span>undecided {electionSnapshot.genericBallot.undecided}%</span><b>R {electionSnapshot.genericBallot.rep}%</b></div>
-            <Sparkline />
+            <div className="ballot-value"><strong>{ballot.margin >= 0 ? "D" : "R"}+{Math.abs(ballot.margin).toFixed(1)}</strong><span>{liveForecast ? `${liveForecast.genericBallot.effectivePolls} polls` : "dated snapshot"}</span></div>
+            <PartyBar democratic={ballot.dem} republican={ballot.rep} />
+            <div className="ballot-labels"><b>D {ballot.dem.toFixed(1)}%</b><span>two-party margin</span><b>R {ballot.rep.toFixed(1)}%</b></div>
+            <Sparkline currentMargin={ballot.margin} />
           </article>
         </section>
 
@@ -236,7 +243,7 @@ export default function Home() {
             </div>
             <div className="race-header"><span>Race</span><span>Model confidence</span><span>Margin</span><span>Win prob.</span><span /></div>
             <div className="race-list">{displayedRaces.map((race) => <RaceRow key={race.code} race={race} />)}</div>
-            <Link className="text-button" href="/explore">Explore states and counties <span>→</span></Link>
+            <Link className="text-button" href="/races">Open complete race directory <span>→</span></Link>
           </article>
 
           <aside className="panel analyst-panel">
