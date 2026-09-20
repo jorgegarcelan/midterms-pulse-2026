@@ -18,7 +18,10 @@ function cleanHandle(value: string) {
 
 export function LiveDesk() {
   const [accounts, setAccounts] = useState(defaultAccounts);
+  const [activeAccount, setActiveAccount] = useState(defaultAccounts[0]);
+  const [embedRequested, setEmbedRequested] = useState(false);
   const [scriptReady, setScriptReady] = useState(false);
+  const [scriptError, setScriptError] = useState(false);
   const [sample, setSample] = useState("New Senate poll shows the race inside the margin of error. Full methodology and field dates attached.");
   const [triage, setTriage] = useState<Triage | null>(null);
   const [loading, setLoading] = useState(false);
@@ -27,27 +30,48 @@ export function LiveDesk() {
     let timer = 0;
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved) timer = window.setTimeout(() => setAccounts(JSON.parse(saved) as string[]), 0);
+      const parsed = saved ? JSON.parse(saved) : null;
+      if (Array.isArray(parsed) && parsed.every((item) => typeof item === "string")) {
+        timer = window.setTimeout(() => {
+          setAccounts(parsed);
+          setActiveAccount(parsed[0] || "");
+        }, 0);
+      }
     } catch { /* browser storage is optional */ }
     return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    if (!scriptReady) return;
-    const timer = window.setTimeout(() => window.twttr?.widgets?.load(document.querySelector(".timeline-grid") as HTMLElement), 80);
+    if (!embedRequested || !scriptReady || !activeAccount) return;
+    const timer = window.setTimeout(() => window.twttr?.widgets?.load(document.querySelector(".active-timeline") as HTMLElement), 100);
     return () => window.clearTimeout(timer);
-  }, [accounts, scriptReady]);
+  }, [activeAccount, embedRequested, scriptReady]);
 
-  function save(next: string[]) {
+  function save(next: string[], preferredAccount = activeAccount) {
     setAccounts(next);
+    const nextActive = next.includes(preferredAccount) ? preferredAccount : (next[0] || "");
+    setActiveAccount(nextActive);
+    setEmbedRequested(false);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  }
+
+  function selectAccount(account: string) {
+    setActiveAccount(account);
+    setEmbedRequested(false);
+    setScriptError(false);
+  }
+
+  function loadFeed() {
+    setScriptError(false);
+    setScriptReady(Boolean(window.twttr?.widgets));
+    setEmbedRequested(true);
   }
 
   function addAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const handle = cleanHandle(String(form.get("handle") || ""));
-    if (handle && !accounts.some((item) => item.toLowerCase() === handle.toLowerCase())) save([...accounts, handle]);
+    if (handle && !accounts.some((item) => item.toLowerCase() === handle.toLowerCase())) save([...accounts, handle], handle);
     event.currentTarget.reset();
   }
 
@@ -63,7 +87,7 @@ export function LiveDesk() {
 
   return (
     <>
-      <Script src="https://platform.twitter.com/widgets.js" strategy="afterInteractive" onLoad={() => setScriptReady(true)} />
+      {embedRequested && <Script src="https://platform.twitter.com/widgets.js" strategy="afterInteractive" onLoad={() => setScriptReady(true)} onReady={() => setScriptReady(true)} onError={() => setScriptError(true)} />}
       <section className="page-intro live-intro">
         <div><p className="eyebrow">LIVE SIGNALS</p><h1>Your election watchlist.</h1><p>Build a configurable wall of public X timelines for reporters, analysts, election desks and official sources.</p></div>
         <div className="live-indicator"><i /><span>Monitoring</span><strong>{accounts.length} accounts</strong></div>
@@ -76,8 +100,14 @@ export function LiveDesk() {
       </section>
 
       <section className="live-layout">
-        <div className="timeline-grid">
-          {accounts.map((account) => <article className="timeline-card" key={account}><div className="timeline-card-head"><div><span>@{account}</span><small>Public timeline</small></div><a href={`https://x.com/${account}`} target="_blank" rel="noreferrer">Open on X ↗</a></div><a className="twitter-timeline" data-theme="dark" data-chrome="noheader nofooter transparent" data-height="560" data-dnt="true" href={`https://twitter.com/${account}`}>Loading @{account} posts…</a><p className="embed-fallback">If X blocks the embedded feed, use “Open on X”.</p></article>)}
+        <div className="feed-console">
+          <div className="feed-tabs" role="group" aria-label="Choose an X account">
+            {accounts.map((account) => <button type="button" aria-pressed={activeAccount === account} className={activeAccount === account ? "active" : ""} key={account} onClick={() => selectAccount(account)}>@{account}</button>)}
+          </div>
+          {activeAccount ? <article className="timeline-card active-timeline" key={`${activeAccount}-${embedRequested}`}>
+            <div className="timeline-card-head"><div><span>@{activeAccount}</span><small>Public timeline · loaded one account at a time</small></div><a href={`https://x.com/${activeAccount}`} target="_blank" rel="noreferrer">Open on X ↗</a></div>
+            {!embedRequested ? <div className="embed-gate"><div className="embed-gate-mark">𝕏</div><h2>Load @{activeAccount}</h2><p>The public X widget is loaded only when requested. This prevents parallel syndication requests and reduces rate-limit errors.</p><button className="primary-action" type="button" onClick={loadFeed}>Load latest posts</button></div> : scriptError ? <div className="embed-gate"><h2>Feed unavailable</h2><p>X&apos;s embed script could not load. Open the profile directly and try again later.</p><a className="secondary-action" href={`https://x.com/${activeAccount}`} target="_blank" rel="noreferrer">Open on X ↗</a></div> : <><a className="twitter-timeline" data-theme="dark" data-chrome="noheader nofooter transparent" data-height="620" data-dnt="true" href={`https://twitter.com/${activeAccount}`}>Loading @{activeAccount} posts…</a><p className="embed-fallback">If X returns a rate limit, open the profile directly or wait before retrying. The browser warning about <code>unload</code> comes from X&apos;s widget and does not affect Midterm Pulse.</p></>}
+          </article> : <article className="timeline-card"><div className="embed-gate"><h2>No accounts configured</h2><p>Add an X account above to create your live watchlist.</p></div></article>}
         </div>
 
         <aside className="panel jev-panel">
