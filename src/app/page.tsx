@@ -11,6 +11,14 @@ const suggestedQuestions = [
   "How should I read a 62% probability?",
 ];
 
+type LiveForecast = {
+  updated: string;
+  house: { demMajority: number; demSeats: number; repSeats: number; polls: number };
+  senate: { demMajority: number; demSeats: number; repSeats: number; polls: number };
+  races: Race[];
+  source: string;
+};
+
 declare global {
   interface Document {
     readonly modelContext?: {
@@ -97,9 +105,22 @@ export default function Home() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("Ask about the model, a race, or what changed. Every answer is constrained to the current snapshot.");
   const [loading, setLoading] = useState(false);
-  const displayedRaces = useMemo(() => electionSnapshot.races.filter((race) => race.chamber === chamber), [chamber]);
-  const houseProbability = Math.max(5, Math.min(99, electionSnapshot.house.demMajority + swing * 4));
-  const senateProbability = Math.max(5, Math.min(95, electionSnapshot.senate.demMajority + swing * 5));
+  const [liveForecast, setLiveForecast] = useState<LiveForecast | null>(null);
+  const baselineRaces = liveForecast?.races || electionSnapshot.races;
+  const displayedRaces = useMemo(() => baselineRaces.filter((race) => race.chamber === chamber), [baselineRaces, chamber]);
+  const house = liveForecast?.house || electionSnapshot.house;
+  const senate = liveForecast?.senate || electionSnapshot.senate;
+  const houseProbability = Math.max(5, Math.min(99, house.demMajority + swing * 4));
+  const senateProbability = Math.max(5, Math.min(95, senate.demMajority + swing * 5));
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/forecast").then((response) => {
+      if (!response.ok) throw new Error("Forecast feed unavailable");
+      return response.json() as Promise<LiveForecast>;
+    }).then((payload) => { if (!cancelled) setLiveForecast(payload); }).catch(() => undefined);
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     const context = document.modelContext;
@@ -172,8 +193,8 @@ export default function Home() {
           <div className="brand-hero-copy">
             <p className="eyebrow">2026 U.S. MIDTERMS · ELECTION DESK</p>
             <h1>Control of Congress,<br /><em>measured daily.</em></h1>
-            <p className="hero-deck">Forecasts, polling signals and electoral context—one transparent workspace for election night and every day before it.</p>
-            <div className="hero-actions"><Link className="primary-action" href="/polls">Explore polls</Link><Link className="secondary-action" href="/live">Open live desk <span>↗</span></Link></div>
+            <p className="hero-deck">Forecasts, polling, markets and election history—from the national environment down to every county.</p>
+            <div className="hero-actions"><Link className="primary-action" href="/explore">Explore the map</Link><Link className="secondary-action" href="/markets">Track markets <span>↗</span></Link></div>
           </div>
           <div className="countdown"><strong>{electionSnapshot.daysToElection}</strong><span>days to election</span><small>November 3, 2026</small></div>
         </section>
@@ -182,17 +203,17 @@ export default function Home() {
           <article className="forecast-card house-card">
             <div className="card-kicker"><span>HOUSE</span><small>435 seats</small></div>
             <div className="probability-line"><strong>{houseProbability}%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
-            <div className="seat-line"><b className="dem-text">D {electionSnapshot.house.demSeats}</b><i>218 TO WIN</i><b className="rep-text">{electionSnapshot.house.repSeats} R</b></div>
-            <PartyBar democratic={electionSnapshot.house.demSeats / 4.35} republican={electionSnapshot.house.repSeats / 4.35} />
-            <p className="source-note">According to Vote-Scope · 50,000 simulations</p>
+            <div className="seat-line"><b className="dem-text">D {house.demSeats}</b><i>218 TO WIN</i><b className="rep-text">{house.repSeats} R</b></div>
+            <PartyBar democratic={house.demSeats / 4.35} republican={house.repSeats / 4.35} />
+            <p className="source-note">Vote-Scope · {"polls" in house ? house.polls : "public"} polls · {liveForecast?.updated || "dated snapshot"}</p>
           </article>
 
           <article className="forecast-card senate-card">
             <div className="card-kicker"><span>SENATE</span><small>100 seats</small></div>
             <div className="probability-line"><strong>{senateProbability}%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
-            <div className="seat-line"><b className="dem-text">D {electionSnapshot.senate.demSeats}</b><i>51 TO WIN</i><b className="rep-text">{electionSnapshot.senate.repSeats} R</b></div>
-            <PartyBar democratic={electionSnapshot.senate.demSeats} republican={electionSnapshot.senate.repSeats} />
-            <p className="source-note">According to Vote-Scope · 50,000 simulations · Sep 18</p>
+            <div className="seat-line"><b className="dem-text">D {senate.demSeats}</b><i>51 TO WIN</i><b className="rep-text">{senate.repSeats} R</b></div>
+            <PartyBar democratic={senate.demSeats} republican={senate.repSeats} />
+            <p className="source-note">Vote-Scope · {"polls" in senate ? senate.polls : "public"} polls · {liveForecast?.updated || "dated snapshot"}</p>
           </article>
 
           <article className="forecast-card ballot-card" id="polls">
@@ -212,7 +233,7 @@ export default function Home() {
             </div>
             <div className="race-header"><span>Race</span><span>Model confidence</span><span>Margin</span><span>Win prob.</span><span /></div>
             <div className="race-list">{displayedRaces.map((race) => <RaceRow key={race.code} race={race} />)}</div>
-            <Link className="text-button" href="/polls">Explore all races <span>→</span></Link>
+            <Link className="text-button" href="/explore">Explore states and counties <span>→</span></Link>
           </article>
 
           <aside className="panel analyst-panel">

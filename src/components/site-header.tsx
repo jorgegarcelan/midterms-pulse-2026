@@ -5,8 +5,10 @@ import { usePathname } from "next/navigation";
 
 const navigation = [
   { href: "/", label: "Dashboard" },
-  { href: "/live", label: "Live" },
+  { href: "/explore", label: "Explore" },
   { href: "/polls", label: "Polls" },
+  { href: "/markets", label: "Markets" },
+  { href: "/live", label: "Live" },
   { href: "/history", label: "History" },
 ];
 
@@ -25,7 +27,7 @@ export function SiteHeader() {
           return <Link className={active ? "active" : ""} href={item.href} key={item.href}>{item.label}</Link>;
         })}
       </nav>
-      <div className="update-pill"><i /> Live desk <span>· Sep 19</span></div>
+      <div className="update-pill"><i /> Live data <span>· Sep 20</span></div>
     </header>
   );
 }

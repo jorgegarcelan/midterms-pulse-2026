@@ -5,8 +5,10 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 ## Product surfaces
 
 - **Dashboard** — House and Senate control benchmarks, generic-ballot trend, closest races, scenario lab and grounded AI analyst.
+- **Explore** — national, state and county filters; a 3,000+ county map; 2016–2024 movement; county results and ACS context.
 - **Live** — device-local X/Twitter watchlist with embedded public timelines and an experimental Jev signal-triage panel.
-- **Polls** — poll feed, generic-ballot chart, battleground tile map and a local poll-entry workflow.
+- **Polls** — live Vote-Scope polling index, weekly generic-ballot evolution, battleground tile map and a local poll-entry workflow.
+- **Markets** — live Polymarket House, Senate and balance-of-power probabilities with daily price history.
 - **History** — House seat-change chart, cycle comparison, turnout context and interactive historical map.
 - **Methodology** — model pipeline, current limitations and source register.
 - **Brand system** — original navigation mark, generated election-signal artwork, palette and typography guidance.
@@ -59,6 +61,9 @@ The production preview is at [midterm-pulse-2026.vercel.app](https://midterm-pul
 ```text
 src/app/                  Next.js routes and dashboard
 src/app/api/analyst/      Server-side AI endpoint
+src/app/api/forecast/     Vote-Scope forecast adapter
+src/app/api/markets/      Polymarket Gamma and CLOB adapter
+src/app/api/polls/        Vote-Scope polling adapter
 src/app/api/triage/       Optional Jev structured-decision endpoint
 src/components/           Shared navigation, maps and interactive workbenches
 src/data/                 Typed election snapshot
@@ -69,7 +74,7 @@ public/                   Static brand assets
 
 ## Data policy
 
-Every displayed number must include a source, observation date, retrieval date, and transformation notes. Raw polls must preserve sponsor, population, sample size, field dates, mode, toplines, and source URL. See [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
+Every displayed number must include a source, observation date, retrieval date, and transformation notes. Raw polls must preserve sponsor, population, sample size, field dates, mode, toplines, and source URL. See [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) and [`docs/DATA-PLATFORM.md`](docs/DATA-PLATFORM.md).
 
 ## Sources used in the prototype
 
@@ -79,6 +84,8 @@ Every displayed number must include a source, observation date, retrieval date, 
 - [U.S. Polling Data generic ballot](https://uspollingdata.com/polls/generic-ballot/)
 - [Federal Election Commission API](https://api.open.fec.gov/developers/)
 - [Census American Community Survey API](https://www.census.gov/programs-surveys/acs/data/data-via-api.html)
+- [MIT Election Data + Science Lab](https://electionlab.mit.edu/data)
+- [Polymarket market data](https://github.com/Polymarket/agent-skills/blob/main/market-data.md)
 - [TypeSafe AI Jev documentation](https://docs.typesafe.ai/introduction)
 - [X Developer Platform](https://docs.x.com/overview)
 

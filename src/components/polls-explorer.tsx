@@ -6,6 +6,22 @@ import { StateTileMap } from "@/components/state-tile-map";
 
 const STORAGE_KEY = "midterm-pulse-user-polls";
 
+type TrendPoint = { date: string; dem: number; rep: number; margin: number; polls: number };
+type PollFeed = { meta: { run_date: string; n_polls: number; latest_field_end: string }; polls: Poll[]; trend: TrendPoint[]; source: string };
+
+function PollingTrend({ values }: { values: TrendPoint[] }) {
+  if (!values.length) return <div className="market-empty">Waiting for the polling trend…</div>;
+  const min = Math.min(...values.map((item) => item.margin), 0) - 1;
+  const max = Math.max(...values.map((item) => item.margin), 0) + 1;
+  const points = values.map((item, index) => {
+    const x = values.length === 1 ? 0 : index / (values.length - 1) * 620;
+    const y = 190 - (item.margin - min) / (max - min) * 155;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const latest = values.at(-1);
+  return <><div className="large-trend" aria-label="Generic ballot Democratic margin trend"><svg viewBox="0 0 620 220"><line x1="0" x2="620" y1={190 - (0 - min) / (max - min) * 155} y2={190 - (0 - min) / (max - min) * 155} stroke="#59616d" strokeDasharray="5 6" /><polyline points={points} fill="none" stroke="#7ca6f8" strokeWidth="4" /></svg><div><span>{values[0]?.date.slice(5)}</span><span>{values[Math.floor(values.length / 2)]?.date.slice(5)}</span><span>{latest?.date.slice(5)}</span></div></div><p className="chart-note">Weekly average from {values.reduce((sum, item) => sum + item.polls, 0)} poll observations in the visible period.</p></>;
+}
+
 function PollRow({ poll }: { poll: Poll }) {
   const margin = poll.dem - poll.rep;
   const demWidth = Math.max(0, Math.min(100, poll.dem));
@@ -24,6 +40,10 @@ function PollRow({ poll }: { poll: Poll }) {
 
 export function PollsExplorer() {
   const [userPolls, setUserPolls] = useState<Poll[]>([]);
+  const [livePolls, setLivePolls] = useState<Poll[]>([]);
+  const [trend, setTrend] = useState<TrendPoint[]>([]);
+  const [feedMeta, setFeedMeta] = useState<PollFeed["meta"] | null>(null);
+  const [feedError, setFeedError] = useState("");
   const [filter, setFilter] = useState<"All" | Poll["chamber"]>("All");
   const [notice, setNotice] = useState("");
 
@@ -36,7 +56,21 @@ export function PollsExplorer() {
     return () => window.clearTimeout(timer);
   }, []);
 
-  const polls = useMemo(() => [...userPolls, ...seedPolls].filter((poll) => filter === "All" || poll.chamber === filter), [filter, userPolls]);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/polls/live").then((response) => {
+      if (!response.ok) throw new Error("Polling feed unavailable");
+      return response.json() as Promise<PollFeed>;
+    }).then((payload) => {
+      if (cancelled) return;
+      setLivePolls(payload.polls);
+      setTrend(payload.trend);
+      setFeedMeta(payload.meta);
+    }).catch(() => { if (!cancelled) setFeedError("Live feed unavailable; showing the dated local snapshot."); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const polls = useMemo(() => [...userPolls, ...(livePolls.length ? livePolls : seedPolls)].filter((poll) => filter === "All" || poll.chamber === filter), [filter, livePolls, userPolls]);
 
   function addPoll(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,13 +106,13 @@ export function PollsExplorer() {
   return (
     <>
       <section className="page-intro">
-        <div><p className="eyebrow">POLLING WORKBENCH</p><h1>Polls, without the fog.</h1><p>Inspect the toplines, compare margins and add fieldwork to your own local research queue.</p></div>
-        <div className="stat-stamp"><strong>{seedPolls.length + userPolls.length}</strong><span>polls in view</span><small>Snapshot + local entries</small></div>
+        <div><p className="eyebrow">POLLING WORKBENCH</p><h1>Polls, without the fog.</h1><p>Inspect individual toplines, follow the national trend and keep a local research queue—with source and field dates attached.</p></div>
+        <div className="stat-stamp"><strong>{feedMeta?.n_polls.toLocaleString() || seedPolls.length + userPolls.length}</strong><span>polls indexed</span><small>{feedMeta ? `Vote-Scope · through ${feedMeta.latest_field_end}` : feedError || "Connecting to live feed…"}</small></div>
       </section>
 
       <section className="split-grid map-grid">
         <article className="panel map-panel"><div className="panel-head"><div><p className="eyebrow">BATTLEGROUND MAP</p><h2>Latest margin signal</h2></div><span className="panel-tag">D ↔ R</span></div><StateTileMap values={pollMapMargins} label="Latest polling margin by battleground state" /><p className="chart-note">Tiles without a current benchmark remain neutral. Hover a state for its margin.</p></article>
-        <article className="panel trend-panel"><div className="panel-head"><div><p className="eyebrow">GENERIC BALLOT</p><h2>May → September</h2></div><span className="big-signal dem-text">D+7.4</span></div><div className="large-trend" aria-label="Generic ballot Democratic margin trend"><svg viewBox="0 0 620 220"><defs><linearGradient id="poll-area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#4d7fe1" stopOpacity=".34"/><stop offset="1" stopColor="#4d7fe1" stopOpacity="0"/></linearGradient></defs><path d="M0 180 L0 122 L150 135 L300 112 L460 92 L620 48 L620 180 Z" fill="url(#poll-area)"/><polyline points="0,122 150,135 300,112 460,92 620,48" fill="none" stroke="#7ca6f8" strokeWidth="4"/><line x1="0" x2="620" y1="180" y2="180" stroke="#35415a"/><g fill="#dce8ff">{[[0,122],[150,135],[300,112],[460,92],[620,48]].map(([x,y]) => <circle key={x} cx={x} cy={y} r="6" />)}</g></svg><div><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div></div><p className="chart-note">Public average · values are a dated prototype snapshot, not live calls.</p></article>
+        <article className="panel trend-panel"><div className="panel-head"><div><p className="eyebrow">GENERIC BALLOT</p><h2>Weekly movement</h2></div>{trend.at(-1) && <span className={`big-signal ${trend.at(-1)!.margin >= 0 ? "dem-text" : "rep-text"}`}>{trend.at(-1)!.margin >= 0 ? "D" : "R"}+{Math.abs(trend.at(-1)!.margin).toFixed(1)}</span>}</div><PollingTrend values={trend} /></article>
       </section>
 
       <section className="split-grid polls-workbench">
