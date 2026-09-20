@@ -20,7 +20,7 @@ type LiveForecast = {
   simulations: number;
   house: { demMajority: number; demSeats: number; repSeats: number };
   senate: { demMajority: number; demSeats: number; repSeats: number };
-  genericBallot: { dem: number; rep: number; margin: number; effectivePolls: number; latestPoll: string };
+  genericBallot: { dem: number; rep: number; margin: number; effectivePolls: number; latestPoll: string; source: string };
   races: Race[];
 };
 
@@ -228,7 +228,7 @@ export default function Home() {
 
           <article className="forecast-card ballot-card" id="polls">
             <div className="card-kicker"><span>GENERIC BALLOT</span><small>polling average</small></div>
-            <div className="ballot-value"><strong>{ballot.margin >= 0 ? "D" : "R"}+{Math.abs(ballot.margin).toFixed(1)}</strong><span>{liveForecast ? `${liveForecast.genericBallot.effectivePolls} polls` : "dated snapshot"}</span></div>
+            <div className="ballot-value"><strong>{ballot.margin >= 0 ? "D" : "R"}+{Math.abs(ballot.margin).toFixed(1)}</strong><span>{liveForecast ? `${liveForecast.genericBallot.effectivePolls} ${liveForecast.genericBallot.effectivePolls === 1 ? "input" : "polls"}` : "dated snapshot"}</span></div>
             <PartyBar democratic={ballot.dem} republican={ballot.rep} />
             <div className="ballot-labels"><b>D {ballot.dem.toFixed(1)}%</b><span>two-party margin</span><b>R {ballot.rep.toFixed(1)}%</b></div>
             <Sparkline currentMargin={ballot.margin} />

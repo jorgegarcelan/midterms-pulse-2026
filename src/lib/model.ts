@@ -3,7 +3,7 @@ import type { ForecastFeed, ForecastRace } from "@/lib/forecast";
 export type ModelPoll = { endDate: string; dem: number; rep: number; sample: number; population: "LV" | "RV" | "A" };
 export type ModelResult = {
   version: string; status: "experimental"; runDate: string; simulations: number;
-  genericBallot: { dem: number; rep: number; margin: number; effectivePolls: number; latestPoll: string };
+  genericBallot: { dem: number; rep: number; margin: number; effectivePolls: number; latestPoll: string; source: string };
   house: { demMajority: number; demSeats: number; repSeats: number; interval80: [number, number]; distribution: { seats: number; frequency: number }[] };
   senate: { demMajority: number; demSeats: number; repSeats: number; interval80: [number, number]; distribution: { seats: number; frequency: number }[] };
   races: ForecastRace[];
@@ -71,7 +71,7 @@ function adjustedRaces(races: ForecastRace[], delta: number) {
   });
 }
 
-export function runModel(forecast: ForecastFeed, polls: ModelPoll[], runDate: string): ModelResult {
+export function runModel(forecast: ForecastFeed, polls: ModelPoll[], runDate: string, pollSource: string): ModelResult {
   const ballot = weightedBallot(polls, runDate);
   const margin = ballot.margin;
   const delta = margin - BASELINE_MARGIN;
@@ -99,12 +99,12 @@ export function runModel(forecast: ForecastFeed, polls: ModelPoll[], runDate: st
 
   return {
     version: "MP-26 v0.1", status: "experimental", runDate, simulations: RUNS,
-    genericBallot: { dem: Math.round(ballot.dem * 10) / 10, rep: Math.round(ballot.rep * 10) / 10, margin: Math.round(margin * 10) / 10, effectivePolls: polls.length, latestPoll },
+    genericBallot: { dem: Math.round(ballot.dem * 10) / 10, rep: Math.round(ballot.rep * 10) / 10, margin: Math.round(margin * 10) / 10, effectivePolls: polls.length, latestPoll, source: pollSource },
     house: { demMajority: Math.round(houseMajorities / RUNS * 100), demSeats: houseMedian, repSeats: 435 - houseMedian, interval80: [quantile(houseDraws, 0.1), quantile(houseDraws, 0.9)], distribution: distribution(houseDraws, 2) },
     senate: { demMajority: Math.round(senateMajorities / RUNS * 100), demSeats: senateMedian, repSeats: 100 - senateMedian, interval80: [quantile(senateDraws, 0.1), quantile(senateDraws, 0.9)], distribution: distribution(senateDraws, 1) },
     races: adjustedRaces([...forecast.senateRaces, ...forecast.districts], delta),
     inputs: [
-      { label: "Generic ballot", value: `${margin >= 0 ? "D" : "R"}+${Math.abs(margin).toFixed(1)}`, source: "Weighted public polls" },
+      { label: "Generic ballot", value: `${margin >= 0 ? "D" : "R"}+${Math.abs(margin).toFixed(1)}`, source: pollSource },
       { label: "House anchor", value: `${forecast.house.demSeats} D seats`, source: "Vote-Scope public benchmark" },
       { label: "Senate anchor", value: `${forecast.senate.demSeats} D seats`, source: "Vote-Scope public benchmark" },
       { label: "Simulation error", value: "±2.75 national pts", source: "Explicit v0.1 assumption" },
