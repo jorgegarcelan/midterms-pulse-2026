@@ -25,6 +25,7 @@ export function LiveDesk() {
   const [sample, setSample] = useState("New Senate poll shows the race inside the margin of error. Full methodology and field dates attached.");
   const [triage, setTriage] = useState<Triage | null>(null);
   const [loading, setLoading] = useState(false);
+  const [savedNotice, setSavedNotice] = useState("");
 
   useEffect(() => {
     let timer = 0;
@@ -85,6 +86,17 @@ export function LiveDesk() {
     } finally { setLoading(false); }
   }
 
+  function saveToTimeline() {
+    if (!sample.trim()) return;
+    const key = "midterm-pulse-timeline-notes";
+    let current: { id: string; date: string; type: "note"; title: string; detail: string }[] = [];
+    try { current = JSON.parse(window.localStorage.getItem(key) || "[]"); } catch { /* optional local state */ }
+    const topic = triage?.topic ? triage.topic.charAt(0).toUpperCase() + triage.topic.slice(1) : "Live signal";
+    const next = [{ id: `note-${Date.now()}`, date: new Date().toISOString().slice(0, 10), type: "note" as const, title: topic, detail: `${sample.trim()}${triage ? ` · relevance ${Math.round(triage.relevance * 100)}% · urgency ${Math.round(triage.urgency * 100)}%` : ""}` }, ...current];
+    window.localStorage.setItem(key, JSON.stringify(next));
+    setSavedNotice("Saved to the workspace timeline.");
+  }
+
   return (
     <>
       {embedRequested && <Script src="https://platform.twitter.com/widgets.js" strategy="afterInteractive" onLoad={() => setScriptReady(true)} onReady={() => setScriptReady(true)} onError={() => setScriptError(true)} />}
@@ -115,7 +127,7 @@ export function LiveDesk() {
           <p>Jev is a strong fit for fast, typed decisions—not narrative analysis. This pilot classifies an incoming item and returns calibrated probabilities.</p>
           <label>Item to classify<textarea value={sample} onChange={(event) => setSample(event.target.value)} rows={6} /></label>
           <button className="primary-action" onClick={runTriage} disabled={loading}>{loading ? "Classifying…" : "Classify signal"}</button>
-          {triage && <div className="triage-result"><div><span>Topic</span><strong>{triage.topic}</strong></div><div><span>2026 relevance</span><strong>{Math.round(triage.relevance * 100)}%</strong></div><div><span>Urgency</span><strong>{Math.round(triage.urgency * 100)}%</strong></div><div><span>Confidence</span><strong>{Math.round(triage.confidence * 100)}%</strong></div><small>{triage.mode === "jev" ? "Powered by Jev" : "Local fallback · add TYPESAFE_API_KEY for Jev"}</small></div>}
+          {triage && <><div className="triage-result"><div><span>Topic</span><strong>{triage.topic}</strong></div><div><span>2026 relevance</span><strong>{Math.round(triage.relevance * 100)}%</strong></div><div><span>Urgency</span><strong>{Math.round(triage.urgency * 100)}%</strong></div><div><span>Confidence</span><strong>{Math.round(triage.confidence * 100)}%</strong></div><small>{triage.mode === "jev" ? "Powered by Jev" : "Local fallback · add TYPESAFE_API_KEY for Jev"}</small></div><button className="secondary-action timeline-save" type="button" onClick={saveToTimeline}>Save to timeline</button>{savedNotice && <p className="form-notice" role="status">{savedNotice}</p>}</>}
         </aside>
       </section>
     </>

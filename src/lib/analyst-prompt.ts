@@ -1,6 +1,14 @@
 import { electionSnapshot } from "@/data/election";
 
-export function buildAnalystPrompt(question: string) {
+export type AnalystContext = {
+  geography?: string;
+  cycle?: string;
+  chamber?: string;
+  historicalMargin?: number;
+  scenario?: Record<string, number>;
+};
+
+export function buildAnalystPrompt(question: string, context?: AnalystContext) {
   return {
     instructions: [
       "You are the Midterm Pulse 2026 election analyst.",
@@ -11,6 +19,7 @@ export function buildAnalystPrompt(question: string) {
     ].join(" "),
     input: [
       `Question: ${question}`,
+      `Selected interface context: ${JSON.stringify(context || { geography: "United States", cycle: "2026", chamber: "all" })}`,
       `Snapshot: ${JSON.stringify(electionSnapshot)}`,
       "Sources:",
       "House ratings: https://www.cookpolitical.com/ratings/house-race-ratings",

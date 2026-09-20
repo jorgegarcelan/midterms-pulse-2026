@@ -5,6 +5,7 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 ## Product surfaces
 
 - **Dashboard** — House and Senate control benchmarks, generic-ballot trend, closest races, scenario lab and grounded AI analyst.
+- **Workspace** — persistent national/state context with linked signals, territory comparison, scenario controls, event timeline and contextual AI.
 - **Explore** — national, state and county filters; a 3,000+ county map; 2016–2024 movement; county results and ACS context.
 - **Live** — device-local X/Twitter watchlist with embedded public timelines and an experimental Jev signal-triage panel.
 - **Polls** — live Vote-Scope polling index, weekly generic-ballot evolution, battleground tile map and a local poll-entry workflow.
@@ -14,6 +15,10 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 - **Brand system** — original navigation mark, generated election-signal artwork, palette and typography guidance.
 
 The control forecast is currently a **sourced benchmark**, not yet a proprietary Midterm Pulse model. Forecast values are attributed to Vote-Scope. House race ratings and the generic ballot are cross-checked against Cook Political Report and public polling aggregators. The next model phase will replace the benchmark with a reproducible, backtested pipeline.
+
+## Interaction model
+
+The global context bar keeps geography, election cycle and chamber synchronized across routes and writes the selection to a shareable URL. State profiles use the same workspace as the national view, so signals, comparisons, scenarios, timeline annotations and AI questions always inherit the active context. Pinned states, saved scenarios, timeline notes and watchlist accounts remain local to the device.
 
 ## Run locally
 

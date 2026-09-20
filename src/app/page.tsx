@@ -2,7 +2,9 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useElectionContext } from "@/components/election-context";
 import { SiteFooter } from "@/components/site-footer";
+import { stateByCode } from "@/data/geography";
 import { electionSnapshot, type Race } from "@/data/election";
 
 const suggestedQuestions = [
@@ -100,6 +102,7 @@ function getFallbackAnswer(question: string) {
 }
 
 export default function Home() {
+  const electionContext = useElectionContext();
   const [chamber, setChamber] = useState<"house" | "senate">("senate");
   const [swing, setSwing] = useState(0);
   const [question, setQuestion] = useState("");
@@ -174,7 +177,7 @@ export default function Home() {
       const response = await fetch("/api/analyst", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, context: { geography: stateByCode.get(electionContext.stateCode)?.name || "United States", cycle: electionContext.cycle, chamber: electionContext.chamber, scenario: { swing } } }),
       });
       if (!response.ok) throw new Error("Analyst unavailable");
       const data = (await response.json()) as { answer: string };

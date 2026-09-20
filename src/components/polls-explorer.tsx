@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useElectionContext } from "@/components/election-context";
 import { pollMapMargins, seedPolls, type Poll } from "@/data/polls";
 import { StateTileMap } from "@/components/state-tile-map";
 
@@ -39,6 +40,7 @@ function PollRow({ poll }: { poll: Poll }) {
 }
 
 export function PollsExplorer() {
+  const electionContext = useElectionContext();
   const [userPolls, setUserPolls] = useState<Poll[]>([]);
   const [livePolls, setLivePolls] = useState<Poll[]>([]);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
@@ -46,6 +48,10 @@ export function PollsExplorer() {
   const [feedSource, setFeedSource] = useState("Connecting to live feed…");
   const [feedError, setFeedError] = useState("");
   const [filter, setFilter] = useState<"All" | Poll["chamber"]>("All");
+  const [search, setSearch] = useState("");
+  const [population, setPopulation] = useState<"All" | Poll["population"]>("All");
+  const [windowDays, setWindowDays] = useState<"30" | "90" | "all">("90");
+  const [sort, setSort] = useState<"newest" | "margin" | "sample">("newest");
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
@@ -72,7 +78,15 @@ export function PollsExplorer() {
     return () => { cancelled = true; };
   }, []);
 
-  const polls = useMemo(() => [...userPolls, ...(livePolls.length ? livePolls : seedPolls)].filter((poll) => filter === "All" || poll.chamber === filter), [filter, livePolls, userPolls]);
+  const polls = useMemo(() => {
+    const sourcePolls = [...userPolls, ...(livePolls.length ? livePolls : seedPolls)];
+    const latestDate = Math.max(0, ...sourcePolls.map((poll) => Date.parse(poll.endDate)));
+    const cutoff = windowDays === "all" ? 0 : latestDate - Number(windowDays) * 86400000;
+    const contextChamber = electionContext.chamber === "all" ? null : electionContext.chamber === "house" ? "House" : "Senate";
+    return sourcePolls
+      .filter((poll) => (filter === "All" || poll.chamber === filter) && (!contextChamber || poll.chamber === contextChamber || poll.chamber === "Generic") && (population === "All" || poll.population === population) && (!search || `${poll.pollster} ${poll.race} ${poll.state}`.toLowerCase().includes(search.toLowerCase())) && Date.parse(poll.endDate) >= cutoff)
+      .sort((a, b) => sort === "margin" ? Math.abs((b.dem - b.rep)) - Math.abs((a.dem - a.rep)) : sort === "sample" ? b.sample - a.sample : b.endDate.localeCompare(a.endDate));
+  }, [electionContext.chamber, filter, livePolls, population, search, sort, userPolls, windowDays]);
 
   function addPoll(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -120,6 +134,8 @@ export function PollsExplorer() {
       <section className="split-grid polls-workbench">
         <article className="panel poll-list-panel">
           <div className="panel-head"><div><p className="eyebrow">POLL FEED</p><h2>Latest toplines</h2></div><div className="segmented">{(["All", "Generic", "Senate", "House"] as const).map((item) => <button className={filter === item ? "selected" : ""} key={item} onClick={() => setFilter(item)}>{item}</button>)}</div></div>
+          <div className="poll-filter-grid"><label>Search<input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Pollster, race or state" /></label><label>Population<select value={population} onChange={(event) => setPopulation(event.target.value as typeof population)}><option>All</option><option>LV</option><option>RV</option><option>A</option></select></label><label>Period<select value={windowDays} onChange={(event) => setWindowDays(event.target.value as typeof windowDays)}><option value="30">30 days</option><option value="90">90 days</option><option value="all">Full cycle</option></select></label><label>Sort<select value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}><option value="newest">Newest</option><option value="margin">Largest margin</option><option value="sample">Sample size</option></select></label></div>
+          <p className="filter-summary">Showing {polls.length} records · global context: {electionContext.chamber === "all" ? "all chambers" : electionContext.chamber}</p>
           <div className="poll-list">{polls.map((poll) => <PollRow key={poll.id} poll={poll} />)}</div>
         </article>
         <aside className="panel add-poll-panel">

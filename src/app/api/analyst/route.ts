@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { buildAnalystPrompt } from "@/lib/analyst-prompt";
+import { buildAnalystPrompt, type AnalystContext } from "@/lib/analyst-prompt";
 
 type OpenAIContent = { type?: string; text?: string };
 type OpenAIOutput = { content?: OpenAIContent[] };
@@ -16,7 +16,7 @@ function fallbackAnswer(question: string) {
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => null)) as { question?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { question?: unknown; context?: AnalystContext } | null;
   const question = typeof body?.question === "string" ? body.question.trim() : "";
 
   if (!question || question.length > 500) {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return NextResponse.json({ answer: fallbackAnswer(question), mode: "snapshot" });
 
-  const prompt = buildAnalystPrompt(question);
+  const prompt = buildAnalystPrompt(question, body?.context);
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },

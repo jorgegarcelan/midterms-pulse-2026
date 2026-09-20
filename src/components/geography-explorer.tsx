@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { geoAlbersUsa, geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
 import Papa from "papaparse";
+import { useElectionContext } from "@/components/election-context";
+import { stateByCode, stateByName } from "@/data/geography";
 
 type Cycle = "2016" | "2020" | "2024";
 type Scope = "national" | "state" | "county";
@@ -59,6 +61,7 @@ function CountyTrend({ rows }: { rows: { cycle: Cycle; row: CountyRow }[] }) {
 }
 
 export function GeographyExplorer() {
+  const electionContext = useElectionContext();
   const [data, setData] = useState<Record<Cycle, CountyRow[]> | null>(null);
   const [geography, setGeography] = useState<FeatureCollection<Geometry, CountyProperties> | null>(null);
   const [cycle, setCycle] = useState<Cycle>("2024");
@@ -82,6 +85,15 @@ export function GeographyExplorer() {
     }).catch(() => { if (!cancelled) setError("The county archive could not be loaded."); });
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    const nextState = stateByCode.get(electionContext.stateCode)?.name;
+    const timer = window.setTimeout(() => {
+      if (nextState) setState(nextState);
+      if (electionContext.cycle !== "2026") setCycle(electionContext.cycle);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [electionContext.cycle, electionContext.stateCode]);
 
   const currentRows = useMemo(() => data?.[cycle] || [], [cycle, data]);
   const states = useMemo(() => [...new Set((data?.["2024"] || []).map((row) => row.state))].sort(), [data]);
@@ -112,13 +124,14 @@ export function GeographyExplorer() {
 
   function changeState(next: string) {
     setState(next);
+    electionContext.setContext({ stateCode: stateByName.get(next)?.code || "US", county: "" });
     const first = currentRows.find((row) => row.state === next);
     if (first) setSelectedFips(first.fips);
   }
 
   function chooseCounty(label: string) {
     const match = currentRows.find((row) => `${row.county}, ${row.state}` === label);
-    if (match) { setState(match.state); setSelectedFips(match.fips); setScope("county"); }
+    if (match) { setState(match.state); setSelectedFips(match.fips); setScope("county"); electionContext.setContext({ stateCode: stateByName.get(match.state)?.code || "US", county: match.county }); }
   }
 
   return (
@@ -127,7 +140,7 @@ export function GeographyExplorer() {
         <div className="explorer-title"><p className="eyebrow">RESULTS · 2016–2024</p><h1>Geographic results explorer</h1></div>
         <div className="explorer-controls">
           <div className="control-group"><span>Level</span><div className="segmented">{(["national", "state", "county"] as Scope[]).map((item) => <button className={scope === item ? "selected" : ""} key={item} onClick={() => changeScope(item)}>{item}</button>)}</div></div>
-          <label>Cycle<select value={cycle} onChange={(event) => setCycle(event.target.value as Cycle)}>{cycles.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>Cycle<select value={cycle} onChange={(event) => { const next = event.target.value as Cycle; setCycle(next); electionContext.setContext({ cycle: next }); }}>{cycles.map((item) => <option key={item}>{item}</option>)}</select></label>
           <label>Map<select value={metric} onChange={(event) => setMetric(event.target.value as MapMetric)}><option value="margin">Two-party margin</option><option value="shift">Shift from prior cycle</option></select></label>
           {scope !== "national" && <label>State<select value={state} onChange={(event) => changeState(event.target.value)}>{states.map((item) => <option key={item}>{item}</option>)}</select></label>}
           {scope === "county" && <label>County<input list="county-list" placeholder="Search county" onChange={(event) => chooseCounty(event.target.value)} /><datalist id="county-list">{countyOptions.map((item) => <option key={item} value={item} />)}</datalist></label>}
@@ -146,7 +159,7 @@ export function GeographyExplorer() {
           <article className="panel county-map-panel">
             <div className="panel-head"><div><p className="eyebrow">COUNTY MAP</p><h2>{metric === "margin" ? "Two-party margin" : "Republican shift"} · {cycle}</h2></div><span className="panel-tag">Click any county</span></div>
             <div className="county-map-scroll"><svg className="county-map" viewBox="0 0 980 590" role="img" aria-label={`County map for the ${cycle} election`}>
-              {paths.map(({ feature, path, fips }) => { const row = lookup.get(fips); const inScope = scope === "national" || row?.state === state; const value = metric === "margin" ? ((row?.repShare || 0) - (row?.demShare || 0)) * 100 : (row?.shiftRep || 0); return <path key={fips} d={path} fill={row ? marginColor(value) : "#20252c"} opacity={inScope ? 1 : .18} stroke={selected?.fips === fips ? "#f1ede4" : "#0e1115"} strokeWidth={selected?.fips === fips ? 1.8 : .22} onClick={() => { if (row) { setSelectedFips(fips); setState(row.state); setScope("county"); } }}><title>{row ? `${row.county}, ${row.state}: ${value >= 0 ? "R" : "D"}+${Math.abs(value).toFixed(1)}` : feature.properties.NAME}</title></path>; })}
+              {paths.map(({ feature, path, fips }) => { const row = lookup.get(fips); const inScope = scope === "national" || row?.state === state; const value = metric === "margin" ? ((row?.repShare || 0) - (row?.demShare || 0)) * 100 : (row?.shiftRep || 0); return <path key={fips} d={path} fill={row ? marginColor(value) : "#20252c"} opacity={inScope ? 1 : .18} stroke={selected?.fips === fips ? "#f1ede4" : "#0e1115"} strokeWidth={selected?.fips === fips ? 1.8 : .22} onClick={() => { if (row) { setSelectedFips(fips); setState(row.state); setScope("county"); electionContext.setContext({ stateCode: stateByName.get(row.state)?.code || "US", county: row.county }); } }}><title>{row ? `${row.county}, ${row.state}: ${value >= 0 ? "R" : "D"}+${Math.abs(value).toFixed(1)}` : feature.properties.NAME}</title></path>; })}
             </svg></div>
             <div className="map-legend"><span>Strong R</span><i className="legend-gradient" /><span>Strong D</span></div>
           </article>

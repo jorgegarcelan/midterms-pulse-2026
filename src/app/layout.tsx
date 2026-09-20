@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { ContextBar } from "@/components/context-bar";
+import { ElectionContextProvider } from "@/components/election-context";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
@@ -17,7 +19,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><SiteHeader />{children}</body>
+      <body><ElectionContextProvider><SiteHeader /><ContextBar />{children}</ElectionContextProvider></body>
     </html>
   );
 }
