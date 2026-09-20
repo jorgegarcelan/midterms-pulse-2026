@@ -97,7 +97,7 @@ export function MarketsDashboard() {
 
   return <>
     <section className="page-intro markets-intro">
-      <div><p className="eyebrow">PREDICTION MARKETS</p><h1>What traders price into 2026.</h1><p>Live market-implied probabilities for congressional control, tracked separately from polling averages and statistical forecasts.</p></div>
+      <div><p className="eyebrow">2026 MARKET DATA</p><h1>Prediction markets</h1><p>Market-implied probabilities for congressional control, shown separately from polls and statistical forecasts.</p></div>
       <div className="market-source"><i /><span>Polymarket feed</span><strong>{data ? `Updated ${new Date(data.updated).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}` : "Connecting…"}</strong></div>
     </section>
 
@@ -116,7 +116,7 @@ export function MarketsDashboard() {
           <p className="chart-note">Daily closing prices from Polymarket&apos;s CLOB. A market price is a traded belief, not a poll or a model forecast.</p>
         </article>
         <aside className="panel market-note">
-          <p className="eyebrow">HOW TO READ IT</p><h2>Three signals, three meanings.</h2>
+          <p className="eyebrow">DEFINITIONS</p><h2>Poll, forecast and market</h2>
           <dl><div><dt>Poll</dt><dd>A sample of voters at a point in time.</dd></div><div><dt>Forecast</dt><dd>A model combining polls, fundamentals and uncertainty.</dd></div><div><dt>Market</dt><dd>The price traders pay for a future outcome.</dd></div></dl>
           <p>Market probabilities can move on news, liquidity and trader positioning. They should be compared with polls—not blended into them without a documented model.</p>
         </aside>

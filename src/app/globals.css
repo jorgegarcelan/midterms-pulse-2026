@@ -353,7 +353,162 @@ h2 { margin: 0; font: 400 27px/1.1 Georgia, serif; letter-spacing: -.025em; }
 .market-row em { font-size: 13px; font-style: normal; font-weight: 700; }
 .market-empty { min-height: 250px; display: grid; place-items: center; color: #7f8894; font-size: 14px; }
 
-.site-footer { display: flex; justify-content: space-between; padding: 26px 2px 0; color: #5f6671; font-size: 9px; }
+/* Editorial data-desk system */
+:root {
+  --ink: #eef0f2;
+  --muted: #9aa1a9;
+  --paper: #101214;
+  --panel: #16191c;
+  --line: #34383d;
+  --line-soft: #282c30;
+  --blue: #3976d3;
+  --blue-soft: #83abe6;
+  --red: #c84c55;
+  --red-soft: #e08389;
+  --cream: #eef0f2;
+  --green: #55b983;
+}
+
+body { background: var(--paper); font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; font-variant-numeric: tabular-nums; }
+body::before { display: none; }
+
+.topbar { min-height: 58px; padding: 0 clamp(18px, 3vw, 48px); grid-template-columns: auto 1fr auto; gap: 36px; background: #101214; backdrop-filter: none; }
+.brand { gap: 9px; }
+.brand-mark { width: 29px; height: 20px; }
+.brand-mark i { top: 3px; width: 10px; height: 10px; border-radius: 1px; }
+.brand-mark b { left: 3px; right: 3px; bottom: 2px; transform: none; }
+.brand-name { letter-spacing: -.02em; font-size: 15px; }
+.brand-name em { color: inherit; font-family: inherit; font-style: normal; font-weight: 750; }
+.brand-name small { color: #888f97; font-size: 10px; }
+.topbar nav { height: 58px; justify-content: center; }
+.topbar nav a { font-size: 14px; }
+.update-pill { font-size: 12px; letter-spacing: 0; text-transform: none; }
+.update-pill > i, .live-indicator i, .market-source i { box-shadow: none; }
+
+.dashboard-shell, .content-shell { max-width: 1480px; padding: 30px clamp(18px, 3vw, 48px) 24px; }
+.content-shell, .explorer-shell { padding-top: 30px; }
+h1, h2, .probability-line strong, .ballot-value strong, .stat-stamp strong, .big-signal, .county-result strong, .market-kpis strong, .geo-kpis strong, .market-row > strong, .cycle-year, .control-composition strong, .countdown strong { font-family: inherit; letter-spacing: -.035em; }
+h1 { font-size: clamp(34px, 4vw, 52px); line-height: 1.02; font-weight: 680; }
+h2 { font-size: 21px; line-height: 1.2; font-weight: 650; }
+.eyebrow { margin-bottom: 8px; color: #9199a3; font-size: 12px; letter-spacing: .09em; }
+
+.brand-hero { min-height: 0; margin-bottom: 14px; padding: 26px 0 28px; align-items: center; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; overflow: visible; }
+.brand-hero::before, .brand-hero::after { display: none; }
+.brand-hero-copy, .brand-hero .countdown { position: static; }
+.brand-hero-copy { max-width: 760px; }
+.hero-deck, .page-intro p, .jev-panel > p, .add-poll-panel > p, .methodology-side > p { margin-top: 12px; color: #aeb4bb; font-family: inherit; font-size: 16px; font-weight: 400; line-height: 1.5; }
+.hero-deck { max-width: 720px; }
+.hero-actions { margin-top: 18px; }
+.primary-action, .secondary-action { min-height: 38px; padding: 0 14px; border-radius: 2px; font-size: 14px; }
+.secondary-action { background: transparent; }
+.countdown { padding: 0 0 0 28px; border-left: 1px solid var(--line); }
+.countdown strong { font-size: 48px; font-weight: 620; }
+.countdown span { font-size: 14px; }
+.countdown small { font-size: 12px; }
+
+.forecast-grid, .workbench-grid, .split-grid, .geography-grid, .markets-grid { gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.workbench-grid, .split-grid, .markets-grid { margin-top: 14px; }
+.forecast-card, .panel { border: 1px solid var(--line); border-radius: 0; background: var(--panel); }
+.forecast-grid > .forecast-card, .workbench-grid > .panel, .split-grid > .panel, .geography-grid > .panel, .markets-grid > .panel { border: 0; }
+.forecast-card { min-height: 255px; padding: 20px; }
+.forecast-card::after { display: none; }
+.card-kicker { padding-bottom: 12px; }
+.card-kicker span { font-size: 12px; letter-spacing: .08em; }
+.card-kicker small { font-size: 12px; }
+.probability-line { padding: 20px 0 18px; }
+.probability-line strong, .ballot-value strong { font-size: 48px; font-weight: 620; }
+.probability-line span { font-size: 14px; }
+.source-note, .chart-note { color: #89919a; font-size: 12px; line-height: 1.45; }
+.seat-line i, .ballot-value span { font-size: 12px; }
+.ballot-labels, .sparkline-axis, .large-trend > div { font-size: 12px; }
+.panel { padding: 20px; }
+.panel-tag { border-radius: 2px; padding: 5px 8px; font-size: 12px; letter-spacing: .03em; text-transform: none; }
+
+.segmented { padding: 0; border-radius: 2px; background: transparent; }
+.segmented button { min-height: 34px; padding: 6px 11px; border-radius: 0; border-right: 1px solid var(--line); font-size: 13px; }
+.segmented button:last-child { border-right: 0; }
+.segmented button.selected { background: #30353a; }
+.race-header { color: #8c949d; font-size: 12px; letter-spacing: .04em; }
+.race-row { border-radius: 0; padding-block: 14px; }
+.race-state b, .race-state span, .race-lead, .race-prob { font-size: 13px; }
+.race-meter, .party-bar, .legend-gradient, .composition-bar, .market-row > i { border-radius: 0; }
+.text-button, .method-links a, .slider-block button { font-size: 13px; }
+.slider-labels { font-size: 13px; }
+
+.analyst-panel, .jev-panel { background: var(--panel); }
+.pulse-orb, .jev-mark { width: 32px; height: 32px; border-radius: 2px; box-shadow: none; }
+.pulse-orb span { width: 8px; height: 8px; border-radius: 1px; box-shadow: none; }
+.answer-box, .triage-result { border-radius: 2px; background: #111315; }
+.answer-box p { font-family: inherit; font-size: 15px; font-weight: 400; line-height: 1.55; }
+.answer-box span, .suggestions button, .triage-result small { font-size: 12px; }
+.suggestions button, .account-chips > span, .feed-tabs button { border-radius: 2px; }
+.analyst-panel input, .account-config input, .data-form input, .data-form select, .jev-panel textarea { border-radius: 2px; font-size: 14px; }
+.analyst-panel form button { border-radius: 2px; }
+
+.page-intro { align-items: center; margin-bottom: 24px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.page-intro h1, .explorer-title h1 { font-size: clamp(32px, 3.5vw, 46px); }
+.page-intro p { margin-top: 10px; }
+.stat-stamp { padding: 8px 0 8px 24px; }
+.stat-stamp strong { font-size: 40px; font-weight: 620; }
+.stat-stamp span { font-size: 13px; }
+.stat-stamp small { font-size: 12px; }
+.map-legend { font-size: 12px; }
+
+.geo-kpis, .market-kpis { gap: 1px; margin-bottom: 14px; border: 1px solid var(--line); background: var(--line); }
+.geo-kpis article, .market-kpis article { min-height: 112px; border: 0; border-radius: 0; background: var(--panel); }
+.geo-kpis strong, .market-kpis strong { font-size: 30px; font-weight: 620; }
+.explorer-toolbar { margin-bottom: 14px; padding: 20px; align-items: center; border: 1px solid var(--line); }
+.explorer-controls label, .control-group { font-size: 13px; }
+.explorer-controls select, .explorer-controls input { border-radius: 2px; font-size: 14px; }
+.county-map { background: transparent; }
+.county-profile h2 { font-size: 26px; }
+.county-result > div { border-radius: 2px; }
+.movers-table button, .history-table button { font-size: 13px; }
+.movers-table button strong, .market-row > span strong { font-family: inherit; font-size: 14px; font-weight: 650; }
+
+.market-source, .live-indicator { border-radius: 2px; background: var(--panel); }
+.market-chart svg { min-height: 230px; }
+.market-note dt { font-family: inherit; font-size: 15px; font-weight: 650; }
+.market-row > strong { font-size: 18px; font-weight: 620; }
+.market-row { min-height: 66px; }
+
+.tile-map { gap: 3px; }
+.state-tile { border-radius: 1px; transition: border-color .1s ease; }
+.state-tile:hover { transform: none; }
+.poll-meta strong { font-family: inherit; font-weight: 650; }
+.poll-meta span, .poll-margin small { font-size: 12px; }
+.poll-bar i, .form-notice { font-size: 12px; }
+.poll-bar { border-radius: 0; }
+.poll-bar.dem { background: var(--blue); }
+.poll-bar.rep { background: var(--red); }
+.data-form label, .jev-panel label { font-size: 12px; }
+
+.timeline-card { border-radius: 0; }
+.embed-gate { background: transparent; }
+.embed-gate-mark { border-radius: 2px; }
+.embed-gate p { font-family: inherit; font-size: 15px; font-weight: 400; line-height: 1.55; }
+.feed-tabs { border-bottom: 1px solid var(--line); gap: 0; }
+.feed-tabs button { border: 0; border-bottom: 2px solid transparent; background: transparent; }
+.feed-tabs button.active { border-color: var(--blue); background: transparent; }
+.cycle-year { font-size: 58px; font-weight: 620; }
+.live-indicator span, .jev-heading > span, .triage-result span, .triage-result small { font-size: 12px; }
+.account-chips > span { font-size: 13px; }
+.triage-result strong { font-family: inherit; font-size: 17px; font-weight: 650; }
+.swing-chart button > span, .swing-chart button > strong { font-size: 13px; }
+.cycle-selector button { font-size: 12px; border-radius: 2px; }
+.control-composition span, .cycle-card dt { font-size: 12px; }
+.cycle-card dd, .context-table-panel .panel-head a { font-size: 13px; }
+.history-table-head { font-size: 12px; }
+.history-table button { font-size: 13px; }
+.pipeline-list h3, .source-grid strong { font-family: inherit; font-weight: 650; }
+.pipeline-list p, .methodology-side ul { font-size: 14px; }
+.source-grid span { font-size: 12px; }
+.data-loading, .data-error { font-family: inherit; font-size: 16px; }
+.market-chart text { font-size: 12px; }
+.source-grid a { border-radius: 2px; background: #131619; }
+.site-footer { font-size: 12px; }
+
+.site-footer { display: flex; justify-content: space-between; padding: 26px 2px 0; color: #747c85; font-size: 12px; }
 .site-footer a:hover { color: var(--blue-soft); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
@@ -381,12 +536,11 @@ h2 { margin: 0; font: 400 27px/1.1 Georgia, serif; letter-spacing: -.025em; }
   .topbar { display: flex; min-height: 64px; padding-top: 8px; flex-wrap: wrap; }
   .topbar .brand { flex: 1; }
   .topbar nav { order: 3; width: 100%; height: 40px; gap: 0; overflow-x: auto; }
-  .topbar nav a { min-width: 25%; font-size: 11px; }
+  .topbar nav a { min-width: 25%; font-size: 13px; }
   .brand-name small { display: none; }
   .dashboard-shell, .content-shell { padding-top: 28px; }
-  .brand-hero { min-height: 475px; padding: 28px; align-items: end; display: block; background-position: 64% center; }
-  .brand-hero::before { background: linear-gradient(90deg, rgba(11,13,15,.96), rgba(11,13,15,.65)), linear-gradient(0deg, rgba(11,13,15,.96), transparent 65%); }
-  .brand-hero .countdown { margin-top: 34px; justify-content: start; text-align: left; }
+  .brand-hero { min-height: 0; padding: 22px 0; align-items: start; display: block; background: transparent; }
+  .brand-hero .countdown { margin-top: 22px; padding: 18px 0 0; justify-content: start; text-align: left; border-left: 0; border-top: 1px solid var(--line); }
   .page-intro { display: block; }
   .stat-stamp, .live-indicator { margin-top: 25px; width: max-content; }
   .forecast-grid { grid-template-columns: 1fr; }

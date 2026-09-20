@@ -108,7 +108,7 @@ export function PollsExplorer() {
   return (
     <>
       <section className="page-intro">
-        <div><p className="eyebrow">POLLING WORKBENCH</p><h1>Polls, without the fog.</h1><p>Inspect individual toplines, follow the national trend and keep a local research queue—with source and field dates attached.</p></div>
+        <div><p className="eyebrow">2026 POLLING</p><h1>Polling tracker</h1><p>Individual toplines, national trend and locally saved research entries, with source and field dates attached.</p></div>
         <div className="stat-stamp"><strong>{feedMeta?.n_polls.toLocaleString() || seedPolls.length + userPolls.length}</strong><span>polls indexed</span><small>{feedMeta ? `${feedSource} · through ${feedMeta.latest_field_end}` : feedError || feedSource}</small></div>
       </section>
 

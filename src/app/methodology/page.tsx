@@ -12,7 +12,7 @@ const pipeline = [
 export default function MethodologyPage() {
   return (
     <main className="page-main"><div className="content-shell">
-      <section className="page-intro"><div><p className="eyebrow">METHODOLOGY</p><h1>Show the work.</h1><p>Midterm Pulse separates sourced benchmarks, user-entered research and future proprietary forecasts so certainty is never implied by design alone.</p></div></section>
+      <section className="page-intro"><div><p className="eyebrow">METHODOLOGY</p><h1>Data and model methodology</h1><p>Sources, transformations, benchmark status and the planned modeling pipeline.</p></div></section>
       <section className="methodology-layout">
         <article className="panel pipeline-panel"><p className="eyebrow">MODEL PIPELINE</p><h2>From raw observation to published probability</h2><div className="pipeline-list">{pipeline.map(([index, title, text]) => <div key={index}><span>{index}</span><h3>{title}</h3><p>{text}</p></div>)}</div></article>
         <aside className="panel methodology-side"><p className="eyebrow">CURRENT STATUS</p><h2>Prototype benchmark</h2><p>The current control probabilities are attributed public benchmarks. They are not yet the output of a proprietary Midterm Pulse model.</p><ul><li>Every snapshot is dated.</li><li>User-added polls remain local.</li><li>AI answers use the checked-in snapshot.</li><li>Jev only triages signals in the pilot.</li></ul><Link className="primary-action" href="/polls">Inspect polls</Link></aside>

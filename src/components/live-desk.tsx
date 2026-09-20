@@ -89,7 +89,7 @@ export function LiveDesk() {
     <>
       {embedRequested && <Script src="https://platform.twitter.com/widgets.js" strategy="afterInteractive" onLoad={() => setScriptReady(true)} onReady={() => setScriptReady(true)} onError={() => setScriptError(true)} />}
       <section className="page-intro live-intro">
-        <div><p className="eyebrow">LIVE SIGNALS</p><h1>Your election watchlist.</h1><p>Build a configurable wall of public X timelines for reporters, analysts, election desks and official sources.</p></div>
+        <div><p className="eyebrow">LIVE SOURCES</p><h1>Election watchlist</h1><p>Monitor selected public X accounts from reporters, analysts, election desks and official sources.</p></div>
         <div className="live-indicator"><i /><span>Monitoring</span><strong>{accounts.length} accounts</strong></div>
       </section>
 

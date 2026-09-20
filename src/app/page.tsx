@@ -191,9 +191,9 @@ export default function Home() {
       <section className="dashboard-shell" id="top">
         <section className="brand-hero">
           <div className="brand-hero-copy">
-            <p className="eyebrow">2026 U.S. MIDTERMS · ELECTION DESK</p>
-            <h1>Control of Congress,<br /><em>measured daily.</em></h1>
-            <p className="hero-deck">Forecasts, polling, markets and election history—from the national environment down to every county.</p>
+            <p className="eyebrow">2026 U.S. MIDTERMS · NATIONAL OVERVIEW</p>
+            <h1>Congressional outlook</h1>
+            <p className="hero-deck">Current chamber forecasts, polling, prediction markets and historical election data.</p>
             <div className="hero-actions"><Link className="primary-action" href="/explore">Explore the map</Link><Link className="secondary-action" href="/markets">Track markets <span>↗</span></Link></div>
           </div>
           <div className="countdown"><strong>{electionSnapshot.daysToElection}</strong><span>days to election</span><small>November 3, 2026</small></div>

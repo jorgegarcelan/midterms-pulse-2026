@@ -12,12 +12,12 @@ export function HistoryExplorer() {
   return (
     <>
       <section className="page-intro">
-        <div><p className="eyebrow">ELECTION ARCHIVE · 2010–2024</p><h1>History is the baseline.</h1><p>Compare House swings, turnout and state-level movement before deciding whether 2026 really looks unprecedented.</p></div>
+        <div><p className="eyebrow">ELECTION ARCHIVE · 2010–2024</p><h1>Historical comparison</h1><p>House swings, turnout and state-level movement across eight federal election cycles.</p></div>
         <div className="stat-stamp"><strong>08</strong><span>federal cycles</span><small>House control + key states</small></div>
       </section>
 
       <section className="panel history-timeline-panel">
-        <div className="panel-head"><div><p className="eyebrow">HOUSE SEAT CHANGE</p><h2>Wave elections leave a signature</h2></div><span className="panel-tag">Democratic change</span></div>
+        <div className="panel-head"><div><p className="eyebrow">HOUSE SEAT CHANGE</p><h2>Change by election cycle</h2></div><span className="panel-tag">Democratic change</span></div>
         <div className="swing-chart">
           {electionCycles.map((item) => {
             const width = Math.max(5, Math.abs(item.demChange) / maxChange * 48);

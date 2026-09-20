@@ -124,7 +124,7 @@ export function GeographyExplorer() {
   return (
     <>
       <section className="explorer-toolbar panel">
-        <div className="explorer-title"><p className="eyebrow">GEOGRAPHIC DATA EXPLORER</p><h1>America, from national signal to county detail.</h1></div>
+        <div className="explorer-title"><p className="eyebrow">RESULTS · 2016–2024</p><h1>Geographic results explorer</h1></div>
         <div className="explorer-controls">
           <div className="control-group"><span>Level</span><div className="segmented">{(["national", "state", "county"] as Scope[]).map((item) => <button className={scope === item ? "selected" : ""} key={item} onClick={() => changeScope(item)}>{item}</button>)}</div></div>
           <label>Cycle<select value={cycle} onChange={(event) => setCycle(event.target.value as Cycle)}>{cycles.map((item) => <option key={item}>{item}</option>)}</select></label>
