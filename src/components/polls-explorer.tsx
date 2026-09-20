@@ -43,6 +43,7 @@ export function PollsExplorer() {
   const [livePolls, setLivePolls] = useState<Poll[]>([]);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
   const [feedMeta, setFeedMeta] = useState<PollFeed["meta"] | null>(null);
+  const [feedSource, setFeedSource] = useState("Connecting to live feed…");
   const [feedError, setFeedError] = useState("");
   const [filter, setFilter] = useState<"All" | Poll["chamber"]>("All");
   const [notice, setNotice] = useState("");
@@ -66,6 +67,7 @@ export function PollsExplorer() {
       setLivePolls(payload.polls);
       setTrend(payload.trend);
       setFeedMeta(payload.meta);
+      setFeedSource(payload.source);
     }).catch(() => { if (!cancelled) setFeedError("Live feed unavailable; showing the dated local snapshot."); });
     return () => { cancelled = true; };
   }, []);
@@ -107,7 +109,7 @@ export function PollsExplorer() {
     <>
       <section className="page-intro">
         <div><p className="eyebrow">POLLING WORKBENCH</p><h1>Polls, without the fog.</h1><p>Inspect individual toplines, follow the national trend and keep a local research queue—with source and field dates attached.</p></div>
-        <div className="stat-stamp"><strong>{feedMeta?.n_polls.toLocaleString() || seedPolls.length + userPolls.length}</strong><span>polls indexed</span><small>{feedMeta ? `Vote-Scope · through ${feedMeta.latest_field_end}` : feedError || "Connecting to live feed…"}</small></div>
+        <div className="stat-stamp"><strong>{feedMeta?.n_polls.toLocaleString() || seedPolls.length + userPolls.length}</strong><span>polls indexed</span><small>{feedMeta ? `${feedSource} · through ${feedMeta.latest_field_end}` : feedError || feedSource}</small></div>
       </section>
 
       <section className="split-grid map-grid">

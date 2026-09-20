@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { electionSnapshot } from "@/data/election";
 
 type Party = { party: string; seats_projected?: number; seats_median?: number; p_majority?: number };
 type Riding = {
@@ -63,6 +64,14 @@ export async function GET() {
       sourceUrl: "https://vote-scope.com/api/",
     });
   } catch {
-    return NextResponse.json({ error: "Live forecast unavailable" }, { status: 502 });
+    return NextResponse.json({
+      updated: "2026-09-19",
+      house: { ...electionSnapshot.house, polls: 0 },
+      senate: { ...electionSnapshot.senate, polls: 0 },
+      races: electionSnapshot.races,
+      source: "Vote-Scope cached snapshot",
+      sourceUrl: "https://vote-scope.com/api/",
+      stale: true,
+    });
   }
 }

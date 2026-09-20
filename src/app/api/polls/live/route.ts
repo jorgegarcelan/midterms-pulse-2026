@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { electionSnapshot } from "@/data/election";
+import { seedPolls } from "@/data/polls";
 
 type SourcePoll = {
   poll_id: string;
@@ -50,6 +52,19 @@ export async function GET() {
     }));
     return NextResponse.json({ meta: payload.meta, polls, trend, source: "Vote-Scope" });
   } catch {
-    return NextResponse.json({ error: "Live polling feed unavailable" }, { status: 502 });
+    const trend = electionSnapshot.genericBallot.history.map((point) => ({
+      date: point.date,
+      dem: electionSnapshot.genericBallot.dem,
+      rep: electionSnapshot.genericBallot.dem - point.margin,
+      margin: point.margin,
+      polls: 0,
+    }));
+    return NextResponse.json({
+      meta: { run_date: "2026-09-19", n_polls: seedPolls.length, latest_field_end: "2026-09-18" },
+      polls: seedPolls,
+      trend,
+      source: "Dated local snapshot",
+      stale: true,
+    });
   }
 }
