@@ -1,0 +1,215 @@
+/* ============================================================
+   Midterm Pulse — "Night desk" theme
+   Tech-minimal dark: blue-black canvas, translucent glass surfaces,
+   1px alpha borders, soft radii, Geist type and quiet ambient glow.
+   Loaded after globals.css; it overrides surfaces and type, not layout.
+   ============================================================ */
+
+:root {
+  --bg: #06070b;
+  --glass: linear-gradient(180deg, rgba(255,255,255,.048), rgba(255,255,255,.016));
+  --glass-hover: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.024));
+  --border: rgba(255,255,255,.08);
+  --border-strong: rgba(255,255,255,.15);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 24px 48px -28px rgba(0,0,0,.7);
+  --font-sans: var(--font-geist), ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Legacy tokens, remapped so every existing rule picks up the palette. */
+  --ink: #ededef;
+  --cream: #ededef;
+  --muted: #8b8f99;
+  --paper: var(--bg);
+  --panel: rgba(255,255,255,.025);
+  --line: rgba(255,255,255,.08);
+  --line-soft: rgba(255,255,255,.05);
+  --blue: #5b86ff;
+  --blue-soft: #9fb8ff;
+  --red: #ff5a6e;
+  --red-soft: #ff9eaa;
+  --green: #3ecf8e;
+  --map-empty: #1a1d25;
+  --glow-blue: #6d94ff;
+  --glow-red: #ff6b7e;
+}
+
+html { background: var(--bg); color-scheme: dark; }
+body { background: transparent; color: var(--ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; font-feature-settings: "ss01", "cv11"; }
+::selection { background: rgba(91,134,255,.35); color: #fff; }
+
+/* Ambient light: two party-tinted glows and a faint dot grid fading from the top. */
+body::before {
+  display: block; content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none; mask-image: none;
+  background:
+    radial-gradient(55% 45% at 12% -8%, rgba(91,134,255,.17), transparent 62%),
+    radial-gradient(45% 40% at 92% -6%, rgba(255,90,110,.11), transparent 60%),
+    radial-gradient(70% 50% at 50% 115%, rgba(124,92,255,.07), transparent 62%);
+  background-size: auto;
+}
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 10%, transparent 70%);
+}
+
+/* ---------- Type ---------- */
+
+h1, h2, h3 { font-family: var(--font-sans); }
+h1 { font-weight: 600; letter-spacing: -.045em; }
+h2 { font-weight: 560; letter-spacing: -.025em; }
+.page-intro h1, .race-profile-head h1, .workspace-head h1, .explorer-title h1 {
+  background: linear-gradient(180deg, #fff 35%, rgba(237,237,239,.62)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; color: #7c818c; }
+:is(.page-intro, .workspace-head, .race-profile-head, .explorer-title) p.eyebrow { margin: 0 0 10px; font-family: var(--font-mono); font-size: 11px; line-height: 1.4; color: #7c818c; }
+.panel-tag, .odometer-group small, .card-kicker small, .source-note, .chart-note { font-family: var(--font-mono); }
+.probability-line strong, .ballot-value strong, .stat-stamp strong, .model-control-card > strong, .model-status strong,
+.geo-kpis strong, .market-kpis strong, .workspace-kpis strong, .race-callout strong, .big-signal, .county-result strong, .cycle-year {
+  font-family: var(--font-sans); font-weight: 600; letter-spacing: -.05em; color: #fff;
+}
+.hero-deck, .page-intro p, .jev-panel > p, .add-poll-panel > p, .methodology-side > p { color: #9a9ea8; }
+
+/* ---------- Chrome ---------- */
+
+.topbar {
+  background: rgba(6,7,11,.84); backdrop-filter: saturate(170%) blur(20px); -webkit-backdrop-filter: saturate(170%) blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand-name { font-weight: 650; letter-spacing: -.03em; }
+.brand-name small { font-family: var(--font-mono); color: #6b707b; }
+.brand-mark i { width: 9px; height: 9px; top: 4px; border-radius: 50%; }
+.brand-mark i:first-child { background: var(--red); box-shadow: 0 0 10px rgba(255,90,110,.7); }
+.brand-mark i:nth-child(2) { background: var(--blue); box-shadow: 0 0 10px rgba(91,134,255,.7); }
+.brand-mark b { background: linear-gradient(90deg, var(--red), var(--blue)); opacity: .9; }
+.topbar nav { scrollbar-width: none; }
+.topbar nav::-webkit-scrollbar { display: none; }
+.topbar nav a { color: #8b8f99; font-size: 13.5px; font-weight: 450; transition: color .2s ease; }
+.topbar nav a:hover, .topbar nav a.active { color: #fff; }
+.nav-ink { height: 1px; background: linear-gradient(90deg, transparent, #9fb8ff, transparent); box-shadow: 0 0 12px 1px rgba(109,148,255,.75); }
+.update-pill { padding: 5px 11px 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.03); color: #b4b8c1; font-size: 12px; }
+.update-pill > i { width: 6px; height: 6px; margin-right: 7px; background: var(--green); }
+.update-pill span { color: #6b707b; }
+.scroll-progress { height: 1px; background: linear-gradient(90deg, var(--blue), #a78bfa, var(--red)); box-shadow: 0 0 10px rgba(167,139,250,.6); }
+
+.context-bar { background: rgba(8,9,14,.8); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid var(--border); }
+.context-primary label { color: #7c818c; }
+.context-link, .context-actions a, .context-actions button {
+  border: 1px solid var(--border); border-radius: 8px; background: rgba(255,255,255,.025); color: #b4b8c1; transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+.context-actions button:hover, .context-actions a:hover, .context-link:hover, .context-actions .active { color: #fff; border-color: var(--border-strong); background: rgba(255,255,255,.06); }
+
+/* ---------- Form controls ---------- */
+
+html body :is(input:not([type="checkbox"]):not([type="range"]):not([type="radio"]), select, textarea) {
+  border: 1px solid var(--border); border-radius: 8px; background-color: rgba(255,255,255,.03); color: var(--ink);
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+html body :is(input:not([type="checkbox"]):not([type="range"]):not([type="radio"]), select, textarea):hover { border-color: var(--border-strong); }
+html body :is(input:not([type="checkbox"]):not([type="range"]):not([type="radio"]), select, textarea):focus { border-color: rgba(109,148,255,.65); box-shadow: 0 0 0 3px rgba(91,134,255,.16); outline: none; }
+select option { background: #0d0f15; }
+input[type="checkbox"] { accent-color: var(--blue); }
+button:focus-visible, a:focus-visible { outline: 2px solid rgba(109,148,255,.7); outline-offset: 2px; border-radius: 6px; }
+
+.primary-action, .secondary-action { min-height: 38px; padding: 0 16px; border-radius: 10px; font-size: 14px; font-weight: 550; letter-spacing: -.01em; transition: background .2s ease, box-shadow .25s ease, border-color .2s ease, transform .2s ease; }
+.primary-action { border: 1px solid #fff; background: #ededef; color: #06070b; box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+.primary-action:hover { background: #fff; box-shadow: 0 0 24px rgba(255,255,255,.22); }
+.secondary-action { border: 1px solid var(--border-strong); background: rgba(255,255,255,.03); color: #dcdde1; }
+.secondary-action:hover { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.22); }
+.secondary-action span { color: #9fb8ff; }
+.primary-action::after { background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.9) 50%, transparent 65%); mix-blend-mode: soft-light; }
+
+.segmented, .workspace-tabs { gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,.025); }
+.segmented button, .workspace-tabs button { min-height: 30px; border: 0; border-radius: 7px; color: #8b8f99; font-size: 13px; transition: background .2s ease, color .2s ease; }
+.segmented button:hover, .workspace-tabs button:hover { color: #dcdde1; }
+.segmented button.selected, .workspace-tabs button.active { background: rgba(255,255,255,.09); color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.07); border-bottom-color: transparent; }
+.feed-tabs { border-bottom: 1px solid var(--border); }
+.feed-tabs button.active { border-color: var(--blue-soft); color: #fff; }
+.panel-tag { border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.03); color: #8b8f99; font-size: 11px; padding: 4px 9px; }
+.suggestions button, .account-chips > span { border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.025); color: #9a9ea8; }
+.suggestions button:hover { border-color: var(--border-strong); color: #fff; }
+
+/* ---------- Surfaces: every card becomes glass ---------- */
+
+.forecast-grid, .workbench-grid, .split-grid, .geography-grid, .markets-grid, .geo-kpis, .market-kpis, .model-control-grid,
+.race-metric-grid, .timeline-workspace, .workspace-kpis, .signal-summary, .scenario-results, .workspace-overview-grid, .compare-grid, .district-layout {
+  gap: 12px; background: transparent; border: 0;
+}
+
+.page-main :is(.forecast-card, .panel, .model-control-card, .geo-kpis article, .market-kpis article, .workspace-kpis article, .signal-summary article,
+  .scenario-results > article, .scenario-results > form, .race-metric-grid > div, .hemi-card, .timeline-card, .district-toolbar, .live-indicator, .market-source, .source-grid a),
+.forecast-grid > .forecast-card, .workbench-grid > .panel, .split-grid > .panel, .geography-grid > .panel, .markets-grid > .panel {
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--glass); box-shadow: var(--shadow);
+  transition: border-color .3s ease, background .3s ease;
+}
+.page-main :is(.forecast-card, .panel, .model-control-card, .hemi-card):hover { border-color: rgba(255,255,255,.12); }
+.page-main :is(.race-metric-grid > div, .geo-kpis article, .market-kpis article, .workspace-kpis article) { border-radius: 12px; }
+.model-scenario { border: 1px solid var(--border); border-radius: var(--radius); }
+
+/* Cursor spotlight keeps the glass layer underneath. */
+.page-main :is(.panel, .forecast-card, .hemi-card)[data-spot] { background-image: radial-gradient(480px circle at var(--mx, 50%) var(--my, 50%), rgba(140,170,255,.08), transparent 45%), var(--glass); }
+
+.dem-card { box-shadow: var(--shadow), inset 0 1px 0 rgba(109,148,255,.55); }
+.senate-model-card { box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.18); }
+.answer-box, .triage-result { border: 1px solid var(--border); border-radius: 12px; background: rgba(0,0,0,.28); }
+.analyst-panel { background: radial-gradient(120% 80% at 100% 0%, rgba(91,134,255,.12), transparent 55%), var(--glass); }
+.pulse-orb, .jev-mark { border-radius: 50%; border-color: rgba(109,148,255,.4); background: rgba(91,134,255,.08); }
+.pulse-orb span { border-radius: 50%; box-shadow: 0 0 12px var(--blue); }
+.analyst-panel form button, .contextual-analyst form button { border-radius: 8px; background: #ededef; color: #06070b; }
+
+.page-intro, .brand-hero, .race-profile-head { border-bottom-color: var(--border); }
+.stat-stamp, .model-status, .countdown { border-left-color: var(--border); }
+.model-status span { border-radius: 999px; background: rgba(250,204,21,.1); color: #f5d06f; border: 1px solid rgba(250,204,21,.25); }
+.site-footer { margin-top: 32px; padding-top: 22px; border-top: 1px solid var(--border); color: #6b707b; }
+
+/* Tables and rows: soft hover capsules instead of hard rules. */
+.race-row, .race-directory-table > a, .district-race-list a, .candidate-row, .market-row, .compact-table button { border-radius: 10px; transition: background .2s ease; }
+.race-row { border-top-color: var(--line-soft); }
+.race-row:hover, .race-directory-table > a:hover, .district-race-list a:hover, .candidate-row:hover, .compact-table button:hover { background: rgba(255,255,255,.04); }
+.race-header, .race-directory-head { font-family: var(--font-mono); font-size: 11px; color: #6b707b; }
+
+/* Bars: rounded capsules with a hint of gradient. */
+.party-bar, .race-meter, .composition-bar, .market-row > i { border-radius: 999px; background: rgba(255,255,255,.06); }
+.party-bar { height: 6px; gap: 3px; }
+.party-bar span { border-radius: 999px; }
+.party-bar-dem, .race-meter i.dem, .composition-bar .dem { background: linear-gradient(90deg, #3f6dff, #7c9dff); }
+.party-bar-rep, .race-meter i.rep, .composition-bar .rep { background: linear-gradient(90deg, #ff7a8b, #ff4d64); }
+.party-bar-undecided { background: rgba(255,255,255,.14); }
+.distribution-chart { border-bottom-color: rgba(255,255,255,.12); background: repeating-linear-gradient(to top, transparent 0, transparent 51px, rgba(255,255,255,.04) 52px); }
+.distribution-chart span { border-radius: 3px 3px 0 0; }
+.distribution-chart .dem { background: linear-gradient(180deg, #7c9dff, #3f6dff); }
+.distribution-chart .rep { background: rgba(255,255,255,.16); }
+
+/* Maps sit directly on glass. */
+.district-map-panel svg, .race-geo svg { background: transparent; }
+.district-map-panel path { stroke: #06070b; }
+.map-readout { background: rgba(0,0,0,.2); border-top-color: var(--border); border-radius: 0 0 var(--radius) var(--radius); }
+.state-tile { border-radius: 6px; border-color: rgba(255,255,255,.06); }
+
+/* Drawer */
+.source-drawer-backdrop { background: rgba(3,4,8,.55); backdrop-filter: blur(4px); }
+.source-drawer { background: rgba(10,11,16,.88); backdrop-filter: blur(24px); border-left: 1px solid var(--border); }
+.source-drawer-head button { border-radius: 8px; border-color: var(--border); }
+
+/* ============================================================
+   Home hero: centered, launch-page composition
+   ============================================================ */
+
+.brand-hero { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: clamp(48px, 8vw, 96px) 0 clamp(36px, 5vw, 56px); margin-bottom: 18px; border-bottom: 0; text-align: center; }
+.brand-hero-copy { display: flex; flex-direction: column; align-items: center; max-width: 920px; }
+.brand-hero .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 22px; padding: 6px 13px; border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.03); color: #a4a8b1; box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
+.brand-hero .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+.kinetic { justify-content: center; column-gap: .2em; font-size: clamp(44px, 6.6vw, 88px); line-height: 1.02; font-weight: 620; letter-spacing: -.055em; }
+.kinetic .w > span:not(:has(.rotator)) { background: linear-gradient(180deg, #fff 30%, rgba(237,237,239,.6)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brand-hero .hero-deck { max-width: 600px; margin-top: 20px; font-size: 17px; line-height: 1.55; color: #8f939d; }
+.brand-hero .hero-actions { justify-content: center; margin-top: 30px; gap: 10px; }
+.hero-aurora i { opacity: .22; filter: blur(110px); }
+.hero-aurora i:first-child { left: 8%; top: -24vw; background: #3f6dff; }
+.hero-aurora i:last-child { right: 8%; top: -22vw; background: #ff4d64; }
+
+@media (max-width: 720px) {
+  .brand-hero { padding: 36px 0 28px; }
+  .brand-hero .eyebrow { font-size: 10px; }
+}

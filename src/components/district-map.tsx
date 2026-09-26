@@ -18,10 +18,10 @@ function districtCode(feature: DistrictCollection["features"][number]) {
 }
 
 function fill(race?: ForecastRace) {
-  if (!race) return "#2b3035";
+  if (!race) return "#1c1f27";
   const intensity = Math.min(1, Math.abs(race.signedMargin) / 18);
-  if (race.leader === "D") return `color-mix(in srgb, #4d7fe1 ${Math.round(45 + intensity * 45)}%, #303640)`;
-  return `color-mix(in srgb, #d84d59 ${Math.round(45 + intensity * 45)}%, #303640)`;
+  if (race.leader === "D") return `color-mix(in srgb, #5b86ff ${Math.round(35 + intensity * 55)}%, #141722)`;
+  return `color-mix(in srgb, #ff5a6e ${Math.round(35 + intensity * 55)}%, #141722)`;
 }
 
 export function DistrictMap() {
