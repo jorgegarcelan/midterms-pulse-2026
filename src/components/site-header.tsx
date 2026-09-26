@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BrandMark } from "@/components/brand-mark";
 import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 
 const navigation = [
@@ -33,7 +34,7 @@ export function SiteHeader() {
   return (
     <header className="topbar" style={{ viewTransitionName: "site-header" }}>
       <Link className="brand" href="/" aria-label="Midterm Pulse 2026 home" transitionTypes={["nav-back"]}>
-        <span className="brand-mark" aria-hidden="true"><i /><i /><b /></span>
+        <BrandMark />
         <span className="brand-name">Midterm <em>Pulse</em><small>2026</small></span>
       </Link>
       <nav aria-label="Main navigation">

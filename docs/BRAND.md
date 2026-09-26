@@ -6,9 +6,13 @@
 
 ## Logo system
 
-The primary wordmark is typeset in the interface: **Midterm Pulse 2026**. The mark combines two party-color dots with a short neutral pulse line. It works at favicon and navigation scale without relying on AI-rendered lettering.
+The mark is a **pulse trace drawn as an "M"**: a flat baseline that spikes twice, Democratic blue on the left and Republican red on the right, meeting at a white **tipping-point dot** in the middle valley. One stroke carries the three ideas of the site: Midterm, pulse and a divided chamber decided at the margin.
 
-The generated hero artwork in `public/brand/midterm-pulse-signal.png` extends the mark into a waveform, U.S. outline and data bars. It contains no text so it remains reusable and accessible behind HTML copy.
+- **Wordmark:** "Midterm Pulse" set in Geist, followed by a mono "2026" tag. It is typeset live in the interface, never rasterised.
+- **Header mark** (`src/components/brand-mark.tsx`): the trace draws on at load, then a white spark runs along the "M" every few seconds. The dot beats and ripples as the spark passes it. Hovering the logo speeds the cycle up. With reduced motion, the mark stays static.
+- **App icons:** the mark sits on a dark rounded tile. `npm run brand:icons` (`scripts/build-icons.mjs`) writes `src/app/icon.svg`, `src/app/favicon.ico` (16/32/48 px) and `src/app/apple-icon.png` (180 px). Next.js picks these up through its file conventions. The 16 px frame uses a heavier stroke and no glow, so the trace stays legible. Keep the geometry in the script and in the component in sync.
+
+The generated hero artwork in `public/brand/midterm-pulse-signal.png` extends the pulse into a waveform, U.S. outline and data bars. It contains no text, so it stays reusable and accessible behind HTML copy.
 
 ## Palette
 

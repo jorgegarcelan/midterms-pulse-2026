@@ -79,11 +79,13 @@ h2 { font-weight: 560; letter-spacing: -.025em; }
   border-bottom: 1px solid var(--border);
 }
 .brand-name { font-weight: 650; letter-spacing: -.03em; }
-.brand-name small { font-family: var(--font-mono); color: #6b707b; }
-.brand-mark i { width: 9px; height: 9px; top: 4px; border-radius: 50%; }
-.brand-mark i:first-child { background: var(--red); box-shadow: 0 0 10px rgba(255,90,110,.7); }
-.brand-mark i:nth-child(2) { background: var(--blue); box-shadow: 0 0 10px rgba(91,134,255,.7); }
-.brand-mark b { background: linear-gradient(90deg, var(--red), var(--blue)); opacity: .9; }
+.brand-name { color: #fff; font-size: 15px; letter-spacing: -.035em; }
+.brand-name small { margin-left: 5px; padding: 2px 5px 1px; align-self: center; border: 1px solid var(--border-strong); border-radius: 5px; font: 500 10px/1.2 var(--font-mono); letter-spacing: .04em; color: #8b8f99; }
+.brand-mark { width: 34px; height: 21px; display: block; flex: none; overflow: visible; }
+.brand-mark path { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.brand-comet { stroke: #fff; stroke-width: 2.2 !important; stroke-dasharray: 9 200; stroke-dashoffset: 9; filter: drop-shadow(0 0 3px rgba(255,255,255,.9)) drop-shadow(0 0 6px rgba(167,139,250,.8)); }
+.brand-dot { fill: #fff; filter: drop-shadow(0 0 3px rgba(167,139,250,.9)); }
+.brand-ripple { fill: none; stroke: #c4b5fd; stroke-width: 1; opacity: 0; }
 .topbar nav { scrollbar-width: none; }
 .topbar nav::-webkit-scrollbar { display: none; }
 .topbar nav a { color: #8b8f99; font-size: 13.5px; font-weight: 450; transition: color .2s ease; }
