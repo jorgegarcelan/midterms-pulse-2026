@@ -62,8 +62,6 @@ export class PulseEngine {
   private burstDelay: Float32Array;
   private ctrlX: Float32Array;
   private ctrlY: Float32Array;
-  private offX: Float32Array;
-  private offY: Float32Array;
   private drawX: Float32Array;
   private drawY: Float32Array;
   private drawA: Float32Array;
@@ -93,6 +91,9 @@ export class PulseEngine {
   private monoFont = "monospace";
   private destroyed = false;
   private wakeTimer = 0;
+  // Hover lens: dots near the cursor grow in place (no displacement, so what you point at stays put).
+  private lens = 0;
+  private lensPoint = { x: 0, y: 0 };
   private mapInsets = { top: 230, bottom: 96 };
   onHover: (hover: PulseHover) => void = () => undefined;
 
@@ -110,8 +111,6 @@ export class PulseEngine {
     this.burstDelay = new Float32Array(total);
     this.ctrlX = new Float32Array(total);
     this.ctrlY = new Float32Array(total);
-    this.offX = new Float32Array(total);
-    this.offY = new Float32Array(total);
     this.drawX = new Float32Array(total);
     this.drawY = new Float32Array(total);
     this.drawA = new Float32Array(total);
@@ -239,7 +238,9 @@ export class PulseEngine {
     const t2 = easeInOut(range(this.progress, .55, .86));
     const mapFrame = this.fit(this.regionFor("map"));
     const chamberFrame = this.fit(this.regionFor("chamber"));
-    const repel = 1 - range(this.progress, 0, .08);
+    const lensTarget = this.pointer && !intro ? 1 - range(this.progress, 0, .08) : 0;
+    if (this.pointer) this.lensPoint = this.pointer;
+    this.lens = Math.abs(lensTarget - this.lens) < .01 ? lensTarget : this.lens + (lensTarget - this.lens) * .22;
 
     for (let district = 0; district < SEATS; district += 1) this.bucketOf[district] = colorBucket(this.margins[district] + shift);
 
@@ -256,8 +257,7 @@ export class PulseEngine {
     const centerY = mapFrame.oy + H / 2 * mapFrame.s;
     if (intro && elapsed < 900) this.drawShockwave(centerX, centerY, elapsed);
 
-    let moving = intro || t1 * (1 - t1) > 0 || t2 * (1 - t2) > 0 || this.swing !== this.swingTarget;
-    const pointer = this.pointer;
+    let moving = intro || t1 * (1 - t1) > 0 || t2 * (1 - t2) > 0 || this.swing !== this.swingTarget || this.lens !== lensTarget;
     const mapSize = dotsData.step * .56 * mapFrame.s;
     const seatSize = this.seatDot * chamberFrame.s;
     const ladderSize = Math.max(1.6, 3.1 * chamberFrame.s);
@@ -288,23 +288,10 @@ export class PulseEngine {
         alpha = Math.min(1, local * 3);
       }
 
-      if (repel > 0 && pointer && !intro) {
-        const dx = x - pointer.x;
-        const dy = y - pointer.y;
-        const distance = Math.hypot(dx, dy);
-        const radius = 90;
-        const force = distance < radius && distance > .01 ? (1 - distance / radius) ** 2 * 26 * repel : 0;
-        const targetX = force ? dx / distance * force : 0;
-        const targetY = force ? dy / distance * force : 0;
-        this.offX[index] += (targetX - this.offX[index]) * .2;
-        this.offY[index] += (targetY - this.offY[index]) * .2;
-      } else {
-        this.offX[index] *= .82;
-        this.offY[index] *= .82;
+      if (this.lens > 0) {
+        const distance = Math.hypot(x - this.lensPoint.x, y - this.lensPoint.y);
+        if (distance < 70) size *= 1 + (1 - distance / 70) ** 2 * .75 * this.lens;
       }
-      if (Math.abs(this.offX[index]) + Math.abs(this.offY[index]) > .05) moving = true;
-      x += this.offX[index];
-      y += this.offY[index];
 
       if (e1 > 0) {
         const seat = rank;
