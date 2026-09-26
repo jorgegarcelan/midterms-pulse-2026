@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { ModelResult } from "@/lib/model";
+import { CountUp } from "@/components/motion/count-up";
 
 function Distribution({ data, threshold }: { data: { seats: number; frequency: number }[]; threshold: number }) {
   const max = Math.max(...data.map((item) => item.frequency), 1);
   return <div className="distribution-chart" role="img" aria-label="Simulated Democratic seat distribution">
-    {data.map((item) => <span key={item.seats} className={item.seats >= threshold ? "dem" : "rep"} style={{ height: `${Math.max(2, item.frequency / max * 100)}%` }} title={`${item.seats} seats: ${item.frequency}%`} />)}
+    {data.map((item, index) => <span key={item.seats} className={item.seats >= threshold ? "dem" : "rep"} style={{ height: `${Math.max(2, item.frequency / max * 100)}%`, "--i": index } as React.CSSProperties} title={`${item.seats} seats: ${item.frequency}%`} />)}
   </div>;
 }
 
@@ -34,11 +35,11 @@ export function ModelDashboard() {
   return <>
     <section className="page-intro model-intro">
       <div><p className="eyebrow">MIDTERM PULSE MODEL · {model.version}</p><h1>A forecast you can inspect</h1><p>An experimental, reproducible model that combines a weighted generic ballot, a public seat-level benchmark and correlated uncertainty. Every assumption is exposed below.</p></div>
-      <div className="model-status"><span>Experimental</span><strong>{model.simulations.toLocaleString("en-US")}</strong><small>simulations · {model.runDate}</small></div>
+      <div className="model-status"><span>Experimental</span><strong><CountUp value={model.simulations} locale duration={1600} /></strong><small>simulations · {model.runDate}</small></div>
     </section>
     <section className="model-control-grid">
-      <article className="model-control-card dem-card"><p className="eyebrow">HOUSE CONTROL</p><strong>{scenario.houseProbability}%</strong><span>Democratic majority</span><div><b>D {scenario.houseSeats}</b><i>218</i><b>{435 - scenario.houseSeats} R</b></div><small>80% interval: {model.house.interval80[0]}–{model.house.interval80[1]} D seats</small></article>
-      <article className="model-control-card senate-model-card"><p className="eyebrow">SENATE CONTROL</p><strong>{scenario.senateProbability}%</strong><span>Democratic majority</span><div><b>D {scenario.senateSeats}</b><i>51</i><b>{100 - scenario.senateSeats} R</b></div><small>80% interval: {model.senate.interval80[0]}–{model.senate.interval80[1]} D seats</small></article>
+      <article className="model-control-card dem-card"><p className="eyebrow">HOUSE CONTROL</p><strong><CountUp value={scenario.houseProbability} />%</strong><span>Democratic majority</span><div><b>D <CountUp value={scenario.houseSeats} /></b><i>218</i><b><CountUp value={435 - scenario.houseSeats} /> R</b></div><small>80% interval: {model.house.interval80[0]}–{model.house.interval80[1]} D seats</small></article>
+      <article className="model-control-card senate-model-card"><p className="eyebrow">SENATE CONTROL</p><strong><CountUp value={scenario.senateProbability} />%</strong><span>Democratic majority</span><div><b>D <CountUp value={scenario.senateSeats} /></b><i>51</i><b><CountUp value={100 - scenario.senateSeats} /> R</b></div><small>80% interval: {model.senate.interval80[0]}–{model.senate.interval80[1]} D seats</small></article>
       <article className="panel model-scenario"><div><p className="eyebrow">SENSITIVITY TEST</p><h2>{swing === 0 ? "Current baseline" : `${swing > 0 ? "D" : "R"}+${Math.abs(swing)} national shift`}</h2><p>Apply a uniform polling movement without overwriting the stored forecast.</p></div><input aria-label="National polling shift" type="range" min="-5" max="5" step="0.5" value={swing} onChange={(event) => setSwing(Number(event.target.value))} /><div><span>R+5</span><button type="button" onClick={() => setSwing(0)}>Reset</button><span>D+5</span></div></article>
     </section>
     <section className="model-chart-grid">

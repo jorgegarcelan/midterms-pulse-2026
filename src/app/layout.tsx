@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { ContextBar } from "@/components/context-bar";
 import { ElectionContextProvider } from "@/components/election-context";
+import { MotionDirector } from "@/components/motion/motion-director";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
+import "./motion.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://midterm-pulse-2026.vercel.app"),
@@ -18,8 +20,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body><ElectionContextProvider><SiteHeader /><ContextBar />{children}</ElectionContextProvider></body>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body><ElectionContextProvider><SiteHeader /><ContextBar />{children}<MotionDirector /></ElectionContextProvider></body>
     </html>
   );
 }

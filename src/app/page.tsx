@@ -7,6 +7,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { stateByCode } from "@/data/geography";
 import { electionSnapshot, type Race } from "@/data/election";
 import { raceSlug } from "@/lib/races";
+import { ColdOpen } from "@/components/motion/cold-open";
+import { CountUp } from "@/components/motion/count-up";
+import { Magnetic } from "@/components/motion/magnetic";
+import { OdometerCountdown } from "@/components/motion/odometer-countdown";
+import { RaceTicker } from "@/components/motion/race-ticker";
+import { ScrambleText } from "@/components/motion/scramble-text";
+import { SeatLab } from "@/components/motion/seat-lab";
 
 const suggestedQuestions = [
   "What is driving the House forecast?",
@@ -70,12 +77,15 @@ function Sparkline({ currentMargin }: { currentMargin: number }) {
             <stop offset="1" stopColor="#4f8cff" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <path d={`M 0,86 L ${points} L 360,86 Z`} fill="url(#line-fill)" />
-        <polyline points={points} fill="none" stroke="#73a7ff" strokeWidth="3" />
+        <path className="spark-area" d={`M 0,86 L ${points} L 360,86 Z`} fill="url(#line-fill)" />
+        <path className="spark-line" d={`M ${points}`} pathLength={1} fill="none" stroke="#73a7ff" strokeWidth="3" />
         {values.map((item, index) => {
           const x = (index / (values.length - 1)) * 360;
           const y = 76 - ((item.margin - minimum) / span) * 60;
-          return <circle key={item.date} cx={x} cy={y} r="4" fill="#d9e7ff" stroke="#2467d6" strokeWidth="2" />;
+          return <g key={item.date}>
+            {index === values.length - 1 && <circle className="spark-ping" cx={x} cy={y} r="4" />}
+            <circle className="spark-dot" style={{ "--j": index } as React.CSSProperties} cx={x} cy={y} r="4" fill="#d9e7ff" stroke="#2467d6" strokeWidth="2" />
+          </g>;
         })}
       </svg>
       <div className="sparkline-axis"><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></div>
@@ -83,10 +93,10 @@ function Sparkline({ currentMargin }: { currentMargin: number }) {
   );
 }
 
-function RaceRow({ race }: { race: Race }) {
+function RaceRow({ race, index }: { race: Race; index: number }) {
   const isDem = race.leader === "D";
   return (
-    <Link className="race-row" href={`/races/${raceSlug(race)}`} aria-label={`${race.state}: ${race.leader} leads by ${race.margin} points`}>
+    <Link className="race-row" style={{ "--i": index } as React.CSSProperties} href={`/races/${raceSlug(race)}`} aria-label={`${race.state}: ${race.leader} leads by ${race.margin} points`}>
       <span className="race-state"><b>{race.code}</b><span>{race.state}</span></span>
       <span className="race-meter" aria-hidden="true"><i className={isDem ? "dem" : "rep"} style={{ width: `${Math.min(100, race.winProbability)}%` }} /></span>
       <span className={`race-lead ${isDem ? "dem-text" : "rep-text"}`}>{race.leader}+{race.margin.toFixed(1)}</span>
@@ -120,8 +130,8 @@ export default function Home() {
   const house = liveForecast?.house || electionSnapshot.house;
   const senate = liveForecast?.senate || electionSnapshot.senate;
   const ballot = liveForecast?.genericBallot || electionSnapshot.genericBallot;
-  const houseProbability = Math.max(5, Math.min(99, house.demMajority + swing * 4));
-  const senateProbability = Math.max(5, Math.min(95, senate.demMajority + swing * 5));
+  const houseProbability = Math.max(1, Math.min(99, Math.round(house.demMajority + swing * 5)));
+  const senateProbability = Math.max(1, Math.min(99, Math.round(senate.demMajority + swing * 4)));
 
   useEffect(() => {
     let cancelled = false;
@@ -153,8 +163,8 @@ export default function Home() {
         setSwing(next);
         return {
           swing: next,
-          houseDemMajority: Math.max(5, Math.min(99, electionSnapshot.house.demMajority + next * 4)),
-          senateDemMajority: Math.max(5, Math.min(95, electionSnapshot.senate.demMajority + next * 5)),
+          houseDemMajority: Math.max(1, Math.min(99, electionSnapshot.house.demMajority + next * 5)),
+          senateDemMajority: Math.max(1, Math.min(99, electionSnapshot.senate.demMajority + next * 4)),
         };
       },
     });
@@ -198,42 +208,55 @@ export default function Home() {
 
   return (
     <main className="page-main">
+      <ColdOpen />
       <section className="dashboard-shell" id="top">
-        <section className="brand-hero">
+        <section className="brand-hero" data-motion>
+          <div className="hero-aurora" aria-hidden="true"><i /><i /></div>
           <div className="brand-hero-copy">
-            <p className="eyebrow">2026 U.S. MIDTERMS · NATIONAL OVERVIEW</p>
-            <h1>Congressional outlook</h1>
-            <p className="hero-deck">Current chamber forecasts, polling, prediction markets and historical election data.</p>
-            <div className="hero-actions"><Link className="primary-action" href="/districts">Explore 435 districts</Link><Link className="secondary-action" href="/model">Inspect the model <span>→</span></Link></div>
+            <p className="eyebrow"><ScrambleText text="2026 U.S. MIDTERMS · NATIONAL OVERVIEW" /></p>
+            <h1 className="kinetic" aria-label="The fight for Congress">
+              <span className="w" aria-hidden="true"><span style={{ "--i": 0 } as React.CSSProperties}>The</span></span>
+              <span className="w" aria-hidden="true"><span style={{ "--i": 1 } as React.CSSProperties}>fight</span></span>
+              <span className="w" aria-hidden="true"><span style={{ "--i": 2 } as React.CSSProperties}>for</span></span>
+              <span className="w" aria-hidden="true"><span style={{ "--i": 3 } as React.CSSProperties}>
+                <span className="rotator"><span className="rotator-sizer">the Senate</span><span className="rotator-window"><span className="rotator-track"><span>Congress</span><span>the House</span><span>the Senate</span><span>Congress</span></span></span></span>
+              </span></span>
+            </h1>
+            <p className="hero-deck">Live chamber forecasts, polling, prediction markets and historical election data, one national signal at a time.</p>
+            <div className="hero-actions"><Magnetic><Link className="primary-action" href="/districts" transitionTypes={["nav-forward"]}>Explore 435 districts</Link></Magnetic><Magnetic><Link className="secondary-action" href="/model" transitionTypes={["nav-forward"]}>Inspect the model <span>→</span></Link></Magnetic></div>
           </div>
-          <div className="countdown"><strong>{electionSnapshot.daysToElection}</strong><span>days to election</span><small>November 3, 2026</small></div>
+          <OdometerCountdown />
         </section>
 
-        <section className="forecast-grid" id="forecast" aria-label="Control forecast">
-          <article className="forecast-card house-card">
+        <RaceTicker races={baselineRaces} live={Boolean(liveForecast)} />
+
+        <section className="forecast-grid" id="forecast" aria-label="Control forecast" data-motion>
+          <article className="forecast-card house-card" style={{ "--i": 0 } as React.CSSProperties}>
             <div className="card-kicker"><span>HOUSE</span><small>435 seats</small></div>
-            <div className="probability-line"><strong>{houseProbability}%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
-            <div className="seat-line"><b className="dem-text">D {house.demSeats}</b><i>218 TO WIN</i><b className="rep-text">{house.repSeats} R</b></div>
+            <div className="probability-line"><strong><CountUp value={houseProbability} delay={700} />%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
+            <div className="seat-line"><b className="dem-text">D <CountUp value={house.demSeats} delay={800} /></b><i>218 TO WIN</i><b className="rep-text"><CountUp value={house.repSeats} delay={800} /> R</b></div>
             <PartyBar democratic={house.demSeats / 4.35} republican={house.repSeats / 4.35} />
             <p className="source-note">{liveForecast ? `${liveForecast.version} · ${liveForecast.simulations.toLocaleString("en-US")} simulations · ${liveForecast.runDate}` : "Dated local snapshot"}</p>
           </article>
 
-          <article className="forecast-card senate-card">
+          <article className="forecast-card senate-card" style={{ "--i": 1 } as React.CSSProperties}>
             <div className="card-kicker"><span>SENATE</span><small>100 seats</small></div>
-            <div className="probability-line"><strong>{senateProbability}%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
-            <div className="seat-line"><b className="dem-text">D {senate.demSeats}</b><i>51 TO WIN</i><b className="rep-text">{senate.repSeats} R</b></div>
+            <div className="probability-line"><strong><CountUp value={senateProbability} delay={820} />%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
+            <div className="seat-line"><b className="dem-text">D <CountUp value={senate.demSeats} delay={920} /></b><i>51 TO WIN</i><b className="rep-text"><CountUp value={senate.repSeats} delay={920} /> R</b></div>
             <PartyBar democratic={senate.demSeats} republican={senate.repSeats} />
             <p className="source-note">{liveForecast ? `${liveForecast.version} · ${liveForecast.simulations.toLocaleString("en-US")} simulations · ${liveForecast.runDate}` : "Dated local snapshot"}</p>
           </article>
 
-          <article className="forecast-card ballot-card" id="polls">
+          <article className="forecast-card ballot-card" id="polls" style={{ "--i": 2 } as React.CSSProperties}>
             <div className="card-kicker"><span>GENERIC BALLOT</span><small>polling average</small></div>
-            <div className="ballot-value"><strong>{ballot.margin >= 0 ? "D" : "R"}+{Math.abs(ballot.margin).toFixed(1)}</strong><span>{liveForecast ? `${liveForecast.genericBallot.effectivePolls} ${liveForecast.genericBallot.effectivePolls === 1 ? "input" : "polls"}` : "dated snapshot"}</span></div>
+            <div className="ballot-value"><strong>{ballot.margin >= 0 ? "D" : "R"}+<CountUp value={Math.abs(ballot.margin)} decimals={1} delay={940} /></strong><span>{liveForecast ? `${liveForecast.genericBallot.effectivePolls} ${liveForecast.genericBallot.effectivePolls === 1 ? "input" : "polls"}` : "dated snapshot"}</span></div>
             <PartyBar democratic={ballot.dem} republican={ballot.rep} />
             <div className="ballot-labels"><b>D {ballot.dem.toFixed(1)}%</b><span>two-party margin</span><b>R {ballot.rep.toFixed(1)}%</b></div>
             <Sparkline currentMargin={ballot.margin} />
           </article>
         </section>
+
+        <SeatLab house={house} senate={senate} swing={swing} onSwing={setSwing} />
 
         <section className="workbench-grid">
           <article className="panel races-panel" id="races">
@@ -242,7 +265,7 @@ export default function Home() {
               <div className="segmented" role="group" aria-label="Choose chamber"><button className={chamber === "senate" ? "selected" : ""} onClick={() => setChamber("senate")}>Senate</button><button className={chamber === "house" ? "selected" : ""} onClick={() => setChamber("house")}>House</button></div>
             </div>
             <div className="race-header"><span>Race</span><span>Model confidence</span><span>Margin</span><span>Win prob.</span><span /></div>
-            <div className="race-list">{displayedRaces.map((race) => <RaceRow key={race.code} race={race} />)}</div>
+            <div className="race-list" key={chamber}>{displayedRaces.map((race, index) => <RaceRow key={race.code} race={race} index={index} />)}</div>
             <Link className="text-button" href="/races">Open complete race directory <span>→</span></Link>
           </article>
 
@@ -256,15 +279,6 @@ export default function Home() {
               <button aria-label="Ask analyst" disabled={loading}>↗</button>
             </form>
           </aside>
-        </section>
-
-        <section className="panel simulator" id="methodology">
-          <div><p className="eyebrow">SCENARIO LAB</p><h2>Test a national swing</h2><p>Move the national environment to see how a uniform swing changes the provisional control probabilities. This is a sensitivity test, not a prediction.</p><div className="method-links"><a href="https://www.cookpolitical.com/ratings/house-race-ratings" target="_blank" rel="noreferrer">House ratings ↗</a><a href="https://vote-scope.com/en/us/senate/" target="_blank" rel="noreferrer">Senate benchmark ↗</a><a href="https://uspollingdata.com/polls/generic-ballot/" target="_blank" rel="noreferrer">Generic ballot ↗</a></div></div>
-          <div className="slider-block">
-            <div className="slider-labels"><span>R+5</span><strong>{swing === 0 ? "Current baseline" : `${swing > 0 ? "D" : "R"}+${Math.abs(swing)}`}</strong><span>D+5</span></div>
-            <input aria-label="National swing" type="range" min="-5" max="5" step="1" value={swing} onChange={(event) => setSwing(Number(event.target.value))} />
-            <button type="button" onClick={() => setSwing(0)}>Reset scenario</button>
-          </div>
         </section>
 
         <SiteFooter />
