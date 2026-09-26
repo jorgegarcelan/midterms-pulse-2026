@@ -1,4 +1,4 @@
-import { LiveDesk } from "@/components/live-desk";
+import { LiveDesk } from "@/components/live/live-desk";
 import { SiteFooter } from "@/components/site-footer";
 
 export default function LivePage() {

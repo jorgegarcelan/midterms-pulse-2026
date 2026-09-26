@@ -1,19 +1,5 @@
 import { NextResponse } from "next/server";
-
-type TriageAnswer = {
-  topic: string;
-  relevance: number;
-  urgency: number;
-  confidence: number;
-};
-
-function fallbackTriage(content: string): TriageAnswer {
-  const text = content.toLowerCase();
-  const topic = text.includes("poll") || text.includes("survey") ? "polling" : text.includes("result") || text.includes("call") ? "results" : text.includes("vote") || text.includes("turnout") ? "turnout" : "campaign";
-  const relevance = Math.min(0.96, 0.52 + ["senate", "house", "midterm", "election", "poll", "vote"].filter((word) => text.includes(word)).length * 0.08);
-  const urgency = text.includes("breaking") || text.includes("just in") || text.includes("called") ? 0.9 : text.includes("new") || text.includes("today") ? 0.68 : 0.36;
-  return { topic, relevance, urgency, confidence: 0.58 };
-}
+import { ruleTriage } from "@/lib/triage-rules";
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as { content?: unknown } | null;
@@ -21,7 +7,7 @@ export async function POST(request: Request) {
   if (!content || content.length > 2000) return NextResponse.json({ error: "Content must contain 1–2,000 characters." }, { status: 400 });
 
   const apiKey = process.env.TYPESAFE_API_KEY;
-  if (!apiKey) return NextResponse.json({ ...fallbackTriage(content), mode: "local-rules" });
+  if (!apiKey) return NextResponse.json({ ...ruleTriage(content), mode: "local-rules" });
 
   const response = await fetch("https://api.typesafe.ai/v1/systemone", {
     method: "POST",
@@ -47,7 +33,7 @@ export async function POST(request: Request) {
     }),
   });
 
-  if (!response.ok) return NextResponse.json({ ...fallbackTriage(content), mode: "local-rules" });
+  if (!response.ok) return NextResponse.json({ ...ruleTriage(content), mode: "local-rules" });
   const result = (await response.json()) as {
     answers?: {
       topic?: { choice?: string; confidence?: number };
