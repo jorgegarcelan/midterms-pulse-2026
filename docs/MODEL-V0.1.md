@@ -1,5 +1,7 @@
 # Midterm Pulse model v0.1
 
+> **Archived.** Superseded by [v0.2](MODEL-V0.2.md), which fixes an inconsistency between the Senate chamber odds and the race odds.
+
 ## Status
 
 `MP-26 v0.1` is an experimental, deterministic sensitivity model. It is the first owned modeling layer in the product, but it is not yet historically calibrated and must not be described as a production election forecast.

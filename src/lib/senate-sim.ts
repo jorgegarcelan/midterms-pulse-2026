@@ -1,11 +1,21 @@
+import { demWinProbability, gaussian, mulberry32, RACE_COMMON_SD, RACE_LOCAL_SD, SIMULATIONS } from "@/lib/mp26";
+
 export type SenateRace = { code: string; leader: "D" | "R"; margin: number; signedMargin?: number; winProbability: number; incumbentParty?: "D" | "R" | null; special?: boolean; rating?: string };
 export type SenatePick = "D" | "R";
-export type SenateOutlook = { expected: number; locked: { D: number; R: number }; controlD: number; tieR: number };
+export type SenateOutlook = {
+  expected: number;
+  locked: { D: number; R: number };
+  notUp: { D: number; R: number };
+  controlD: number;
+  tieR: number;
+  median: number;
+  interval80: [number, number];
+  distribution: { seats: number; frequency: number }[];
+};
 
 // 119th Congress: 47 seats caucus with Democrats (incl. two independents), 53 with Republicans.
 const CAUCUS = { D: 47, R: 53 };
-const NATIONAL_SD = 3;
-const RUNS = 6000;
+const SEED = 20261103;
 
 export const signedMargin = (race: SenateRace) => race.signedMargin ?? (race.leader === "D" ? race.margin : -race.margin);
 export const demProbability = (race: SenateRace) => (race.leader === "D" ? race.winProbability : 100 - race.winProbability) / 100;
@@ -17,58 +27,44 @@ export function seatsNotUp(races: SenateRace[]) {
   return { D: CAUCUS.D - defending.D, R: CAUCUS.R - defending.R };
 }
 
-// Acklam's rational approximation of the inverse standard normal CDF.
-function inverseNormal(p: number) {
-  const a = [-39.6968302866538, 220.946098424521, -275.928510446969, 138.357751867269, -30.6647980661472, 2.50662827745924];
-  const b = [-54.4760987982241, 161.585836858041, -155.698979859887, 66.8013118877197, -13.2806815528857];
-  const c = [-.00778489400243029, -.322396458041136, -2.40075827716184, -2.54973253934373, 4.37466414146497, 2.93816398269878];
-  const d = [.00778469570904146, .32246712907004, 2.445134137143, 3.75440866190742];
-  const low = .02425;
-  if (p < low) { const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
-  if (p > 1 - low) { const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
-  const q = p - .5;
-  const r = q * q;
-  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
-}
-
-function mulberry32(seed: number) {
-  return () => {
-    seed = (seed + 0x6d2b79f5) | 0;
-    let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
-    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 /*
-  Correlated simulation of the undecided races. Each race's total error is backed out from its
-  model margin and win probability (σ = |margin| / Φ⁻¹(p)), so single-race odds match the model;
-  a shared national error then moves every race together. Republicans hold 50–50 via the VP.
+  The MP-26 Senate model, bottom-up. Every open race draws its margin as
+  expected margin + shared national error + local error, using the same error budget that sets
+  the published race probabilities, so the chamber odds are exactly the aggregate of the race odds.
+  Seats not on the ballot are fixed; Republicans hold a 50–50 chamber through the Vice President.
+  The server model and the Senate builder call this with the same seed, so with no races called
+  the builder reproduces the published forecast exactly.
 */
-export function simulateSenate(races: SenateRace[], picks: Record<string, SenatePick>): SenateOutlook {
+export function simulateSenate(races: SenateRace[], picks: Record<string, SenatePick> = {}, options: { shift?: number; runs?: number } = {}): SenateOutlook {
+  const { shift = 0, runs = SIMULATIONS } = options;
   const notUp = seatsNotUp(races);
   const locked = { D: notUp.D, R: notUp.R };
-  const open: { margin: number; local: number; p: number }[] = [];
+  const open: number[] = [];
   for (const race of races) {
     const pick = picks[race.code];
-    if (pick) { locked[pick] += 1; continue; }
-    const p = Math.min(.995, Math.max(.005, demProbability(race)));
-    const margin = signedMargin(race);
-    const z = inverseNormal(p);
-    const sigma = Math.abs(z) > .05 && Math.abs(margin) > .2 ? Math.min(16, Math.max(3.4, Math.abs(margin / z))) : 6;
-    open.push({ margin, local: Math.sqrt(sigma * sigma - NATIONAL_SD * NATIONAL_SD), p });
+    if (pick) locked[pick] += 1;
+    else open.push(signedMargin(race) + shift);
   }
-  const expected = locked.D + open.reduce((sum, race) => sum + race.p, 0);
-  const random = mulberry32(20261103);
-  const normal = () => Math.sqrt(-2 * Math.log(Math.max(random(), 1e-12))) * Math.cos(2 * Math.PI * random());
+  const expected = locked.D + open.reduce((sum, margin) => sum + demWinProbability(margin), 0);
+
+  const random = mulberry32(SEED);
+  const counts = new Uint32Array(101);
   let control = 0;
   let ties = 0;
-  for (let run = 0; run < RUNS; run += 1) {
-    const national = normal() * NATIONAL_SD;
+  for (let run = 0; run < runs; run += 1) {
+    const national = gaussian(random) * RACE_COMMON_SD;
     let seats = locked.D;
-    for (const race of open) if (race.margin + national + normal() * race.local > 0) seats += 1;
+    for (let index = 0; index < open.length; index += 1) if (open[index] + national + gaussian(random) * RACE_LOCAL_SD > 0) seats += 1;
+    counts[seats] += 1;
     if (seats >= 51) control += 1;
     else if (seats === 50) ties += 1;
   }
-  return { expected, locked, controlD: control / RUNS, tieR: ties / RUNS };
+
+  const quantile = (share: number) => {
+    let cumulative = 0;
+    for (let seats = 0; seats <= 100; seats += 1) { cumulative += counts[seats]; if (cumulative >= share * runs) return seats; }
+    return 100;
+  };
+  const distribution = Array.from(counts, (count, seats) => ({ seats, frequency: Math.round(count / runs * 1000) / 10 })).filter((item) => item.frequency > 0);
+  return { expected, locked, notUp, controlD: control / runs, tieR: ties / runs, median: quantile(.5), interval80: [quantile(.1), quantile(.9)], distribution };
 }

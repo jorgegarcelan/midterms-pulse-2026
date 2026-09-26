@@ -5,7 +5,7 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 ## Product surfaces
 
 - **Dashboard** — House and Senate control benchmarks, generic-ballot trend, closest races, scenario lab and grounded AI analyst.
-- **Model** — MP-26 v0.1 inputs, 50,000-draw seat distributions, explicit assumptions and an interactive swing test.
+- **Model** — MP-26 v0.2 inputs, 50,000-draw seat distributions, explicit assumptions and an interactive swing test.
 - **District map** — official 119th Congress boundaries for all 435 voting districts, colored by the current model and linked to race profiles.
 - **Race profiles** — full House and Senate directory with model output, FEC candidates and finance, polling context, geography and source ledger.
 - **Workspace** — persistent national/state context with linked signals, territory comparison, scenario controls, event timeline and contextual AI.
@@ -17,7 +17,7 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 - **Methodology** — model pipeline, current limitations and source register.
 - **Brand system** — original navigation mark, generated election-signal artwork, palette and typography guidance.
 
-The control forecast now uses **MP-26 v0.1**, an owned and reproducible simulation layer anchored to Vote-Scope public data. It is deliberately labeled experimental because it is not yet historically calibrated. See [`docs/MODEL-V0.1.md`](docs/MODEL-V0.1.md) for every coefficient and limitation.
+The control forecast now uses **MP-26 v0.2**, an owned and reproducible simulation layer anchored to Vote-Scope public data. The Senate is simulated bottom-up from its 35 races, so chamber and race odds always agree. It is deliberately labeled experimental because it is not yet historically calibrated. See [`docs/MODEL-V0.2.md`](docs/MODEL-V0.2.md) for every coefficient, the v0.1 → v0.2 changelog and limitations.
 
 ## Interaction model
 

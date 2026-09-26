@@ -2,7 +2,7 @@
 
 ## Status
 
-The interface now includes `MP-26 v0.1`, an owned, deterministic simulation layer built on public inputs. It is explicitly labeled experimental because historical calibration is not complete. The external Vote-Scope forecast remains the seat-level anchor and is identified wherever it is used.
+The interface now includes `MP-26 v0.2`, an owned, deterministic simulation layer built on public inputs. It is explicitly labeled experimental because historical calibration is not complete. The external Vote-Scope forecast remains the seat-level anchor and is identified wherever it is used.
 
 ## Data contract
 
@@ -20,13 +20,14 @@ Each poll record should contain:
 
 Each race record should contain its office, geography, nominees, incumbency, prior result, district partisanship, fundraising totals, expert ratings, and demographic features.
 
-## Current v0.1 forecast
+## Current v0.2 forecast
 
 1. Estimate a national environment from generic-ballot polls with recency, sample-size and population weights.
-2. Anchor expected chamber seats and individual races to the dated Vote-Scope public benchmark.
-3. Add a shared national error and separate chamber error across 50,000 seeded simulations.
-4. Publish seat distributions, majority probabilities, 80% intervals and adjusted race-level probabilities.
-5. Keep every coefficient visible in [`MODEL-V0.1.md`](MODEL-V0.1.md).
+2. Measure national movement like for like: the same poll index and weighting, today versus the benchmark's run date.
+3. Anchor House seats and every race margin to the dated Vote-Scope public benchmark, moved by that movement.
+4. Simulate 50,000 seeded runs: the House top-down with national and chamber error, the Senate bottom-up from its 35 races with a shared national error, so Senate chamber odds equal the aggregate of the race odds.
+5. Publish seat distributions, majority probabilities, 80% intervals and adjusted race-level probabilities.
+6. Keep every coefficient visible in [`MODEL-V0.2.md`](MODEL-V0.2.md); earlier versions stay archived.
 
 Pollster house effects, candidate/fundraising fundamentals and historical calibration remain planned work.
 

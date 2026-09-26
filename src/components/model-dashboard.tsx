@@ -3,7 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { ModelResult } from "@/lib/model";
+import { NATIONALIZATION } from "@/lib/mp26";
+import { simulateSenate } from "@/lib/senate-sim";
 import { CountUp } from "@/components/motion/count-up";
+
+// The Senate is bottom-up, so a swing is re-simulated race by race with the model's own engine.
+function senateScenario(model: ModelResult, swing: number) {
+  if (swing === 0) return { senateSeats: model.senate.demSeats, senateProbability: model.senate.demMajority };
+  const outlook = simulateSenate(model.races.filter((race) => race.chamber === "senate"), {}, { shift: swing * NATIONALIZATION });
+  return { senateSeats: outlook.median, senateProbability: Math.round(outlook.controlD * 100) };
+}
 
 function Distribution({ data, threshold }: { data: { seats: number; frequency: number }[]; threshold: number }) {
   const max = Math.max(...data.map((item) => item.frequency), 1);
@@ -25,8 +34,7 @@ export function ModelDashboard() {
     return {
       houseSeats: Math.round(model.house.demSeats + swing * 2.15),
       houseProbability: Math.max(1, Math.min(99, Math.round(model.house.demMajority + swing * 5))),
-      senateSeats: Math.round(model.senate.demSeats + swing * 0.18),
-      senateProbability: Math.max(1, Math.min(99, Math.round(model.senate.demMajority + swing * 4))),
+      ...senateScenario(model, swing),
     };
   }, [model, swing]);
 
@@ -48,7 +56,7 @@ export function ModelDashboard() {
     </section>
     <section className="model-method-grid">
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">CURRENT INPUTS</p><h2>What moved the model</h2></div><span className="panel-tag">auditable</span></div><div className="model-input-list">{model.inputs.map((input) => <div key={input.label}><span>{input.label}</span><strong>{input.value}</strong><small>{input.source}</small></div>)}</div></article>
-      <article className="panel"><div className="panel-head"><div><p className="eyebrow">ASSUMPTIONS</p><h2>What v0.1 assumes</h2></div></div><ol className="assumption-list">{model.assumptions.map((item) => <li key={item}>{item}</li>)}</ol><p className="model-warning">This version is not yet historically calibrated and should be read as a structured sensitivity model, not an election call.</p><div className="model-actions"><Link href="/districts">Open district map →</Link><Link href="/methodology">Read methodology →</Link></div></article>
+      <article className="panel"><div className="panel-head"><div><p className="eyebrow">ASSUMPTIONS</p><h2>What {model.version.replace("MP-26 ", "")} assumes</h2></div></div><ol className="assumption-list">{model.assumptions.map((item) => <li key={item}>{item}</li>)}</ol><p className="model-warning">This version is not yet historically calibrated and should be read as a structured sensitivity model, not an election call.</p><div className="model-actions"><Link href="/districts">Open district map →</Link><Link href="/methodology">Read methodology →</Link></div></article>
     </section>
   </>;
 }

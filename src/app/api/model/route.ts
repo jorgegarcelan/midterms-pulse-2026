@@ -22,5 +22,5 @@ async function modelPolls(): Promise<{ polls: ModelPoll[]; source: string }> {
 
 export async function GET() {
   const [forecast, polling] = await Promise.all([fetchForecast(), modelPolls()]);
-  return NextResponse.json(runModel(forecast, polling.polls, forecast.updated, polling.source));
+  return NextResponse.json(runModel(forecast, polling.polls, new Date().toISOString().slice(0, 10), polling.source));
 }

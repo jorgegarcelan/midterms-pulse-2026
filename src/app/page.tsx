@@ -218,7 +218,7 @@ export default function Home() {
           </article>
         </section>
 
-        <SenateBuilder races={senateRaces} chamberModel={senate.demMajority} />
+        <SenateBuilder races={senateRaces} />
 
         <section className="workbench-grid">
           <article className="panel races-panel" id="races">

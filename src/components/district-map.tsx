@@ -72,7 +72,7 @@ export function DistrictMap() {
 
   return <>
     <section className="page-intro district-intro">
-      <div><p className="eyebrow">119TH CONGRESS · 435 VOTING DISTRICTS</p><h1>Congressional district map</h1><p>Inspect every House district, isolate a state and move directly into the underlying race profile. Color shows the current Midterm Pulse v0.1 lean; gray means no modeled match.</p></div>
+      <div><p className="eyebrow">119TH CONGRESS · 435 VOTING DISTRICTS</p><h1>Congressional district map</h1><p>Inspect every House district, isolate a state and move directly into the underlying race profile. Color shows the current Midterm Pulse model lean; gray means no modeled match.</p></div>
       <div className="stat-stamp"><strong>{races.length}</strong><span>{stateCode === "US" ? "districts in view" : `${stateCode} districts`}</span><small>{model?.runDate || "Loading model…"}</small></div>
     </section>
     <section className="district-toolbar" aria-label="District map controls">

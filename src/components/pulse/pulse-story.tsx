@@ -8,6 +8,7 @@ import { Magnetic } from "@/components/motion/magnetic";
 import { OdometerCountdown } from "@/components/motion/odometer-countdown";
 import { ScrambleText } from "@/components/motion/scramble-text";
 import { PulseEngine } from "@/components/pulse/pulse-engine";
+import { NATIONALIZATION } from "@/lib/mp26";
 
 export type StoryRace = { code: string; chamber: "house" | "senate"; leader: "D" | "R"; margin: number; signedMargin?: number; winProbability: number; rating?: string };
 type Chamber = { demMajority: number; demSeats: number; repSeats: number };
@@ -40,7 +41,7 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
   const houseRaces = useMemo(() => races.filter((race) => race.chamber === "house"), [races]);
   const byCode = useMemo(() => new Map(houseRaces.map((race) => [race.code, race])), [houseRaces]);
   const complete = houseRaces.length >= 400;
-  const shift = swing * .7;
+  const shift = swing * NATIONALIZATION;
   const leanD = complete ? houseRaces.filter((race) => signed(race) + shift > 0).length : house.demSeats;
   const tipping = useMemo(() => complete ? [...houseRaces].sort((a, b) => signed(b) - signed(a))[217] : null, [complete, houseRaces]);
   const tippingMargin = tipping ? signed(tipping) + shift : 0;

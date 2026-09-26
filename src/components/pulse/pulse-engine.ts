@@ -1,4 +1,5 @@
 import dotsData from "@/data/map-dots.json";
+import { NATIONALIZATION } from "@/lib/mp26";
 import { parliamentLayout } from "@/lib/parliament";
 
 /*
@@ -18,7 +19,6 @@ const W = 1000;
 const H = 620;
 const SEATS = 435;
 const MAJORITY_RANK = 217; // zero-based rank of the 218th seat
-const NATIONALIZATION = 0.7; // MP-26 v0.1: districts absorb 70% of national movement
 const STEPS = 12;
 const ALPHA_LEVELS = 6;
 const D_RGB = [91, 134, 255];
