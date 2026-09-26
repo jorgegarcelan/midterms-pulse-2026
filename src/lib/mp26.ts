@@ -16,6 +16,14 @@ export const POLL_HALF_LIFE_DAYS = 30;
 export const POPULATION_WEIGHT = { LV: 1, RV: .86, A: .72 } as const;
 export const AGGREGATE_SAMPLE_WEIGHT = .55;
 
+/*
+  Two-party topline sanity check. The poll indexes occasionally carry single-party toplines (one side
+  coded 0) or races with a strong independent; neither measures the D-vs-R margin the model needs.
+*/
+export function isTwoPartyTopline(dem?: number, rep?: number) {
+  return Number.isFinite(dem) && Number.isFinite(rep) && dem! >= 20 && rep! >= 20 && dem! + rep! >= 70;
+}
+
 export type WeightedPoll = { endDate: string; sample: number; population: "LV" | "RV" | "A" };
 
 // Weight of one generic-ballot poll on `anchorDate`: recency × sample size × population.

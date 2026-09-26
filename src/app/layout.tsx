@@ -10,6 +10,7 @@ import "./theme.css";
 import "./motion.css";
 import "./features.css";
 import "./explainer.css";
+import "./race-data.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });

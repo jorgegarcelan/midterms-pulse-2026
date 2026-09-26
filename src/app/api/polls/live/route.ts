@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { electionSnapshot } from "@/data/election";
 import { seedPolls } from "@/data/polls";
+import { isTwoPartyTopline } from "@/lib/mp26";
 
 type SourcePoll = {
   poll_id: string;
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch("https://vote-scope.com/web_data/us-house/polls/index.json", { next: { revalidate: 900 } });
     if (!response.ok) throw new Error("Poll source unavailable");
     const payload = await response.json() as PollIndex;
-    const usable = payload.polls.filter((poll) => Number.isFinite(poll.topline.us_dem) && Number.isFinite(poll.topline.us_rep));
+    const usable = payload.polls.filter((poll) => isTwoPartyTopline(poll.topline.us_dem, poll.topline.us_rep));
     const weekly = new Map<string, { dem: number; rep: number; count: number }>();
     for (const poll of usable) {
       const date = new Date(`${poll.field_end}T00:00:00Z`);

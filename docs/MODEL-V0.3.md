@@ -32,6 +32,8 @@ v0.1 published a Senate majority probability (69%) that disagreed with the aggre
 
 Each generic-ballot poll is weighted by recency (30-day half-life), sample size (square root relative to 1,000; the dated aggregate fallback gets 0.55) and population (`LV = 1.00`, `RV = 0.86`, adults/other `0.72`). Movement is the weighted ballot today minus the weighted ballot at the benchmark's run date, from the same poll index. A same-day benchmark gets essentially no adjustment; the dated fallback benchmark is moved by what the polls did since it was published. Races absorb 70% of that movement.
 
+**Data quality filter (added 26 September 2026).** The generic-ballot index occasionally carries toplines that are not a D-vs-R generic ballot: one party coded 0 (single-party or primary questions) or state races with a strong independent. Polls are kept only when both parties have at least 20% and together at least 70%. On the 26 September run this removed 30 of 960 polls and moved the weighted ballot from D+2.8 to D+4.4. Chamber odds were unchanged, because movement is measured against the same filtered index at the benchmark date.
+
 ## Error budget
 
 All constants live in `src/lib/mp26.ts` and are shared by the server model and the in-browser tools.
