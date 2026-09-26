@@ -1,6 +1,6 @@
 # Midterm Pulse model v0.1
 
-> **Archived.** Superseded by [v0.2](MODEL-V0.2.md), which fixes an inconsistency between the Senate chamber odds and the race odds.
+> **Archived.** Superseded by [v0.3](MODEL-V0.3.md). [v0.2](MODEL-V0.2.md) fixed an inconsistency between the Senate chamber odds and the race odds.
 
 ## Status
 

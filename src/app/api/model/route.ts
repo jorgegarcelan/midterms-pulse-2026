@@ -20,7 +20,14 @@ async function modelPolls(): Promise<{ polls: ModelPoll[]; source: string }> {
   }
 }
 
+// ~22M race draws per run: reuse the result while its inputs (benchmark, polls, date) are unchanged.
+let memo: { key: string; result: ReturnType<typeof runModel> } | null = null;
+
 export async function GET() {
   const [forecast, polling] = await Promise.all([fetchForecast(), modelPolls()]);
-  return NextResponse.json(runModel(forecast, polling.polls, new Date().toISOString().slice(0, 10), polling.source));
+  const today = new Date().toISOString().slice(0, 10);
+  const latestPoll = polling.polls.reduce((latest, poll) => poll.endDate > latest ? poll.endDate : latest, "");
+  const key = [forecast.updated, forecast.stale ? "stale" : "live", polling.source, polling.polls.length, latestPoll, today].join("|");
+  if (memo?.key !== key) memo = { key, result: runModel(forecast, polling.polls, today, polling.source) };
+  return NextResponse.json(memo.result);
 }

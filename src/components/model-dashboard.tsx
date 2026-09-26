@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { ModelResult } from "@/lib/model";
 import { NATIONALIZATION } from "@/lib/mp26";
+import { simulateHouse } from "@/lib/chamber-sim";
 import { simulateSenate } from "@/lib/senate-sim";
 import { CountUp } from "@/components/motion/count-up";
 
-// The Senate is bottom-up, so a swing is re-simulated race by race with the model's own engine.
-function senateScenario(model: ModelResult, swing: number) {
-  if (swing === 0) return { senateSeats: model.senate.demSeats, senateProbability: model.senate.demMajority };
-  const outlook = simulateSenate(model.races.filter((race) => race.chamber === "senate"), {}, { shift: swing * NATIONALIZATION });
-  return { senateSeats: outlook.median, senateProbability: Math.round(outlook.controlD * 100) };
+// Both chambers are bottom-up, so a swing is re-simulated race by race with the model's own engine.
+// The House uses 10,000 runs to stay interactive; at zero swing the published 50,000-run numbers show.
+function runScenario(model: ModelResult, swing: number) {
+  if (swing === 0) return { houseSeats: model.house.demSeats, houseProbability: model.house.demMajority, senateSeats: model.senate.demSeats, senateProbability: model.senate.demMajority };
+  const shift = swing * NATIONALIZATION;
+  const house = simulateHouse(model.races, { shift, runs: 10_000 });
+  const senate = simulateSenate(model.races.filter((race) => race.chamber === "senate"), {}, { shift });
+  return { houseSeats: house.median, houseProbability: Math.round(house.controlD * 100), senateSeats: senate.median, senateProbability: Math.round(senate.controlD * 100) };
 }
 
 function Distribution({ data, threshold }: { data: { seats: number; frequency: number }[]; threshold: number }) {
@@ -29,14 +33,8 @@ export function ModelDashboard() {
     fetch("/api/model", { signal: controller.signal }).then((response) => response.json() as Promise<ModelResult>).then(setModel).catch(() => undefined);
     return () => controller.abort();
   }, []);
-  const scenario = useMemo(() => {
-    if (!model) return null;
-    return {
-      houseSeats: Math.round(model.house.demSeats + swing * 2.15),
-      houseProbability: Math.max(1, Math.min(99, Math.round(model.house.demMajority + swing * 5))),
-      ...senateScenario(model, swing),
-    };
-  }, [model, swing]);
+  const deferredSwing = useDeferredValue(swing);
+  const scenario = useMemo(() => model ? runScenario(model, deferredSwing) : null, [model, deferredSwing]);
 
   if (!model || !scenario) return <section className="panel model-loading">Running 50,000 deterministic simulations…</section>;
 

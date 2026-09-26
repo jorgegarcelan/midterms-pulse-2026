@@ -1,5 +1,7 @@
 # Midterm Pulse model v0.2
 
+> **Archived.** Superseded by [v0.3](MODEL-V0.3.md), which simulates the House bottom-up and calibrates national error to the benchmark.
+
 ## Status
 
 `MP-26 v0.2` is an experimental, deterministic model built on the Vote-Scope public benchmark. It is not yet historically calibrated and must not be described as a production election forecast. It supersedes [v0.1](MODEL-V0.1.md).

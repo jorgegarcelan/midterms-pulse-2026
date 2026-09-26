@@ -179,7 +179,7 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
             <i>218 to win</i>
             <div><strong className="rep-text"><CountUp value={435 - leanD} duration={700} /></strong><span>lean R</span></div>
           </div>
-          <small>Model median across 50,000 simulations: D {house.demSeats} – {house.repSeats} R</small>
+          <small>Leads count who is ahead today. The model median, D {house.demSeats} – {house.repSeats} R across 50,000 simulations, also prices in the upsets each side is likely to pull off.</small>
         </article>
 
         <article className="pulse-chapter pulse-chapter-3" aria-hidden={chapter !== 3}>
