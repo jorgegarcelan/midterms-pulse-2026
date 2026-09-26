@@ -6,14 +6,13 @@ import { useElectionContext } from "@/components/election-context";
 import { SiteFooter } from "@/components/site-footer";
 import { stateByCode } from "@/data/geography";
 import { electionSnapshot, type Race } from "@/data/election";
+import type { ForecastRace } from "@/lib/forecast";
 import { raceSlug } from "@/lib/races";
-import { ColdOpen } from "@/components/motion/cold-open";
 import { CountUp } from "@/components/motion/count-up";
-import { Magnetic } from "@/components/motion/magnetic";
-import { OdometerCountdown } from "@/components/motion/odometer-countdown";
 import { RaceTicker } from "@/components/motion/race-ticker";
-import { ScrambleText } from "@/components/motion/scramble-text";
-import { SeatLab } from "@/components/motion/seat-lab";
+import { PulseStory } from "@/components/pulse/pulse-story";
+import { SenateBuilder } from "@/components/senate/senate-builder";
+import { SignalGauges } from "@/components/signals/signal-gauges";
 
 const suggestedQuestions = [
   "What is driving the House forecast?",
@@ -28,7 +27,7 @@ type LiveForecast = {
   house: { demMajority: number; demSeats: number; repSeats: number };
   senate: { demMajority: number; demSeats: number; repSeats: number };
   genericBallot: { dem: number; rep: number; margin: number; effectivePolls: number; latestPoll: string; source: string };
-  races: Race[];
+  races: ForecastRace[];
 };
 
 declare global {
@@ -125,13 +124,12 @@ export default function Home() {
   const [answer, setAnswer] = useState("Ask about the model, a race, or what changed. Every answer is constrained to the current snapshot.");
   const [loading, setLoading] = useState(false);
   const [liveForecast, setLiveForecast] = useState<LiveForecast | null>(null);
-  const baselineRaces = liveForecast?.races || electionSnapshot.races;
+  const baselineRaces: (Race | ForecastRace)[] = liveForecast?.races || electionSnapshot.races;
+  const senateRaces = useMemo(() => (liveForecast?.races || []).filter((race) => race.chamber === "senate"), [liveForecast]);
   const displayedRaces = useMemo(() => baselineRaces.filter((race) => race.chamber === chamber).sort((a, b) => a.margin - b.margin).slice(0, 6), [baselineRaces, chamber]);
   const house = liveForecast?.house || electionSnapshot.house;
   const senate = liveForecast?.senate || electionSnapshot.senate;
   const ballot = liveForecast?.genericBallot || electionSnapshot.genericBallot;
-  const houseProbability = Math.max(1, Math.min(99, Math.round(house.demMajority + swing * 5)));
-  const senateProbability = Math.max(1, Math.min(99, Math.round(senate.demMajority + swing * 4)));
 
   useEffect(() => {
     let cancelled = false;
@@ -153,7 +151,7 @@ export default function Home() {
     register({
       name: "set_national_swing",
       title: "Set national swing",
-      description: "Set the visible Scenario Lab national swing from R+5 to D+5 and return the updated control probabilities.",
+      description: "Set the national swing (R+5 to D+5) that recolours the district map, the House chamber and the tipping-point ladder.",
       inputSchema: { type: "object", properties: { swing: { type: "integer", minimum: -5, maximum: 5 } }, required: ["swing"], additionalProperties: false },
       annotations: { readOnlyHint: false, untrustedContentHint: false },
       execute(input) {
@@ -161,11 +159,7 @@ export default function Home() {
         if (!Number.isInteger(value) || Number(value) < -5 || Number(value) > 5) throw new Error("swing must be an integer from -5 to 5");
         const next = Number(value);
         setSwing(next);
-        return {
-          swing: next,
-          houseDemMajority: Math.max(1, Math.min(99, electionSnapshot.house.demMajority + next * 5)),
-          senateDemMajority: Math.max(1, Math.min(99, electionSnapshot.senate.demMajority + next * 4)),
-        };
+        return { swing: next, districtShift: next * 0.7 };
       },
     });
 
@@ -207,56 +201,24 @@ export default function Home() {
   }
 
   return (
-    <main className="page-main">
-      <ColdOpen />
+    <main className="page-main home-main">
+      <PulseStory races={baselineRaces} live={Boolean(liveForecast)} house={house} senate={senate} ballotMargin={ballot.margin} swing={swing} onSwing={setSwing} />
       <section className="dashboard-shell" id="top">
-        <section className="brand-hero" data-motion>
-          <div className="hero-aurora" aria-hidden="true"><i /><i /></div>
-          <div className="brand-hero-copy">
-            <p className="eyebrow"><ScrambleText text="2026 U.S. MIDTERMS · NATIONAL OVERVIEW" /></p>
-            <h1 className="kinetic" aria-label="The fight for Congress">
-              <span className="w" aria-hidden="true"><span style={{ "--i": 0 } as React.CSSProperties}>The</span></span>
-              <span className="w" aria-hidden="true"><span style={{ "--i": 1 } as React.CSSProperties}>fight</span></span>
-              <span className="w" aria-hidden="true"><span style={{ "--i": 2 } as React.CSSProperties}>for</span></span>
-              <span className="w" aria-hidden="true"><span style={{ "--i": 3 } as React.CSSProperties}>
-                <span className="rotator"><span className="rotator-sizer">the Senate</span><span className="rotator-window"><span className="rotator-track"><span>Congress</span><span>the House</span><span>the Senate</span><span>Congress</span></span></span></span>
-              </span></span>
-            </h1>
-            <p className="hero-deck">Live chamber forecasts, polling, prediction markets and historical election data, one national signal at a time.</p>
-            <div className="hero-actions"><Magnetic><Link className="primary-action" href="/districts" transitionTypes={["nav-forward"]}>Explore 435 districts</Link></Magnetic><Magnetic><Link className="secondary-action" href="/model" transitionTypes={["nav-forward"]}>Inspect the model <span>→</span></Link></Magnetic></div>
-          </div>
-          <OdometerCountdown />
-        </section>
-
         <RaceTicker races={baselineRaces} live={Boolean(liveForecast)} />
 
-        <section className="forecast-grid" id="forecast" aria-label="Control forecast" data-motion>
-          <article className="forecast-card house-card" style={{ "--i": 0 } as React.CSSProperties}>
-            <div className="card-kicker"><span>HOUSE</span><small>435 seats</small></div>
-            <div className="probability-line"><strong><CountUp value={houseProbability} delay={700} />%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
-            <div className="seat-line"><b className="dem-text">D <CountUp value={house.demSeats} delay={800} /></b><i>218 TO WIN</i><b className="rep-text"><CountUp value={house.repSeats} delay={800} /> R</b></div>
-            <PartyBar democratic={house.demSeats / 4.35} republican={house.repSeats / 4.35} />
-            <p className="source-note">{liveForecast ? `${liveForecast.version} · ${liveForecast.simulations.toLocaleString("en-US")} simulations · ${liveForecast.runDate}` : "Dated local snapshot"}</p>
-          </article>
-
-          <article className="forecast-card senate-card" style={{ "--i": 1 } as React.CSSProperties}>
-            <div className="card-kicker"><span>SENATE</span><small>100 seats</small></div>
-            <div className="probability-line"><strong><CountUp value={senateProbability} delay={820} />%</strong><span>chance of a<br /><b>Democratic majority</b></span></div>
-            <div className="seat-line"><b className="dem-text">D <CountUp value={senate.demSeats} delay={920} /></b><i>51 TO WIN</i><b className="rep-text"><CountUp value={senate.repSeats} delay={920} /> R</b></div>
-            <PartyBar democratic={senate.demSeats} republican={senate.repSeats} />
-            <p className="source-note">{liveForecast ? `${liveForecast.version} · ${liveForecast.simulations.toLocaleString("en-US")} simulations · ${liveForecast.runDate}` : "Dated local snapshot"}</p>
-          </article>
-
-          <article className="forecast-card ballot-card" id="polls" style={{ "--i": 2 } as React.CSSProperties}>
+        <section className="signals-grid" id="signals" aria-label="Control forecast: model versus prediction markets">
+          <SignalGauges house={house} senate={senate} />
+          <article className="signal-card ballot-card" id="polls">
             <div className="card-kicker"><span>GENERIC BALLOT</span><small>polling average</small></div>
-            <div className="ballot-value"><strong>{ballot.margin >= 0 ? "D" : "R"}+<CountUp value={Math.abs(ballot.margin)} decimals={1} delay={940} /></strong><span>{liveForecast ? `${liveForecast.genericBallot.effectivePolls} ${liveForecast.genericBallot.effectivePolls === 1 ? "input" : "polls"}` : "dated snapshot"}</span></div>
+            <div className="ballot-value"><strong>{ballot.margin >= 0 ? "D" : "R"}+<CountUp value={Math.abs(ballot.margin)} decimals={1} delay={200} /></strong><span>{liveForecast ? `${liveForecast.genericBallot.effectivePolls} ${liveForecast.genericBallot.effectivePolls === 1 ? "input" : "polls"}` : "dated snapshot"}</span></div>
             <PartyBar democratic={ballot.dem} republican={ballot.rep} />
             <div className="ballot-labels"><b>D {ballot.dem.toFixed(1)}%</b><span>two-party margin</span><b>R {ballot.rep.toFixed(1)}%</b></div>
             <Sparkline currentMargin={ballot.margin} />
+            <p className="source-note">{liveForecast ? `${liveForecast.version} · ${liveForecast.simulations.toLocaleString("en-US")} simulations · ${liveForecast.runDate}` : "Dated local snapshot"}</p>
           </article>
         </section>
 
-        <SeatLab house={house} senate={senate} swing={swing} onSwing={setSwing} />
+        <SenateBuilder races={senateRaces} chamberModel={senate.demMajority} />
 
         <section className="workbench-grid">
           <article className="panel races-panel" id="races">

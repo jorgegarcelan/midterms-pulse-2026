@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { introRemaining } from "@/components/motion/motion-utils";
 
 // First polls open at 6:00 a.m. Eastern (UTC−5 after DST ends) on November 3, 2026.
 const POLLS_OPEN = Date.UTC(2026, 10, 3, 11, 0, 0);
@@ -28,7 +27,7 @@ export function OdometerCountdown() {
       setValues(parts(Date.now()));
       settle = window.setTimeout(() => setRolled(true), 1400);
       interval = window.setInterval(() => setValues(parts(Date.now())), 1000);
-    }, introRemaining(250));
+    }, 250);
     return () => { window.clearTimeout(start); window.clearTimeout(settle); window.clearInterval(interval); };
   }, []);
 

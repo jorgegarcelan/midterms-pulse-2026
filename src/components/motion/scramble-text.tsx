@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { introRemaining, prefersReducedMotion } from "@/components/motion/motion-utils";
+import { prefersReducedMotion } from "@/components/motion/motion-utils";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·/+%";
 
@@ -24,7 +24,7 @@ export function ScrambleText({ text, delay = 0, duration = 900 }: { text: string
         if (progress < 1) frame = requestAnimationFrame(step);
       };
       frame = requestAnimationFrame(step);
-    }, introRemaining(delay));
+    }, delay);
     return () => { cancelAnimationFrame(frame); window.clearTimeout(timer); };
   }, [text, delay, duration]);
 

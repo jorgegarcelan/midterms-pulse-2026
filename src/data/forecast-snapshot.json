@@ -155,7 +155,7 @@
       "special": false
     },
     {
-      "code": "AK-AL",
+      "code": "AK-00",
       "state": "AK",
       "name": "AK-AL",
       "chamber": "house",
@@ -1656,7 +1656,7 @@
       "special": false
     },
     {
-      "code": "DE-AL",
+      "code": "DE-00",
       "state": "DE",
       "name": "DE-AL",
       "chamber": "house",
@@ -5665,7 +5665,7 @@
       "special": false
     },
     {
-      "code": "ND-AL",
+      "code": "ND-00",
       "state": "ND",
       "name": "ND-AL",
       "chamber": "house",
@@ -6672,7 +6672,7 @@
       "special": false
     },
     {
-      "code": "SD-AL",
+      "code": "SD-00",
       "state": "SD",
       "name": "SD-AL",
       "chamber": "house",
@@ -7660,7 +7660,7 @@
       "special": false
     },
     {
-      "code": "VT-AL",
+      "code": "VT-00",
       "state": "VT",
       "name": "VT-AL",
       "chamber": "house",
@@ -8268,7 +8268,7 @@
       "special": false
     },
     {
-      "code": "WY-AL",
+      "code": "WY-00",
       "state": "WY",
       "name": "WY-AL",
       "chamber": "house",

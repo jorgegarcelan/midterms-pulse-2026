@@ -2,14 +2,14 @@
 
 import { useEffect, useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
-import { introRemaining, prefersReducedMotion } from "@/components/motion/motion-utils";
+import { prefersReducedMotion } from "@/components/motion/motion-utils";
 
 const REVEAL = [
-  ".panel", ".forecast-card", ".model-control-card", ".market-kpis > *", ".geo-kpis > *", ".workspace-kpis > *",
+  ".panel", ".forecast-card", ".signal-card", ".model-control-card", ".market-kpis > *", ".geo-kpis > *", ".workspace-kpis > *",
   ".race-directory-table > a", ".district-race-list > a", ".poll-row", ".market-row",
 ].join(", ");
 const ROWS = ".race-directory-table > a, .district-race-list > a, .poll-row, .market-row";
-const SPOTLIGHT = ".panel, .forecast-card, .hemi-card";
+const SPOTLIGHT = ".panel, .forecast-card, .signal-card, .hemi-card";
 
 function updateScrollProgress() {
   const root = document.documentElement;
@@ -29,13 +29,12 @@ export function MotionDirector() {
 
     const flush = () => {
       batchFrame = 0;
-      const base = introRemaining(0);
       const position = new Map(batch.map((element) => [element, element.getBoundingClientRect()]));
       batch.sort((a, b) => position.get(a)!.top - position.get(b)!.top || position.get(a)!.left - position.get(b)!.left)
         .forEach((element, index) => {
           // Table rows cascade quickly; panels take a slower, heavier beat.
           const step = element.matches(ROWS) ? 28 : 75;
-          element.style.setProperty("--rv", `${Math.round(base + Math.min(index, 12) * step)}ms`);
+          element.style.setProperty("--rv", `${Math.min(index, 12) * step}ms`);
           element.dataset.reveal = "in";
         });
       batch = [];

@@ -2,17 +2,6 @@ export function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-// True while the home cold open owns the screen (full load of "/", motion allowed, not skipped).
-export function introPlaying() {
-  return typeof document !== "undefined" && document.documentElement.dataset.intro !== "off" && Boolean(document.querySelector(".cold-open")) && !prefersReducedMotion();
-}
-
-// Delay for an entrance: `extra` ms after the cold open hands over (or just `extra` when it is not playing).
-export function introRemaining(extra = 0) {
-  if (!introPlaying()) return extra;
-  return Math.max(extra, 1550 + extra - performance.now());
-}
-
 export const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
 
 // Small deterministic PRNG so server and client agree on "random" layouts.

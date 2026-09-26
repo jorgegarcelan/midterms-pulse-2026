@@ -52,9 +52,11 @@ function chamberSummary(payload: SourcePayload) {
   };
 }
 
+// Census and FEC key at-large seats as district "00"; the forecast feed calls them "AL".
 function normalizeCode(value: string) {
-  const match = value.match(/^([A-Z]{2})-(\d{1,2})$/);
-  return match ? `${match[1]}-${match[2].padStart(2, "0")}` : value;
+  const match = value.match(/^([A-Z]{2})-(\d{1,2}|AL)$/);
+  if (!match) return value;
+  return `${match[1]}-${match[2] === "AL" ? "00" : match[2].padStart(2, "0")}`;
 }
 
 function normalizeRaces(payload: SourcePayload, chamber: "house" | "senate"): ForecastRace[] {

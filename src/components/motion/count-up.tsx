@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { easeOutQuart, introRemaining, prefersReducedMotion } from "@/components/motion/motion-utils";
+import { easeOutQuart, prefersReducedMotion } from "@/components/motion/motion-utils";
 
 type CountUpProps = { value: number; decimals?: number; delay?: number; duration?: number; locale?: boolean };
 
-// Counts from zero on first reveal, then glides between values when the data changes.
+// Counts from zero the first time it scrolls into view, then glides between values when data changes.
 export function CountUp({ value, decimals = 0, delay = 0, duration = 1400, locale = false }: CountUpProps) {
   const [display, setDisplay] = useState(value);
+  const ref = useRef<HTMLSpanElement>(null);
   const shown = useRef<number | null>(null);
 
   useEffect(() => {
@@ -15,6 +16,7 @@ export function CountUp({ value, decimals = 0, delay = 0, duration = 1400, local
     const from = first ? 0 : shown.current!;
     let frame = 0;
     let timer = 0;
+    let observer: IntersectionObserver | null = null;
     if (prefersReducedMotion() || from === value) {
       shown.current = value;
       frame = requestAnimationFrame(() => setDisplay(value));
@@ -33,14 +35,19 @@ export function CountUp({ value, decimals = 0, delay = 0, duration = 1400, local
       };
       frame = requestAnimationFrame(step);
     };
-    if (first) {
+    if (first && ref.current) {
       // shown stays null until the count starts, so a Strict Mode remount replays the intro.
       frame = requestAnimationFrame(() => setDisplay(0));
-      timer = window.setTimeout(run, introRemaining(delay));
+      observer = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer?.disconnect();
+        timer = window.setTimeout(run, delay);
+      }, { rootMargin: "0px 0px -6% 0px" });
+      observer.observe(ref.current);
     } else run();
-    return () => { cancelAnimationFrame(frame); window.clearTimeout(timer); };
+    return () => { cancelAnimationFrame(frame); window.clearTimeout(timer); observer?.disconnect(); };
   }, [value, decimals, delay, duration]);
 
   const text = locale ? Math.round(display).toLocaleString("en-US") : display.toFixed(decimals);
-  return <span className="count-up">{text}</span>;
+  return <span className="count-up" ref={ref}>{text}</span>;
 }

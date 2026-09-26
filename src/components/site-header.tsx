@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { OPEN_COMMAND_EVENT } from "@/components/command-palette";
 
 const navigation = [
   { href: "/", label: "Dashboard" },
@@ -44,7 +45,12 @@ export function SiteHeader() {
           </Link>;
         })}
       </nav>
-      <div className="update-pill"><i /> Live data {today && <span>· {today}</span>}</div>
+      <div className="topbar-tools">
+        <button type="button" className="search-trigger" onClick={() => window.dispatchEvent(new Event(OPEN_COMMAND_EVENT))} aria-label="Search races, states and pages">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" /><path d="m14 14 4 4" /></svg><span>Search</span><kbd>⌘K</kbd>
+        </button>
+        <div className="update-pill"><i /> Live data {today && <span>· {today}</span>}</div>
+      </div>
       <span className="scroll-progress" aria-hidden="true" />
     </header>
   );

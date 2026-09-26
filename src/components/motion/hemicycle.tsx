@@ -3,32 +3,22 @@
 import { useMemo, useState } from "react";
 import { CountUp } from "@/components/motion/count-up";
 import { seeded } from "@/components/motion/motion-utils";
+import { parliamentLayout } from "@/lib/parliament";
 
-type Seat = { x: number; y: number; dx: number; dy: number };
 const RADIUS = 200;
 
-// Parliament layout: concentric rows, seats per row proportional to radius, ordered left → right by angle.
+// Adds a deterministic "burst" origin to each seat so the chamber can assemble on reveal.
 function layout(total: number, rows: number, inner: number) {
-  const radii = Array.from({ length: rows }, (_, index) => inner + (1 - inner) * (index / (rows - 1)));
-  const sum = radii.reduce((acc, radius) => acc + radius, 0);
-  const counts = radii.map((radius) => Math.round(total * radius / sum));
-  counts[rows - 1] += total - counts.reduce((acc, count) => acc + count, 0);
+  const { seats, dot } = parliamentLayout(total, rows, inner);
   const random = seeded(total * 7919);
-  const seats: (Seat & { angle: number; ring: number })[] = [];
-  radii.forEach((radius, ring) => {
-    const count = counts[ring];
-    for (let index = 0; index < count; index += 1) {
-      const angle = count === 1 ? Math.PI / 2 : Math.PI * index / (count - 1);
+  return {
+    dot: dot * RADIUS,
+    seats: seats.map((seat) => {
       const burst = 140 + random() * 260;
       const heading = random() * Math.PI * 2;
-      seats.push({
-        x: -Math.cos(angle) * radius * RADIUS, y: -Math.sin(angle) * radius * RADIUS, angle, ring,
-        dx: Math.cos(heading) * burst, dy: Math.sin(heading) * burst - 60,
-      });
-    }
-  });
-  const dot = Math.min((1 - inner) / (rows - 1), Math.PI * (radii.at(-1) || 1) / (counts.at(-1)! - 1)) * RADIUS * 0.4;
-  return { seats: seats.sort((a, b) => a.angle - b.angle || b.ring - a.ring), dot };
+      return { x: seat.x * RADIUS, y: seat.y * RADIUS, dx: Math.cos(heading) * burst, dy: Math.sin(heading) * burst - 60 };
+    }),
+  };
 }
 
 type HemicycleProps = { label: string; total: number; dem: number; majority: number; rows: number; inner?: number; majorityNote?: string };

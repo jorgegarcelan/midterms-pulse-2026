@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { CommandPalette } from "@/components/command-palette";
 import { ContextBar } from "@/components/context-bar";
 import { ElectionContextProvider } from "@/components/election-context";
 import { MotionDirector } from "@/components/motion/motion-director";
@@ -7,6 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 import "./theme.css";
 import "./motion.css";
+import "./features.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
@@ -26,7 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body><ElectionContextProvider><SiteHeader /><ContextBar />{children}<MotionDirector /></ElectionContextProvider></body>
+      <body><ElectionContextProvider><SiteHeader /><ContextBar />{children}<MotionDirector /><CommandPalette /></ElectionContextProvider></body>
     </html>
   );
 }

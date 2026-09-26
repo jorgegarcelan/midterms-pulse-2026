@@ -63,7 +63,7 @@ export function RaceProfile({ slug }: { slug: string }) {
   if (loading) return <section className="panel model-loading">Assembling model, FEC and Census data…</section>;
   if (!parsed || !race) return <section className="panel race-not-found"><p className="eyebrow">RACE NOT FOUND</p><h1>No modeled race matches this URL.</h1><Link href="/races">Return to race directory →</Link></section>;
   const stateName = stateByCode.get(race.state)?.name || race.state;
-  const title = race.chamber === "senate" ? `${stateName} Senate` : `${stateName} ${race.code.slice(3)}`;
+  const title = race.chamber === "senate" ? `${stateName} Senate` : `${stateName} ${race.code.endsWith("-00") ? "at-large" : race.code.slice(3)}`;
 
   return <>
     <nav className="race-breadcrumb" aria-label="Breadcrumb"><Link href="/races">All races</Link><span>/</span><Link href={`/states/${race.state.toLowerCase()}`}>{stateName}</Link><span>/</span><b>{race.chamber === "house" ? race.code : "Senate"}</b></nav>
