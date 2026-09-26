@@ -1,6 +1,6 @@
 import type { ForecastFeed, ForecastRace } from "@/lib/forecast";
 import { simulateHouse } from "@/lib/chamber-sim";
-import { demWinProbability, MODEL_VERSION, NATIONAL_SD, NATIONALIZATION, RACE_COMMON_SD, RACE_SD, SIMULATIONS } from "@/lib/mp26";
+import { demWinProbability, MODEL_VERSION, pollWeight, NATIONAL_SD, NATIONALIZATION, RACE_COMMON_SD, RACE_SD, SIMULATIONS } from "@/lib/mp26";
 import { simulateSenate } from "@/lib/senate-sim";
 
 export type ModelPoll = { endDate: string; dem: number; rep: number; sample: number; population: "LV" | "RV" | "A" };
@@ -20,17 +20,12 @@ const FALLBACK_BALLOT = { margin: 7.4, dem: 49.3, rep: 41.9 };
 
 
 function weightedBallot(polls: ModelPoll[], runDate: string) {
-  const anchor = new Date(`${runDate}T00:00:00Z`).getTime();
   let marginNumerator = 0;
   let demNumerator = 0;
   let repNumerator = 0;
   let denominator = 0;
   for (const poll of polls) {
-    const age = Math.max(0, (anchor - new Date(`${poll.endDate}T00:00:00Z`).getTime()) / 86_400_000);
-    const recency = 0.5 ** (age / 30);
-    const sample = poll.sample > 0 ? Math.sqrt(poll.sample / 1000) : 0.55;
-    const population = poll.population === "LV" ? 1 : poll.population === "RV" ? 0.86 : 0.72;
-    const weight = recency * sample * population;
+    const { weight } = pollWeight(poll, runDate);
     marginNumerator += (poll.dem - poll.rep) * weight;
     demNumerator += poll.dem * weight;
     repNumerator += poll.rep * weight;

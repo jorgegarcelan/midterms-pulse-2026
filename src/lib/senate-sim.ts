@@ -1,4 +1,4 @@
-import { simulateChamber } from "@/lib/chamber-sim";
+import { SENATE_SEED, simulateChamber } from "@/lib/chamber-sim";
 
 export type SenateRace = { code: string; leader: "D" | "R"; margin: number; signedMargin?: number; winProbability: number; incumbentParty?: "D" | "R" | null; special?: boolean; rating?: string };
 export type SenatePick = "D" | "R";
@@ -15,7 +15,6 @@ export type SenateOutlook = {
 
 // 119th Congress: 47 seats caucus with Democrats (incl. two independents), 53 with Republicans.
 const CAUCUS = { D: 47, R: 53 };
-const SEED = 20261103;
 
 export const signedMargin = (race: SenateRace) => race.signedMargin ?? (race.leader === "D" ? race.margin : -race.margin);
 export const demProbability = (race: SenateRace) => (race.leader === "D" ? race.winProbability : 100 - race.winProbability) / 100;
@@ -43,6 +42,6 @@ export function simulateSenate(races: SenateRace[], picks: Record<string, Senate
     if (pick) locked[pick] += 1;
     else open.push(signedMargin(race));
   }
-  const outlook = simulateChamber(open, { seats: 100, majority: 51, fixed: locked, seed: SEED }, options);
+  const outlook = simulateChamber(open, { seats: 100, majority: 51, fixed: locked, seed: SENATE_SEED }, options);
   return { expected: outlook.expected, locked, notUp, controlD: outlook.controlD, tieR: outlook.tie, median: outlook.median, interval80: outlook.interval80, distribution: outlook.distribution };
 }

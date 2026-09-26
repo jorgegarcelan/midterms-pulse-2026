@@ -24,23 +24,20 @@ function quantiles() {
   a race goes Democratic when expected margin + shift + national + local > 0. Seats in `fixed`
   are not simulated (not on the ballot, or called by the user). Same inputs and seed, same output.
 */
-export function simulateChamber(margins: number[], spec: ChamberSpec, options: { shift?: number; runs?: number } = {}): ChamberOutlook {
-  const { shift = 0, runs = SIMULATIONS } = options;
+// Raw engine: Democratic seat counts per outcome (index = seats) for `runs` simulations.
+export function sampleChamber(margins: number[], spec: ChamberSpec, options: { shift?: number; runs?: number; seed?: number } = {}) {
+  const { shift = 0, runs = SIMULATIONS, seed = spec.seed } = options;
   const table = quantiles();
   const open = Float64Array.from(margins, (margin) => margin + shift);
-  const expected = spec.fixed.D + open.reduce((sum, margin) => sum + demWinProbability(margin), 0);
   const counts = new Uint32Array(spec.seats + 1);
-  let control = 0;
-  let ties = 0;
   // mulberry32, inlined: ~22M draws per House run make call overhead matter.
-  let state = spec.seed | 0;
+  let state = seed | 0;
   const next = () => {
     state = (state + 0x6d2b79f5) | 0;
     let value = Math.imul(state ^ (state >>> 15), 1 | state);
     value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   };
-
   for (let run = 0; run < runs; run += 1) {
     const national = table[(next() * TABLE_SIZE) | 0] * RACE_COMMON_SD;
     let seats = spec.fixed.D;
@@ -48,9 +45,20 @@ export function simulateChamber(margins: number[], spec: ChamberSpec, options: {
       if (open[index] + national + table[(next() * TABLE_SIZE) | 0] * RACE_LOCAL_SD > 0) seats += 1;
     }
     counts[seats] += 1;
-    if (seats >= spec.majority) control += 1;
-    else if (seats * 2 === spec.seats) ties += 1;
   }
+  return counts;
+}
+
+export function simulateChamber(margins: number[], spec: ChamberSpec, options: { shift?: number; runs?: number } = {}): ChamberOutlook {
+  const { shift = 0, runs = SIMULATIONS } = options;
+  const counts = sampleChamber(margins, spec, { shift, runs });
+  const expected = spec.fixed.D + margins.reduce((sum, margin) => sum + demWinProbability(margin + shift), 0);
+  let control = 0;
+  let ties = 0;
+  counts.forEach((count, seats) => {
+    if (seats >= spec.majority) control += count;
+    else if (seats * 2 === spec.seats) ties += count;
+  });
 
   const quantile = (share: number) => {
     let cumulative = 0;
@@ -65,6 +73,7 @@ export function simulateChamber(margins: number[], spec: ChamberSpec, options: {
 }
 
 export const HOUSE_SPEC: ChamberSpec = { seats: 435, majority: 218, fixed: { D: 0, R: 0 }, seed: 20260920, bucket: 2 };
+export const SENATE_SEED = 20261103;
 
 // The House, bottom-up from all 435 districts (no seats are fixed).
 export function simulateHouse(races: { chamber: string; signedMargin: number }[], options: { shift?: number; runs?: number } = {}) {

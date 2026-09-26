@@ -54,7 +54,7 @@ export function ModelDashboard() {
     </section>
     <section className="model-method-grid">
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">CURRENT INPUTS</p><h2>What moved the model</h2></div><span className="panel-tag">auditable</span></div><div className="model-input-list">{model.inputs.map((input) => <div key={input.label}><span>{input.label}</span><strong>{input.value}</strong><small>{input.source}</small></div>)}</div></article>
-      <article className="panel"><div className="panel-head"><div><p className="eyebrow">ASSUMPTIONS</p><h2>What {model.version.replace("MP-26 ", "")} assumes</h2></div></div><ol className="assumption-list">{model.assumptions.map((item) => <li key={item}>{item}</li>)}</ol><p className="model-warning">This version is not yet historically calibrated and should be read as a structured sensitivity model, not an election call.</p><div className="model-actions"><Link href="/districts">Open district map →</Link><Link href="/methodology">Read methodology →</Link></div></article>
+      <article className="panel"><div className="panel-head"><div><p className="eyebrow">ASSUMPTIONS</p><h2>What {model.version.replace("MP-26 ", "")} assumes</h2></div></div><ol className="assumption-list">{model.assumptions.map((item) => <li key={item}>{item}</li>)}</ol><p className="model-warning">This version is not yet historically calibrated and should be read as a structured sensitivity model, not an election call.</p><div className="model-actions"><Link href="/how-it-works">How the model works →</Link><Link href="/districts">Open district map →</Link><Link href="/methodology">Read methodology →</Link></div></article>
     </section>
   </>;
 }

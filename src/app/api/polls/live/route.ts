@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { electionSnapshot } from "@/data/election";
 import { seedPolls } from "@/data/polls";
 
@@ -14,7 +14,9 @@ type SourcePoll = {
 };
 type PollIndex = { meta: { run_date: string; n_polls: number; latest_field_end: string }; polls: SourcePoll[] };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Callers may ask for a longer history (the model explainer); the default keeps the feed light.
+  const limit = Math.min(400, Math.max(1, Number(request.nextUrl.searchParams.get("limit")) || 60));
   try {
     const response = await fetch("https://vote-scope.com/web_data/us-house/polls/index.json", { next: { revalidate: 900 } });
     if (!response.ok) throw new Error("Poll source unavailable");
@@ -36,7 +38,7 @@ export async function GET() {
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-26)
       .map(([date, bucket]) => ({ date, dem: bucket.dem / bucket.count, rep: bucket.rep / bucket.count, margin: (bucket.dem - bucket.rep) / bucket.count, polls: bucket.count }));
-    const polls = usable.slice(0, 60).map((poll) => ({
+    const polls = usable.slice(0, limit).map((poll) => ({
       id: poll.poll_id,
       pollster: poll.firm_name,
       race: "Generic ballot",

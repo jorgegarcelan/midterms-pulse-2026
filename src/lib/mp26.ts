@@ -12,6 +12,19 @@ export const RACE_SD = 10;
 export const RACE_COMMON_SD = NATIONAL_SD * NATIONALIZATION;
 export const RACE_LOCAL_SD = Math.sqrt(RACE_SD ** 2 - RACE_COMMON_SD ** 2);
 export const SIMULATIONS = 50_000;
+export const POLL_HALF_LIFE_DAYS = 30;
+export const POPULATION_WEIGHT = { LV: 1, RV: .86, A: .72 } as const;
+export const AGGREGATE_SAMPLE_WEIGHT = .55;
+
+export type WeightedPoll = { endDate: string; sample: number; population: "LV" | "RV" | "A" };
+
+// Weight of one generic-ballot poll on `anchorDate`: recency × sample size × population.
+export function pollWeight(poll: WeightedPoll, anchorDate: string) {
+  const age = Math.max(0, (Date.parse(`${anchorDate}T00:00:00Z`) - Date.parse(`${poll.endDate}T00:00:00Z`)) / 86_400_000);
+  const recency = .5 ** (age / POLL_HALF_LIFE_DAYS);
+  const sample = poll.sample > 0 ? Math.sqrt(poll.sample / 1000) : AGGREGATE_SAMPLE_WEIGHT;
+  return { age, recency, sample, population: POPULATION_WEIGHT[poll.population], weight: recency * sample * POPULATION_WEIGHT[poll.population] };
+}
 
 // Abramowitz–Stegun 7.1.26 approximation of the standard normal CDF.
 export function normalCdf(z: number) {
