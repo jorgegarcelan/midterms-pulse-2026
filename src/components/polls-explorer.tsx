@@ -29,7 +29,7 @@ function PollRow({ poll }: { poll: Poll }) {
   const repWidth = Math.max(0, Math.min(100, poll.rep));
   return (
     <article className="poll-row">
-      <div className="poll-meta"><strong>{poll.race}</strong><span>{poll.pollster} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString()}` : ""}</span></div>
+      <div className="poll-meta"><strong>{poll.race}</strong><span>{poll.pollster} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString("en-US")}` : ""}</span></div>
       <div className="poll-bars" aria-label={`Democrat ${poll.dem}, Republican ${poll.rep}`}>
         <span className="poll-bar dem" style={{ width: `${demWidth}%` }}><i>D {poll.dem.toFixed(1)}</i></span>
         <span className="poll-bar rep" style={{ width: `${repWidth}%` }}><i>R {poll.rep.toFixed(1)}</i></span>
@@ -123,7 +123,7 @@ export function PollsExplorer() {
     <>
       <section className="page-intro">
         <div><p className="eyebrow">2026 POLLING</p><h1>Polling tracker</h1><p>Individual toplines, national trend and locally saved research entries, with source and field dates attached.</p></div>
-        <div className="stat-stamp"><strong>{feedMeta?.n_polls.toLocaleString() || seedPolls.length + userPolls.length}</strong><span>polls indexed</span><small>{feedMeta ? `${feedSource} · through ${feedMeta.latest_field_end}` : feedError || feedSource}</small></div>
+        <div className="stat-stamp"><strong>{feedMeta?.n_polls.toLocaleString("en-US") || seedPolls.length + userPolls.length}</strong><span>polls indexed</span><small>{feedMeta ? `${feedSource} · through ${feedMeta.latest_field_end}` : feedError || feedSource}</small></div>
       </section>
 
       <section className="split-grid map-grid">

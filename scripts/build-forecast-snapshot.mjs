@@ -26,7 +26,7 @@ function chamberSummary(payload) {
 
 function races(payload, chamber) {
   return payload.ridings.map((race) => ({
-    code: chamber === "house" ? race.name_en.replace(/-(\d)$/, "-0$1") : race.province,
+    code: chamber === "house" ? race.name_en.replace(/-(\d)$/, "-0$1").replace(/-AL$/, "-00") : race.province,
     state: race.province,
     name: race.name_en,
     chamber,

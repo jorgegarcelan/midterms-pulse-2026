@@ -18,10 +18,10 @@ function districtCode(feature: DistrictCollection["features"][number]) {
 }
 
 function fill(race?: ForecastRace) {
-  if (!race) return "#2b3035";
+  if (!race) return "#1c1f27";
   const intensity = Math.min(1, Math.abs(race.signedMargin) / 18);
-  if (race.leader === "D") return `color-mix(in srgb, #4d7fe1 ${Math.round(45 + intensity * 45)}%, #303640)`;
-  return `color-mix(in srgb, #d84d59 ${Math.round(45 + intensity * 45)}%, #303640)`;
+  if (race.leader === "D") return `color-mix(in srgb, #5b86ff ${Math.round(35 + intensity * 55)}%, #141722)`;
+  return `color-mix(in srgb, #ff5a6e ${Math.round(35 + intensity * 55)}%, #141722)`;
 }
 
 export function DistrictMap() {
@@ -72,7 +72,7 @@ export function DistrictMap() {
 
   return <>
     <section className="page-intro district-intro">
-      <div><p className="eyebrow">119TH CONGRESS · 435 VOTING DISTRICTS</p><h1>Congressional district map</h1><p>Inspect every House district, isolate a state and move directly into the underlying race profile. Color shows the current Midterm Pulse v0.1 lean; gray means no modeled match.</p></div>
+      <div><p className="eyebrow">119TH CONGRESS · 435 VOTING DISTRICTS</p><h1>Congressional district map</h1><p>Inspect every House district, isolate a state and move directly into the underlying race profile. Color shows the current Midterm Pulse model lean; gray means no modeled match.</p></div>
       <div className="stat-stamp"><strong>{races.length}</strong><span>{stateCode === "US" ? "districts in view" : `${stateCode} districts`}</span><small>{model?.runDate || "Loading model…"}</small></div>
     </section>
     <section className="district-toolbar" aria-label="District map controls">
