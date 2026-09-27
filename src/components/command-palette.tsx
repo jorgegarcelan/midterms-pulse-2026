@@ -11,7 +11,7 @@ type ModelRace = { code: string; chamber: "house" | "senate"; leader: "D" | "R";
 export const OPEN_COMMAND_EVENT = "midterm-pulse:command";
 
 const PAGES: Item[] = [
-  ["Dashboard", "/", "Home, story and scenario tools"], ["Forecast model", "/model", "MP-26 distributions and assumptions"], ["How the model works", "/how-it-works", "The pipeline, step by step"], ["District map", "/districts", "All 435 House districts"],
+  ["Dashboard", "/", "Home, story and scenario tools"], ["Forecast model", "/model", "MP-26 distributions and assumptions"], ["How the model works", "/how-it-works", "The pipeline, step by step"], ["Glossary", "/glossary", "Every term, in plain words"], ["District map", "/districts", "All 435 House districts"],
   ["Race directory", "/races", "Every House and Senate race"], ["Polls", "/polls", "Polling tracker"], ["Prediction markets", "/markets", "Polymarket control odds"],
   ["Live desk", "/live", "X watchlist and signal triage"], ["History", "/history", "2010–2024 cycles"], ["County explorer", "/explore", "3,000+ counties"],
   ["Workspace", "/workspace", "Compare, scenarios, timeline"], ["Methodology", "/methodology", "Sources and validation"],

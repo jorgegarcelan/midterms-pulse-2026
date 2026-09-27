@@ -4,6 +4,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import Link from "next/link";
 import { CountUp } from "@/components/motion/count-up";
 import { Hemicycle } from "@/components/motion/hemicycle";
+import { ShareImageButton } from "@/components/share-image-button";
 import { stateByCode } from "@/data/geography";
 import { MODEL_VERSION } from "@/lib/mp26";
 import { demProbability, signedMargin, simulateSenate, type SenatePick, type SenateRace } from "@/lib/senate-sim";
@@ -85,7 +86,7 @@ export function SenateBuilder({ races }: { races: SenateRace[] }) {
           <p className="senate-decided">{decided ? `${decided} of ${races.length} races called by you` : `All ${races.length} races follow the model`}</p>
         </div>
 
-        <div className="senate-chamber"><Hemicycle label="Projected Senate" total={100} dem={expectedD} majority={51} rows={5} inner={.42} majorityNote="VP breaks ties" /></div>
+        <div className="senate-chamber"><Hemicycle label="Projected Senate" total={100} dem={expectedD} majority={51} rows={5} inner={.42} majorityNote="VP breaks ties" /><ShareImageButton label={decided ? "Download your scenario" : "Download image"} href={`/api/share/senate${decided ? `?picks=${Object.entries(picks).map(([code, pick]) => `${code}-${pick}`).join(",")}` : ""}`} /></div>
       </div>
 
       <div className="senate-grid">

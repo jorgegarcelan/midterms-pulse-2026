@@ -255,3 +255,67 @@ html body .command-input input { flex: 1; height: 54px; padding: 0; border: 0 !i
   .pulse-core { display: none; }
   .sen-flip, .senate-bar i, .senate-odds .value, .gauge-needle { transition-duration: .01ms; }
 }
+
+/* ---------- Share images: download a branded, dated card ---------- */
+
+.share-image {
+  display: inline-flex; align-items: center; gap: 7px; width: max-content; height: 32px; margin-top: 14px; padding: 0 12px 0 10px;
+  border: 1px solid var(--border); border-radius: 9px; background: rgba(255,255,255,.03); color: #c9ccd3;
+  font-size: 12.5px; font-weight: 500; letter-spacing: -.005em; text-decoration: none; cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, color .2s ease;
+}
+.share-image:hover { border-color: var(--border-strong); background: rgba(255,255,255,.06); color: #fff; }
+.share-image svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.share-image[data-state="busy"] { color: #9fb8ff; cursor: progress; }
+.share-image[data-state="busy"] svg { animation: share-bob .8s var(--ease-out) infinite; }
+.share-image[data-state="error"] { color: var(--red-soft); }
+@keyframes share-bob { 50% { transform: translateY(2px); } }
+.race-profile-head > div:first-child { display: flex; flex-direction: column; }
+.state-profile-head > div:first-child { display: flex; flex-direction: column; align-items: flex-start; }
+.senate-chamber { display: flex; flex-direction: column; align-items: center; }
+.pulse-steps .pulse-share { margin-top: 10px; justify-self: end; height: 28px; background: rgba(8,9,14,.72); backdrop-filter: blur(12px); font-size: 11.5px; }
+@media (max-width: 720px) {
+  .pulse-steps .pulse-share { padding: 0 8px; }
+  .pulse-steps .pulse-share span { display: none; }
+}
+
+/* ---------- Chapter 3: why the tipping seat and the chamber have different odds ---------- */
+
+.tip-why { --lead: var(--blue); --trail: var(--red); margin-top: 16px; padding: 14px 16px 14px; border: 1px solid var(--border); border-radius: 14px; background: rgba(8,9,14,.66); backdrop-filter: blur(12px); }
+.tip-why-r { --lead: var(--red); --trail: var(--blue); }
+.tip-why-title { margin: 0; color: #fff; font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; }
+.tip-why-block { display: grid; gap: 6px; margin-top: 12px; }
+.tip-why-label { color: #8b8f99; font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.tip-why-label b { color: #fff; font-weight: 500; }
+.tip-why-strip, .tip-why-bell { display: block; width: 100%; height: auto; overflow: visible; }
+.tip-why-strip rect { fill: var(--lead); }
+.tip-why-strip rect.tip { stroke: #fff; stroke-width: 1.5; }
+.tip-why-scale { display: flex; justify-content: space-between; color: #6b707b; font-family: var(--font-mono); font-size: 10px; }
+.bell-fill { fill: rgba(255,255,255,.05); }
+.bell-line { fill: none; stroke: rgba(255,255,255,.45); stroke-width: 1.4; }
+.bell-tail { fill: var(--trail); opacity: .85; }
+.bell-axis { stroke: rgba(255,255,255,.15); }
+.bell-mark { stroke: var(--trail); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.bell-note { fill: #fff; font-family: var(--font-mono); font-size: 10.5px; }
+.bell-tick { fill: #6b707b; font-family: var(--font-mono); font-size: 9.5px; }
+.tip-why-copy { margin: 10px 0 0 !important; color: #9a9ea8 !important; font-size: 13px !important; line-height: 1.5 !important; }
+.tip-why-copy b { color: #fff; font-weight: 600; }
+.tip-why-copy a { color: #9fb8ff; }
+.tip-why-mobile { display: none; }
+@media (max-width: 720px) {
+  .pulse-chapter-3 .tip-why { display: none; }
+  .tip-why-mobile { display: block; padding: 8px 16px 0; }
+  .tip-why-mobile .tip-why { margin-top: 0; }
+}
+.pulse-chapter-3 { top: 22px; translate: 0 calc((1 - var(--o)) * 36px); }
+.pulse-chapter-3 h2 { font-size: clamp(28px, 2.7vw, 40px); }
+.pulse-chapter-3 > p:not(.eyebrow) { margin-top: 10px; font-size: 14px; }
+.pulse-chapter-3 .tip-card { margin-top: 14px; padding: 12px 14px; gap: 6px 18px; }
+@media (max-height: 820px) and (min-width: 721px) {
+  .pulse-chapter-3 { top: 10px; }
+  .pulse-chapter-3 .eyebrow { display: none; }
+  .pulse-chapter-3 .tip-card { grid-template-columns: repeat(3, auto) 1fr; align-items: center; }
+  .pulse-chapter-3 .tip-card em { grid-column: auto; text-align: right; }
+  .tip-why { margin-top: 12px; padding: 12px 14px; }
+  .tip-why-bell { max-height: 70px; }
+}

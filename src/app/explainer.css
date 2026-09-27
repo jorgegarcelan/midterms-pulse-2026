@@ -258,3 +258,46 @@
   .pipe-packet { display: none; }
   .stage-copy > *, .stage-viz, .source-column article, .output-cards article, .version-line li { opacity: 1; transform: none; }
 }
+
+/* ---------- The short version: five plain-language steps ---------- */
+
+.brief { margin-top: 72px; }
+.brief-head { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.brief-head h2 { margin-top: 10px; font-size: clamp(28px, 3.4vw, 44px); font-weight: 600; letter-spacing: -.045em; line-height: 1.05; }
+.brief-steps { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 32px 0 0; padding: 0; list-style: none; }
+.brief-steps::before { content: ""; position: absolute; left: 4%; right: 4%; top: 27px; height: 1px; background: linear-gradient(90deg, var(--blue), #a78bfa, var(--red)); opacity: .45; }
+.brief-steps li {
+  position: relative; display: flex; flex-direction: column; padding: 16px 16px 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--glass); box-shadow: var(--shadow);
+  animation: mp-rise-blur .8s var(--ease-out) both; animation-delay: calc(var(--i) * 90ms + .2s);
+}
+.brief-n { display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid var(--border-strong); border-radius: 50%; background: var(--bg); color: #c9ccd3; font-family: var(--font-mono); font-size: 10px; }
+.brief-steps h3 { margin: 14px 0 0; font-size: 16px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+.brief-steps p { flex: 1; margin: 8px 0 0; color: #8f939d; font-size: 13.5px; line-height: 1.5; }
+.brief-value { display: grid; gap: 3px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+.brief-value strong { color: #fff; font-size: 26px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
+.brief-value small { color: #6b707b; font-family: var(--font-mono); font-size: 10.5px; line-height: 1.4; }
+.brief-foot { margin: 18px 0 0; color: #8f939d; font-size: 14px; text-align: center; }
+.brief-foot a { color: #9fb8ff; }
+@media (max-width: 1100px) { .brief-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .brief-steps::before { display: none; } .brief-steps li:last-child { grid-column: 1 / -1; } }
+@media (max-width: 620px) { .brief { margin-top: 48px; } .brief-steps { grid-template-columns: 1fr; } }
+
+/* ---------- Glossary ---------- */
+
+.glossary-intro h1 { max-width: 760px; }
+.glossary-tools { position: sticky; top: 112px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 8px 0 20px; padding: 10px 0; background: linear-gradient(var(--bg) 70%, transparent); }
+.glossary-search { display: flex; align-items: center; gap: 9px; flex: 1 1 280px; max-width: 420px; height: 40px; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,.03); }
+.glossary-search svg { width: 16px; height: 16px; fill: none; stroke: #7c818c; stroke-width: 1.6; stroke-linecap: round; }
+.glossary-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: #fff; font-size: 14px; }
+.glossary-letters { display: flex; flex-wrap: wrap; gap: 4px; }
+.glossary-letters a { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; color: #8b8f99; font-family: var(--font-mono); font-size: 12px; transition: background .2s ease, color .2s ease; }
+.glossary-letters a:hover { background: rgba(255,255,255,.06); color: #fff; }
+.glossary-list { display: grid; margin: 0; border-top: 1px solid var(--border); }
+.glossary-term { display: grid; grid-template-columns: minmax(180px, 280px) minmax(0, 1fr); gap: 8px 40px; padding: 22px 0; border-bottom: 1px solid var(--border); scroll-margin-top: 190px; }
+.glossary-term:target { background: linear-gradient(90deg, rgba(91,134,255,.08), transparent 70%); }
+.glossary-term dt a { color: #fff; font-size: 19px; font-weight: 600; letter-spacing: -.025em; }
+.glossary-term dt small { display: block; margin-top: 5px; color: #6b707b; font-family: var(--font-mono); font-size: 11px; }
+.glossary-term dd { margin: 0; }
+.glossary-term dd p { margin: 0; color: #b4b8c1; font-size: 15px; line-height: 1.6; }
+.glossary-term .glossary-example { margin-top: 10px; padding-left: 12px; border-left: 2px solid rgba(167,139,250,.5); color: #8f939d; font-size: 14px; }
+.glossary-term dd a { display: inline-block; margin-top: 10px; color: #9fb8ff; font-size: 13.5px; }
+@media (max-width: 720px) { .glossary-term { grid-template-columns: 1fr; scroll-margin-top: 150px; } .glossary-tools { position: static; } }

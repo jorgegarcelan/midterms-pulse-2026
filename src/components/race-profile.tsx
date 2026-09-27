@@ -7,10 +7,11 @@ import type { FeatureCollection, Geometry } from "geojson";
 import { stateByCode, stateFips } from "@/data/geography";
 import type { ForecastRace } from "@/lib/forecast";
 import { MODEL_VERSION } from "@/lib/mp26";
-import { parseRaceSlug } from "@/lib/races";
+import { parseRaceSlug, raceSlug } from "@/lib/races";
 import { RaceDemographics } from "@/components/race/race-demographics";
 import { RaceHistory } from "@/components/race/race-history";
 import { RaceSignals } from "@/components/race/race-signals";
+import { ShareImageButton } from "@/components/share-image-button";
 
 type DistrictProperties = { GEOID: string; STATEFP: string; CD119FP: string; NAMELSAD: string };
 type DistrictCollection = FeatureCollection<Geometry, DistrictProperties>;
@@ -68,7 +69,7 @@ export function RaceProfile({ slug }: { slug: string }) {
 
   return <>
     <nav className="race-breadcrumb" aria-label="Breadcrumb"><Link href="/races">All races</Link><span>/</span><Link href={`/states/${race.state.toLowerCase()}`}>{stateName}</Link><span>/</span><b>{race.chamber === "house" ? race.code : "Senate"}</b></nav>
-    <section className="race-profile-head"><div><p className="eyebrow">{race.chamber === "house" ? "U.S. HOUSE" : "U.S. SENATE"} · 2026 GENERAL ELECTION</p><h1>{title}</h1><div className="race-profile-tags"><span>{race.rating}</span>{race.special && <span>Special election</span>}<span>{race.pollCount ?? 0} race polls in benchmark</span></div></div><div className={`race-callout ${race.leader === "D" ? "dem" : "rep"}`}><span>MODEL LEAD</span><strong>{race.leader}+{race.margin.toFixed(1)}</strong><small>{race.winProbability}% win probability</small></div></section>
+    <section className="race-profile-head"><div><p className="eyebrow">{race.chamber === "house" ? "U.S. HOUSE" : "U.S. SENATE"} · 2026 GENERAL ELECTION</p><h1>{title}</h1><div className="race-profile-tags"><span>{race.rating}</span>{race.special && <span>Special election</span>}<span>{race.pollCount ?? 0} race polls in benchmark</span></div><ShareImageButton href={`/api/share/race/${raceSlug(race)}`} /></div><div className={`race-callout ${race.leader === "D" ? "dem" : "rep"}`}><span>MODEL LEAD</span><strong>{race.leader}+{race.margin.toFixed(1)}</strong><small>{race.winProbability}% win probability</small></div></section>
     <section className="race-profile-grid">
       <div className="race-profile-main">
         <article className="panel race-benchmark"><div className="panel-head"><div><p className="eyebrow">FORECAST SNAPSHOT</p><h2>Projected two-party vote</h2></div><span className="panel-tag">{MODEL_VERSION}</span></div><div className="race-share"><span className="dem" style={{ width: `${race.demVote || 50}%` }}><b>D {race.demVote?.toFixed(1) || "—"}%</b></span><span className="rep" style={{ width: `${race.repVote || 50}%` }}><b>R {race.repVote?.toFixed(1) || "—"}%</b></span></div><div className="race-metric-grid"><div><span>Win probability</span><strong>{race.winProbability}% {race.leader}</strong></div><div><span>Close-race probability</span><strong>{race.closeProbability}%</strong></div><div><span>2024 baseline</span><strong>{race.baselineDem !== null && race.baselineRep !== null ? `${race.baselineDem > race.baselineRep ? "D" : "R"}+${Math.abs(race.baselineDem - race.baselineRep).toFixed(1)}` : "—"}</strong></div><div><span>Rating</span><strong>{race.rating}</strong></div></div></article>
