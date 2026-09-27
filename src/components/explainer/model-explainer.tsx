@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ScrambleText } from "@/components/motion/scramble-text";
+import { ModelInBrief } from "@/components/explainer/model-in-brief";
 import { PipelineHero } from "@/components/explainer/pipeline-hero";
 import { StageErrorBells } from "@/components/explainer/stage-error-bells";
 import { StageLiveSim } from "@/components/explainer/stage-live-sim";
@@ -125,6 +126,8 @@ export function ModelExplainer() {
           onJump={jump}
         /> : <div className="pipeline-hero pipeline-loading">Loading the live model…</div>}
       </section>
+
+      <ModelInBrief model={model} />
 
       <div className="explainer-body" ref={bodyRef}>
         <nav className="explainer-rail" aria-label="Pipeline stages">

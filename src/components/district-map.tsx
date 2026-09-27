@@ -8,6 +8,7 @@ import type { FeatureCollection, Geometry } from "geojson";
 import { useElectionContext } from "@/components/election-context";
 import { stateCodeByFips, stateFips } from "@/data/geography";
 import type { ForecastRace } from "@/lib/forecast";
+import { ShareImageButton } from "@/components/share-image-button";
 
 type DistrictProperties = { GEOID: string; STATEFP: string; CD119FP: string; NAMELSAD: string };
 type DistrictCollection = FeatureCollection<Geometry, DistrictProperties> & { source?: string };
@@ -72,7 +73,7 @@ export function DistrictMap() {
 
   return <>
     <section className="page-intro district-intro">
-      <div><p className="eyebrow">119TH CONGRESS · 435 VOTING DISTRICTS</p><h1>Congressional district map</h1><p>Inspect every House district, isolate a state and move directly into the underlying race profile. Color shows the current Midterm Pulse model lean; gray means no modeled match.</p></div>
+      <div><p className="eyebrow">119TH CONGRESS · 435 VOTING DISTRICTS</p><h1>Congressional district map</h1><p>Inspect every House district, isolate a state and move directly into the underlying race profile. Color shows the current Midterm Pulse model lean; gray means no modeled match.</p><ShareImageButton label={stateCode === "US" ? "Download map" : `Download ${stateCode} image`} href={stateCode === "US" ? "/api/share/map" : `/api/share/state/${stateCode.toLowerCase()}`} /></div>
       <div className="stat-stamp"><strong>{races.length}</strong><span>{stateCode === "US" ? "districts in view" : `${stateCode} districts`}</span><small>{model?.runDate || "Loading model…"}</small></div>
     </section>
     <section className="district-toolbar" aria-label="District map controls">

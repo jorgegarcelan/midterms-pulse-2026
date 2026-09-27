@@ -23,8 +23,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Midterm Pulse 2026",
     description: "Forecasts, polls, live signals and electoral history for the 2026 U.S. midterms.",
-    images: ["/brand/midterm-pulse-signal.png"],
+    siteName: "Midterm Pulse 2026",
+    type: "website",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

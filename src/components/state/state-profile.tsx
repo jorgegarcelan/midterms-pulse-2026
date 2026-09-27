@@ -8,6 +8,7 @@ import { stateByCode } from "@/data/geography";
 import type { ForecastRace } from "@/lib/forecast";
 import { loadDemographics, loadHouseHistory, loadPresidentHistory, type Demographics, type HistoryResult } from "@/lib/race-data";
 import { raceSlug } from "@/lib/races";
+import { ShareImageButton } from "@/components/share-image-button";
 
 type Row = { code: string; race?: ForecastRace; last?: HistoryResult; income: number | null; bachelors: number | null; white: number | null; hispanic: number | null; black: number | null };
 type SortKey = "code" | "model" | "last" | "income" | "bachelors" | "white" | "hispanic" | "black";
@@ -66,7 +67,7 @@ export function StateProfile({ code }: { code: string }) {
   return (
     <section className="state-profile" aria-labelledby="state-profile-title">
       <div className="state-profile-head">
-        <div><p className="eyebrow">State profile</p><h2 id="state-profile-title">{name} at a glance</h2></div>
+        <div><p className="eyebrow">State profile</p><h2 id="state-profile-title">{name} at a glance</h2><ShareImageButton href={`/api/share/state/${state.toLowerCase()}`} /></div>
         <div className="state-chips">
           {profile?.population && <span><b>{new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(profile.population)}</b> residents</span>}
           <span><b>{rows.length || "—"}</b> House {rows.length === 1 ? "seat" : "seats"}</span>
