@@ -426,9 +426,40 @@ export class PulseEngine {
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(x, y, 9 + Math.sin(performance.now() / 260) * 1.5, 0, Math.PI * 2); ctx.stroke();
       ctx.lineWidth = 1;
-      ctx.fillStyle = "#fff";
       ctx.textAlign = x > this.cssW * .7 ? "right" : "left";
-      ctx.fillText(`218TH SEAT · ${this.codes[tipping]}`, x + (ctx.textAlign === "right" ? -16 : 16), y - 14);
+      const labelX = x + (ctx.textAlign === "right" ? -16 : 16);
+      const lead = margin >= 0 ? "D" : "R";
+      const leadColor = lead === "D" ? "#9fb8ff" : "#ff9eaa";
+      const party = lead === "D" ? "DEMOCRATS" : "REPUBLICANS";
+      ctx.fillStyle = "#fff";
+      ctx.fillText(`${this.codes[tipping]} · 218TH SEAT`, labelX, y - 30);
+      ctx.fillStyle = leadColor;
+      ctx.fillText(`GIVES ${party} THE MAJORITY`, labelX, y - 15);
+
+      // The majority the tipping seat completes (the 218th seat is the median, so it is the 218th
+      // from either end), and the spare seats beyond it that would all have to fall first.
+      const rankX = (position: number) => px(40 + position / (SEATS - 1) * 920);
+      let leadSeats = 0;
+      for (let position = 0; position < SEATS; position += 1) if ((this.margins[this.byRank[position]] + shift) * (lead === "D" ? 1 : -1) > 0) leadSeats += 1;
+      const [from, to] = lead === "D" ? [0, MAJORITY_RANK] : [MAJORITY_RANK, SEATS - 1];
+      ctx.globalAlpha = t2 * .9;
+      ctx.strokeStyle = leadColor;
+      ctx.beginPath(); ctx.moveTo(rankX(from), py(30)); ctx.lineTo(rankX(from), py(24)); ctx.lineTo(rankX(to), py(24)); ctx.lineTo(rankX(to), py(30)); ctx.stroke();
+      ctx.fillStyle = leadColor;
+      ctx.textAlign = "center";
+      ctx.fillText(`218 SEATS = A ${lead === "D" ? "DEMOCRATIC" : "REPUBLICAN"} MAJORITY`, (rankX(from) + rankX(to)) / 2, py(16));
+      const spare = leadSeats - (MAJORITY_RANK + 1);
+      if (spare > 0) {
+        const [start, end] = lead === "D" ? [MAJORITY_RANK + 1, leadSeats - 1] : [SEATS - leadSeats, MAJORITY_RANK - 1];
+        const ys: number[] = [];
+        for (let position = start; position <= end; position += 1) ys.push(py(ladderY(this.margins[this.byRank[position]] + shift)));
+        // Below the Democratic dots, above the Republican ones: always on the side facing EVEN.
+        const bracketY = lead === "D" ? Math.max(...ys) + 12 : Math.min(...ys) - 12;
+        const tick = lead === "D" ? -5 : 5;
+        ctx.beginPath(); ctx.moveTo(rankX(start), bracketY + tick); ctx.lineTo(rankX(start), bracketY); ctx.lineTo(rankX(end), bracketY); ctx.lineTo(rankX(end), bracketY + tick); ctx.stroke();
+        ctx.textAlign = "left";
+        ctx.fillText(`+${spare} TO SPARE`, Math.max(rankX(start), rankX(end)) + 8, bracketY + 4);
+      }
     }
     ctx.globalAlpha = 1;
     // The tipping-point ring breathes while the ladder is on screen.

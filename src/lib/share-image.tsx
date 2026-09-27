@@ -8,7 +8,7 @@ import { stateByCode, stateFips } from "@/data/geography";
 import type { ForecastRace } from "@/lib/forecast";
 import type { ModelResult } from "@/lib/model";
 import { simulateHouse } from "@/lib/chamber-sim";
-import { MODEL_VERSION, NATIONALIZATION, SIMULATIONS } from "@/lib/mp26";
+import { MODEL_VERSION, NATIONALIZATION } from "@/lib/mp26";
 import { parliamentLayout } from "@/lib/parliament";
 import { parseRaceSlug, raceName } from "@/lib/races";
 import { simulateSenate, type SenatePick } from "@/lib/senate-sim";
@@ -26,6 +26,7 @@ export type ShareOptions = { swing?: number; picks?: Record<string, SenatePick> 
 export type ShareCard = { element: React.ReactElement; filename: string };
 
 const SITE = "midterm-pulse-2026.vercel.app";
+const CREDIT = "jorgegarcelan.com · @jgarcelan";
 const C = {
   bg: "#06070b", ink: "#ededef", muted: "#8b8f99", dim: "#5d626d", line: "rgba(255,255,255,.1)",
   blue: "#5b86ff", red: "#ff5a6e", blueSoft: "#9fb8ff", redSoft: "#ff9eaa", land: "#1a1d25",
@@ -132,7 +133,7 @@ function frame({ size, runDate, path, children }: Frame) {
   const s = (value: number) => value * u;
   return (
     <div style={{
-      width: "100%", height: "100%", display: "flex", flexDirection: "column", padding: `${s(46)}px ${s(60)}px ${s(40)}px`,
+      position: "relative", width: "100%", height: "100%", display: "flex", flexDirection: "column", padding: `${s(46)}px ${s(60)}px ${s(40)}px`,
       backgroundColor: C.bg, backgroundImage: "radial-gradient(circle at 8% 0%, rgba(91,134,255,.16), rgba(6,7,11,0) 42%), radial-gradient(circle at 100% 100%, rgba(255,90,110,.13), rgba(6,7,11,0) 44%)",
       color: C.ink, fontFamily: "Geist",
     }}>
@@ -143,12 +144,19 @@ function frame({ size, runDate, path, children }: Frame) {
           <span style={{ marginLeft: s(14), fontSize: s(26), fontWeight: 600, letterSpacing: "-0.035em", color: "#fff" }}>Midterm Pulse</span>
           <span style={{ marginLeft: s(10), padding: `${s(3)}px ${s(8)}px`, border: `1px solid rgba(255,255,255,.18)`, borderRadius: s(6), fontFamily: "Geist Mono", fontSize: s(15), color: C.muted }}>2026</span>
         </div>
-        <span style={{ fontFamily: "Geist Mono", fontSize: s(15), letterSpacing: "0.06em", color: C.muted, textTransform: "uppercase" }}>Forecast · {longDate(runDate)}</span>
+        <span style={{ fontFamily: "Geist Mono", fontSize: s(15), letterSpacing: "0.04em", color: C.muted }}>Forecast · {longDate(runDate)} · {MODEL_VERSION}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "row", width: s(1080), height: size.height - s(46 + 40 + 34 + 30 + 72), marginTop: s(30) }}>{children}</div>
       <div style={{ display: "flex", justifyContent: "space-between", paddingTop: s(18), borderTop: `1px solid ${C.line}`, fontFamily: "Geist Mono", fontSize: s(15), color: C.dim }}>
         <span>{SITE}{path}</span>
-        <span>{MODEL_VERSION} · {SIMULATIONS.toLocaleString("en-US")} simulations</span>
+        <span style={{ color: C.muted }}>{CREDIT}</span>
+      </div>
+      {/* Watermark: faint and diagonal, so the credit survives a crop of the footer. */}
+      <div style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", transform: "rotate(-16deg)", color: "rgba(255,255,255,.08)", fontWeight: 600, letterSpacing: "-0.02em" }}>
+          <span style={{ fontSize: s(46) }}>jorgegarcelan.com</span>
+          <span style={{ fontSize: s(34) }}>@jgarcelan</span>
+        </div>
       </div>
     </div>
   );

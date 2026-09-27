@@ -62,12 +62,6 @@
 .pulse-tally strong { font-size: 52px; font-weight: 600; letter-spacing: -.055em; line-height: 1; }
 .pulse-tally > div > span { color: #7c818c; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 .pulse-tally i { flex: 1; min-width: 60px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,.25); color: #9a9ea8; font-family: var(--font-mono); font-size: 10px; font-style: normal; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
-.tip-card { display: grid; grid-template-columns: repeat(3, auto); gap: 10px 22px; align-items: end; margin-top: 22px; padding: 16px 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--glass); box-shadow: var(--shadow); transition: border-color .2s ease, transform .3s var(--ease-out); }
-.tip-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
-.tip-card span { display: grid; gap: 4px; }
-.tip-card small { margin: 0; }
-.tip-card strong { font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
-.tip-card em { grid-column: 1 / -1; color: #9fb8ff; font-size: 13px; font-style: normal; }
 
 .pulse-swing {
   position: absolute; left: 50%; bottom: 20px; z-index: 4; width: min(620px, calc(100% - 40px));
@@ -238,8 +232,6 @@ html body .command-input input { flex: 1; height: 54px; padding: 0; border: 0 !i
   .pulse-chapter > p:not(.eyebrow) { font-size: 13.5px; }
   .pulse-tally { margin-top: 12px; }
   .pulse-tally strong { font-size: 34px; }
-  .tip-card { grid-template-columns: repeat(3, 1fr); gap: 8px 12px; padding: 12px; margin-top: 12px; }
-  .tip-card strong { font-size: 15px; }
   .pulse-steps { top: auto; bottom: 86px; right: 12px; translate: none; }
   .pulse-steps button { font-size: 0; gap: 0; }
   .pulse-swing { grid-template-columns: 1fr auto; bottom: 12px; }
@@ -279,43 +271,53 @@ html body .command-input input { flex: 1; height: 54px; padding: 0; border: 0 !i
   .pulse-steps .pulse-share span { display: none; }
 }
 
-/* ---------- Chapter 3: why the tipping seat and the chamber have different odds ---------- */
+/* ---------- Chapter 3: why the tipping seat decides the House ---------- */
 
-.tip-why { --lead: var(--blue); --trail: var(--red); margin-top: 16px; padding: 14px 16px 14px; border: 1px solid var(--border); border-radius: 14px; background: rgba(8,9,14,.66); backdrop-filter: blur(12px); }
+.tip-why { --lead: var(--blue); --trail: var(--red); margin-top: 16px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: rgba(8,9,14,.7); backdrop-filter: blur(12px); }
 .tip-why-r { --lead: var(--red); --trail: var(--blue); }
-.tip-why-title { margin: 0; color: #fff; font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; }
-.tip-why-block { display: grid; gap: 6px; margin-top: 12px; }
-.tip-why-label { color: #8b8f99; font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
-.tip-why-label b { color: #fff; font-weight: 500; }
-.tip-why-strip, .tip-why-bell { display: block; width: 100%; height: auto; overflow: visible; }
-.tip-why-strip rect { fill: var(--lead); }
-.tip-why-strip rect.tip { stroke: #fff; stroke-width: 1.5; }
-.tip-why-scale { display: flex; justify-content: space-between; color: #6b707b; font-family: var(--font-mono); font-size: 10px; }
+.tip-why-title { margin: 0; color: #fff; font-size: 14px; font-weight: 600; letter-spacing: -.01em; }
+.tip-why-steps { display: grid; gap: 7px; margin: 10px 0 0; padding: 0; list-style: none; counter-reset: tip; }
+.tip-why-steps li { position: relative; padding-left: 24px; color: #9a9ea8; font-size: 12.5px; line-height: 1.45; counter-increment: tip; }
+.tip-why-steps li::before { content: counter(tip); position: absolute; left: 0; top: 1px; display: grid; place-items: center; width: 16px; height: 16px; border: 1px solid var(--border-strong); border-radius: 50%; color: #c9ccd3; font-family: var(--font-mono); font-size: 9.5px; }
+.tip-why-steps b { color: #fff; font-weight: 600; }
+.tip-why-chart { display: block; width: 100%; height: auto; margin-top: 12px; overflow: visible; }
+.tip-why-chart text { font-family: var(--font-mono); }
+.tip-why-chart .chart-cap { fill: #6b707b; font-size: 9px; letter-spacing: .06em; }
+.tip-why-chart .majority-line { stroke: rgba(255,255,255,.35); stroke-dasharray: 3 3; }
+.tip-why-chart .majority-label { fill: #9a9ea8; font-size: 9.5px; }
+.tip-why-chart .cushion { fill: var(--lead); opacity: .1; }
+.tip-why-chart .cushion-label { fill: var(--lead); font-size: 10px; }
+.tip-why-chart .seat-line { fill: none; stroke-width: 2; stroke-linejoin: round; }
+.tip-why-chart .seat-line.lead { stroke: var(--lead); }
+.tip-why-chart .seat-line.lost { stroke: var(--trail); opacity: .75; }
+.tip-why-chart .seat-label { fill: #fff; font-size: 10px; }
+.tip-why-chart .flip-dot { fill: #fff; stroke: var(--trail); stroke-width: 2; }
+.tip-why-chart .flip-label { fill: #fff; font-size: 10px; }
+.tip-why-chart .flip-rule { stroke: var(--trail); stroke-dasharray: 2 3; opacity: .7; }
+.tip-why-chart .tail-label { fill: #fff; font-size: 10px; }
+.tip-why-chart .bell-note { fill: #8b8f99; font-size: 9px; }
+.tip-why-chart .axis { stroke: rgba(255,255,255,.15); }
+.tip-why-chart .axis-tick { fill: #6b707b; font-size: 9px; }
+.tip-why-chart .axis-cap { fill: #5d626c; font-size: 8.5px; }
 .bell-fill { fill: rgba(255,255,255,.05); }
-.bell-line { fill: none; stroke: rgba(255,255,255,.45); stroke-width: 1.4; }
+.bell-line { fill: none; stroke: rgba(255,255,255,.4); stroke-width: 1.2; }
 .bell-tail { fill: var(--trail); opacity: .85; }
-.bell-axis { stroke: rgba(255,255,255,.15); }
-.bell-mark { stroke: var(--trail); stroke-width: 1.2; stroke-dasharray: 3 3; }
-.bell-note { fill: #fff; font-family: var(--font-mono); font-size: 10.5px; }
-.bell-tick { fill: #6b707b; font-family: var(--font-mono); font-size: 9.5px; }
-.tip-why-copy { margin: 10px 0 0 !important; color: #9a9ea8 !important; font-size: 13px !important; line-height: 1.5 !important; }
+.tip-why-copy { margin: 10px 0 0 !important; color: #9a9ea8 !important; font-size: 12.5px !important; line-height: 1.5 !important; }
 .tip-why-copy b { color: #fff; font-weight: 600; }
 .tip-why-copy a { color: #9fb8ff; }
+.tip-open { display: inline-block; margin-top: 10px; color: #9fb8ff; font-size: 13px; }
 .tip-why-mobile { display: none; }
 @media (max-width: 720px) {
   .pulse-chapter-3 .tip-why { display: none; }
   .tip-why-mobile { display: block; padding: 8px 16px 0; }
   .tip-why-mobile .tip-why { margin-top: 0; }
 }
-.pulse-chapter-3 { top: 22px; translate: 0 calc((1 - var(--o)) * 36px); }
+.pulse-chapter-3 { top: 18px; width: min(460px, 36vw); translate: 0 calc((1 - var(--o)) * 36px); }
 .pulse-chapter-3 h2 { font-size: clamp(28px, 2.7vw, 40px); }
-.pulse-chapter-3 > p:not(.eyebrow) { margin-top: 10px; font-size: 14px; }
-.pulse-chapter-3 .tip-card { margin-top: 14px; padding: 12px 14px; gap: 6px 18px; }
 @media (max-height: 820px) and (min-width: 721px) {
   .pulse-chapter-3 { top: 10px; }
   .pulse-chapter-3 .eyebrow { display: none; }
-  .pulse-chapter-3 .tip-card { grid-template-columns: repeat(3, auto) 1fr; align-items: center; }
-  .pulse-chapter-3 .tip-card em { grid-column: auto; text-align: right; }
   .tip-why { margin-top: 12px; padding: 12px 14px; }
-  .tip-why-bell { max-height: 70px; }
+  .tip-why-steps li { font-size: 12px; }
+  .pulse-chapter-3 .tip-why-copy { display: none; }
 }
