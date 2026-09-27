@@ -190,14 +190,8 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
           <article className="pulse-chapter pulse-chapter-3" aria-hidden={chapter !== 3}>
             <p className="eyebrow">03 · The tipping point</p>
             <h2>{tipping ? <><span className={tippingMargin >= 0 ? "dem-text" : "rep-text"}>{tipping.code}</span> decides the House.</> : "The seat that decides the House."}</h2>
-            <p>Line up all 435 districts from most Democratic to most Republican. The 218th decides the majority: whoever carries it carries the chamber.</p>
-            {tipping && <Link className="tip-card" href={`/races/${tipping.code.toLowerCase()}`}>
-              <span><small>Margin{swing ? " with your swing" : ""}</small><strong className={tippingMargin >= 0 ? "dem-text" : "rep-text"}>{lean(tippingMargin)}</strong></span>
-              <span><small>Model win prob.</small><strong>{tipping.winProbability}% {tipping.leader}</strong></span>
-              <span><small>Rating</small><strong>{tipping.rating || "—"}</strong></span>
-              <em>Open race →</em>
-            </Link>}
             {tippingWhy}
+            {tipping && <Link className="tip-open" href={`/races/${tipping.code.toLowerCase()}`}>Open the {tipping.code} race →</Link>}
           </article>
 
           <div className="pulse-swing">
