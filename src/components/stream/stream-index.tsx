@@ -22,6 +22,7 @@ export function StreamIndex() {
   const scenes = [
     { key: "control", title: t("Control scoreboard"), body: t("House and Senate odds, seat medians, the generic ballot and the days left. Refreshes every five minutes."), path: "/stream/control" },
     { key: "senate", title: t("Senate builder"), body: t("Click states to call them live and watch control move. Interact with it in OBS via Interact (right click on the source)."), path: "/stream/senate" },
+    { key: "geography", title: t("Geography of the vote"), body: t("The county map story in presentation mode: move between axes with the arrow keys, Esc to leave."), path: "/geography?present" },
     { key: "race", title: t("Race card"), body: t("One race full screen: model margin, win probability and the Cook, Inside Elections and Sabato ratings."), path: `/stream/race/${race}` },
   ];
   async function copy(url: string) { await navigator.clipboard?.writeText(url); setCopied(url); window.setTimeout(() => setCopied(""), 1600); }
@@ -36,7 +37,7 @@ export function StreamIndex() {
     <div className="stream-scenes">
       {scenes.map((scene) => {
         const url = `${origin}${localize(scene.path)}`;
-        const overlay = `${url}?bg=transparent`;
+        const overlay = `${url}${url.includes("?") ? "&" : "?"}bg=transparent`;
         return <article key={scene.key} className="panel stream-scene">
           <h2>{scene.title}</h2><p>{scene.body}</p>
           {scene.key === "race" && <label className="stream-picker">{t("Race")}<select value={race} onChange={(event) => setRace(event.target.value)}>{races.map((item) => <option key={raceSlug(item)} value={raceSlug(item)}>{label(item)}</option>)}</select></label>}

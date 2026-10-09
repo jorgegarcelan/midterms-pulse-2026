@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/motion-b.css";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "@/components/i18n/link";
 import Papa from "papaparse";
@@ -56,6 +57,8 @@ function SignalChart({ polls, house, senate, forecast, range }: { polls: PollPoi
   const t = useT();
   const locale = useIntlLocale();
   const [cursor, setCursor] = useState<number | null>(null);
+  const [hidden, setHidden] = useState<Set<string>>(() => new Set());
+  const toggle = (key: string) => setHidden((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; });
   const result = useMemo(() => {
     const latestDate = Math.max(0, ...polls.map((point) => Date.parse(point.date)), ...house.map((point) => Date.parse(point.date)), ...senate.map((point) => Date.parse(point.date)));
     const cutoff = range === "all" ? 0 : latestDate - Number(range) * 86400000;
@@ -78,13 +81,22 @@ function SignalChart({ polls, house, senate, forecast, range }: { polls: PollPoi
   const nearest = cursorDate === null ? [] : result.series.map((series) => {
     const point = [...series.values].sort((a, b) => Math.abs(Date.parse(a.date) - cursorDate) - Math.abs(Date.parse(b.date) - cursorDate))[0];
     return { ...series, point };
-  }).filter((item) => item.point);
-  return <div className="linked-chart">
-    <div className="linked-legend">{result.series.map((item) => <span key={item.key}><i style={{ background: item.color }} />{item.label}<b>{item.values.at(-1)?.value.toFixed(1)}%</b></span>)}</div>
-    <svg viewBox="0 0 860 260" role="img" aria-label={t("Linked polling and prediction market signals")} onMouseMove={(event) => { const rect = event.currentTarget.getBoundingClientRect(); setCursor(clamp((event.clientX - rect.left) / rect.width * 860, 0, 860)); }} onMouseLeave={() => setCursor(null)}>
+  }).filter((item) => item.point && !hidden.has(item.key));
+  // Arrow keys move the cursor in 1/60 steps; Escape clears it.
+  function keyCursor(event: React.KeyboardEvent<SVGSVGElement>) {
+    if (event.key === "Escape") { setCursor(null); return; }
+    const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    event.preventDefault();
+    setCursor((current) => clamp((current ?? 860) + step * (event.shiftKey ? 86 : 860 / 60), 0, 860));
+  }
+  return <div className="linked-chart mpb-linked">
+    <div className="linked-legend">{result.series.map((item) => <button type="button" key={item.key} className={hidden.has(item.key) ? "off" : undefined} aria-pressed={!hidden.has(item.key)} onClick={() => toggle(item.key)}><i style={{ background: item.color }} />{item.label}<b>{item.values.at(-1)?.value.toFixed(1)}%</b></button>)}</div>
+    <svg viewBox="0 0 860 260" role="img" tabIndex={0} aria-label={`${t("Linked polling and prediction market signals")}. ${t("Use the arrow keys to move through time.")}`} onKeyDown={keyCursor} onBlur={() => setCursor(null)} onPointerMove={(event) => { const rect = event.currentTarget.getBoundingClientRect(); setCursor(clamp((event.clientX - rect.left) / rect.width * 860, 0, 860)); }} onPointerLeave={() => setCursor(null)}>
       {[25, 50, 75, 100].map((value) => <g key={value}><line x1="0" x2="860" y1={result.y(value)} y2={result.y(value)} /><text x="4" y={result.y(value) - 6}>{value}%</text></g>)}
-      {result.series.map((item) => <polyline key={item.key} points={item.points} fill="none" stroke={item.color} strokeWidth="2.5" />)}
+      {result.series.map((item, index) => <polyline key={`${item.key}-${range}`} className={`mpb-linked-line${hidden.has(item.key) ? " off" : ""}`} style={{ "--i": index } as React.CSSProperties} pathLength={1} points={item.points} fill="none" stroke={item.color} strokeWidth="2.5" />)}
       {cursor !== null && <line className="cursor-line" x1={cursor} x2={cursor} y1="25" y2="245" />}
+      {cursor !== null && nearest.map((item) => <circle key={item.key} className="mpb-linked-dot" cx={result.x(item.point.date)} cy={result.y(item.point.value)} r="4.5" fill={item.color} />)}
       {forecast && <><line className="forecast-benchmark" x1="0" x2="860" y1={result.y(forecast.house.demMajority)} y2={result.y(forecast.house.demMajority)} /><text x="665" y={result.y(forecast.house.demMajority) - 6}>{t("House forecast {value}%", { value: forecast.house.demMajority })}</text></>}
     </svg>
     <div className="linked-axis"><span>{new Date(result.minDate).toLocaleDateString(locale, { month: "short", year: "numeric" })}</span><span>{new Date(result.maxDate).toLocaleDateString(locale, { month: "short", day: "numeric" })}</span></div>

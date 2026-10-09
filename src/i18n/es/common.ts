@@ -66,7 +66,7 @@ export const common: Record<string, string> = {
   "Global election context": "Contexto electoral global",
   "Close": "Cerrar",
   "Filters": "Filtros",
-  "Geography": "Ámbito",
+  "Area": "Ámbito",
   "Open {code} profile →": "Abrir perfil de {code} →",
   "Pinned": "Fijado",
   "Pin state": "Fijar estado",
@@ -123,4 +123,8 @@ export const common: Record<string, string> = {
   "Download image": "Descargar imagen",
   "Rendering…": "Generando…",
   "Try again": "Reintentar",
+  "Candidates": "Candidatos",
+  "Geography": "Geografía",
+  "Playground": "Playground",
+  "More": "Más",
 };

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/link";
 import { SiteFooter } from "@/components/site-footer";
+import { ChangesLineChart } from "@/components/changes/changes-line-chart";
+import { CountUp } from "@/components/motion/count-up";
 import { stateByCode } from "@/data/geography";
 import { intlLocale, isLocale, type Locale } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
@@ -22,27 +24,6 @@ const demP = (race: ForecastRace) => (race.leader === "D" ? race.winProbability 
 export async function generateMetadata({ params }: PageProps<"/[lang]/changes">): Promise<Metadata> {
   const t = getT(localeOf((await params).lang));
   return { title: t("What changed — Midterm Pulse 2026"), description: t("How the forecast has moved: chamber odds over time, the races that moved most and the handicappers' rating changes.") };
-}
-
-// A small server-rendered line chart: one or two series over dates, with an optional reference line.
-function LineChart({ series, dates, min, max, reference, unit, label }: { series: { key: string; values: (number | null)[]; className: string }[]; dates: string[]; min: number; max: number; reference?: number; unit: string; label: string }) {
-  const width = 640, height = 200, pad = { top: 12, right: 44, bottom: 24, left: 8 };
-  const x = (index: number) => pad.left + (dates.length < 2 ? (width - pad.left - pad.right) / 2 : index / (dates.length - 1) * (width - pad.left - pad.right));
-  const y = (value: number) => pad.top + (1 - (value - min) / (max - min)) * (height - pad.top - pad.bottom);
-  return <svg className="changes-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}>
-    {reference !== undefined && <><line x1={pad.left} x2={width - pad.right} y1={y(reference)} y2={y(reference)} className="changes-ref" /><text x={width - pad.right + 6} y={y(reference) + 4}>{reference}{unit}</text></>}
-    {series.map((item) => {
-      const points = item.values.map((value, index) => value === null ? null : [x(index), y(value)] as const).filter((point): point is readonly [number, number] => point !== null);
-      const last = points.at(-1);
-      const lastValue = item.values.filter((value) => value !== null).at(-1);
-      return <g key={item.key} className={item.className}>
-        {points.length > 1 && <path d={points.map(([px, py], index) => `${index ? "L" : "M"}${px.toFixed(1)},${py.toFixed(1)}`).join(" ")} />}
-        {points.map(([px, py], index) => <circle key={index} cx={px} cy={py} r={points.length > 40 ? 0 : 3} />)}
-        {last && <text x={last[0] + 6} y={last[1] + 4}>{lastValue}{unit}</text>}
-      </g>;
-    })}
-    {dates.length > 0 && <><text x={pad.left} y={height - 6} className="changes-axis">{dates[0]}</text>{dates.length > 1 && <text x={width - pad.right} y={height - 6} textAnchor="end" className="changes-axis">{dates.at(-1)}</text>}</>}
-  </svg>;
 }
 
 export default async function ChangesPage({ params, searchParams }: PageProps<"/[lang]/changes">) {
@@ -93,26 +74,26 @@ export default async function ChangesPage({ params, searchParams }: PageProps<"/
     </section>
 
     <section className="changes-kpis">
-      {[{ label: t("House · D majority"), now: today.house.p, change: houseChange }, { label: t("Senate · D majority"), now: today.senate.p, change: senateChange }].map((item) => <article key={item.label} className="panel"><span>{item.label}</span><strong>{item.now}%</strong>{base && <small className={item.change > 0 ? "dem-text" : item.change < 0 ? "rep-text" : ""}>{delta(item.change, " pts")} {t("since {date}", { date: dateLabel(base.date) })}</small>}</article>)}
+      {[{ label: t("House · D majority"), now: today.house.p, change: houseChange }, { label: t("Senate · D majority"), now: today.senate.p, change: senateChange }].map((item) => <article key={item.label} className="panel"><span>{item.label}</span><strong><CountUp value={item.now} />%</strong>{base && <small className={item.change > 0 ? "dem-text" : item.change < 0 ? "rep-text" : ""}>{delta(item.change, " pts")} {t("since {date}", { date: dateLabel(base.date) })}</small>}</article>)}
       <article className="panel"><span>{t("Generic ballot")}</span><strong>{signed(today.ballot)}</strong>{base && <small>{t("was {value}", { value: signed(base.ballot) })}</small>}</article>
-      <article className="panel"><span>{t("Races that changed favourite")}</span><strong>{base ? crossed.length : "—"}</strong>{base && <small>{t("{n} changed rating band", { n: bandChanges.length })}</small>}</article>
+      <article className="panel"><span>{t("Races that changed favourite")}</span><strong>{base ? <CountUp value={crossed.length} /> : "—"}</strong>{base && <small>{t("{n} changed rating band", { n: bandChanges.length })}</small>}</article>
     </section>
 
     <section className="changes-grid">
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("MP-26 · CHAMBER ODDS")}</p><h2>{t("Chance of a Democratic majority")}</h2></div></div>
-        <LineChart dates={dates} min={0} max={100} reference={50} unit="%" label={t("Chance of a Democratic majority")} series={[{ key: "house", values: runs.map((run) => run.house.p), className: "series-house" }, { key: "senate", values: runs.map((run) => run.senate.p), className: "series-senate" }]} />
-        <p className="changes-legend"><i className="series-house" />{t("House")} <i className="series-senate" />{t("Senate")} · {t("{n} archived runs", { n: runs.length })}</p>
+        <ChangesLineChart dates={dates} min={0} max={100} reference={50} unit="%" label={t("Chance of a Democratic majority")} series={[{ key: "house", values: runs.map((run) => run.house.p), className: "series-house", label: t("House") }, { key: "senate", values: runs.map((run) => run.senate.p), className: "series-senate", label: t("Senate") }]} />
+        <p className="changes-legend">{t("{n} archived runs", { n: runs.length })}</p>
       </article>
       {benchmark.length > 1 && <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("VOTE-SCOPE BENCHMARK")}</p><h2>{t("Mean Democratic House seats")}</h2></div></div>
-        <LineChart dates={benchmark.map((run) => run.date)} min={Math.min(210, ...benchmark.map((run) => run.seats)) - 4} max={Math.max(226, ...benchmark.map((run) => run.seats)) + 4} reference={218} unit="" label={t("Mean Democratic House seats")} series={[{ key: "bench", values: benchmark.map((run) => run.seats), className: "series-house" }]} />
+        <ChangesLineChart dates={benchmark.map((run) => run.date)} min={Math.min(210, ...benchmark.map((run) => run.seats)) - 4} max={Math.max(226, ...benchmark.map((run) => run.seats)) + 4} reference={218} unit="" label={t("Mean Democratic House seats")} series={[{ key: "bench", values: benchmark.map((run) => run.seats), className: "series-house", label: t("Mean D seats") }]} />
         <p className="changes-legend">{t("The benchmark the model starts from, last {n} runs. 218 is a majority.", { n: benchmark.length })}</p>
       </article>}
     </section>
 
     {base && <section className="changes-grid">
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("BIGGEST MOVES")}</p><h2>{t("Races that moved most")}</h2></div></div>
-        {movers.length ? <div className="changes-table">{movers.map(({ race, old, p, change }) => <Link key={`${race.chamber}-${race.code}`} href={`/races/${raceSlug(race)}`}>
-          <b>{raceLabel(race)}</b><span>{signed(old.margin)} → {signed(race.signedMargin)}</span><span>{old.p}% → {p}% D</span><em className={change > 0 ? "dem-text" : "rep-text"}>{delta(change, " pts")}</em>
+        {movers.length ? <div className="changes-table mpa-changes-table">{movers.map(({ race, old, p, change }, index) => <Link key={`${race.chamber}-${race.code}`} href={`/races/${raceSlug(race)}`} style={{ "--k": index, "--w": Math.min(1, Math.abs(change) / Math.max(1, Math.abs(movers[0].change))) } as React.CSSProperties}>
+          <b>{raceLabel(race)}</b><span>{signed(old.margin)} → {signed(race.signedMargin)}</span><span>{old.p}% → {p}% D</span><em className={`mpa-move ${change > 0 ? "dem-text" : "rep-text"}`}><i aria-hidden="true" />{delta(change, " pts")}</em>
         </Link>)}</div> : <p className="changes-empty">{t("No race moved by a point or more.")}</p>}
       </article>
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("HANDICAPPERS")}</p><h2>{t("Rating changes")}</h2></div></div>

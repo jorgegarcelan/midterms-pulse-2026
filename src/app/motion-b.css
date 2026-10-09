@@ -1,0 +1,234 @@
+/* ============================================================
+   Motion pass B: race directory + profiles, district map,
+   state profiles, history, demographics, explore/workspace.
+   Every keyframe animation sits behind prefers-reduced-motion:
+   no-preference; transitions settle instantly via motion.css.
+   ============================================================ */
+
+@keyframes mpb-fade { from { opacity: 0; } }
+@keyframes mpb-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes mpb-swap { from { opacity: 0; transform: translateY(10px); filter: blur(5px); } }
+@keyframes mpb-grow { from { transform: scaleX(0); } }
+@keyframes mpb-wipe-l { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes mpb-wipe-r { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes mpb-pulse { 0% { transform: scale(1); opacity: .75; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes mpb-breathe { 0%, 100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 10px var(--glow, rgba(255,255,255,.5))); } }
+@keyframes mpb-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+/* ---------- Shared chart chrome: focus, crosshair, pills, legend toggles ---------- */
+
+.mpb-frame { touch-action: pan-y; border-radius: 10px; outline: none; }
+.mpb-frame:focus-visible { box-shadow: 0 0 0 2px rgba(159,184,255,.55); }
+.mpb-crosshair { pointer-events: none; }
+.mpb-crosshair .mpb-hline { stroke: rgba(255,255,255,.14); stroke-dasharray: 2 3; }
+.mpb-pill rect { fill: #f1f2f4; }
+.mpb-pill text { fill: #0b0d13; font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-anchor: middle; }
+.mpb-chart .x-tick { transition: fill .2s ease; }
+.mpb-chart .x-tick.on { fill: transparent; }
+.mpb-chart .mpb-series { transition: opacity .35s ease; }
+.mpb-chart .mpb-series.off { opacity: 0; }
+
+.mpb-legend button, .linked-legend button, .demo-legend button, .race-legend button {
+  display: inline-flex; align-items: center; gap: 6px; margin: 0 0 0 -8px; padding: 3px 8px; border: 1px solid transparent; border-radius: 999px;
+  background: none; color: inherit; font: inherit; cursor: pointer; transition: opacity .25s ease, border-color .2s ease, background .2s ease;
+}
+.mpb-legend button:hover, .linked-legend button:hover, .demo-legend button:hover, .race-legend button:hover { border-color: var(--border-strong); background: rgba(255,255,255,.03); }
+.mpb-legend button:focus-visible, .linked-legend button:focus-visible, .demo-legend button:focus-visible, .race-legend button:focus-visible { outline: none; border-color: rgba(159,184,255,.6); }
+.mpb-legend button.off, .linked-legend button.off, .demo-legend button.off { opacity: .38; text-decoration: line-through; text-decoration-color: rgba(255,255,255,.4); }
+.mpb-legend .dot.split { background: linear-gradient(90deg, var(--blue) 50%, var(--red) 50%); }
+.mpb-legend .swatch-line { width: 16px; height: 2px; border-radius: 2px; background: #fff; }
+.mpb-legend .swatch-line.market { background: #9fb8ff; }
+.mpb-legend .swatch-ref { width: 16px; height: 0; border-top: 1.5px dashed #f5d06f; }
+
+/* ---------- Margin history ---------- */
+
+.mpb-chart .history-dot { transition: transform .5s var(--ease-punch), r .25s var(--ease-out), opacity .25s ease, filter .25s ease; transition-delay: calc(var(--i) * 45ms + .2s), 0s, 0s, 0s; }
+.mpb-chart.scrubbing .history-dot { transition-delay: 0s; }
+.mpb-chart.scrubbing .history-dot:not(.active) { opacity: .45; }
+.mpb-chart .history-dot.active { filter: drop-shadow(0 0 7px rgba(255,255,255,.55)); }
+.mpb-chart .history-dot.off { opacity: 0; transform: scale(.3); pointer-events: none; }
+.mpb-chart .context-series circle { transition: opacity .8s ease .6s, r .2s ease; }
+.history-chart .forecast circle.active { stroke-width: 3.5; }
+.history-chart .forecast .mpb-pulse { fill: none; stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.history-chart .forecast .mpb-pulse.dem { stroke: #9fb8ff; filter: none; }
+.history-chart .forecast .mpb-pulse.rep { stroke: #ff9eaa; filter: none; }
+
+/* ---------- Polls and markets ---------- */
+
+.mpb-chart .signal-dot { transition: opacity .3s ease, r .2s var(--ease-out); }
+.mpb-chart.scrubbing .signal-dot { transition-delay: 0s; }
+.mpb-chart[data-in].scrubbing .signal-dot:not(.near) { opacity: .28; }
+.mpb-chart .signal-dot.near { stroke: #fff; stroke-width: 1.5; opacity: 1; }
+.mpb-live-dot { fill: #fff; opacity: 0; transition: opacity .5s ease 1.8s; --glow: rgba(255,255,255,.7); }
+.signal-chart.market .mpb-live-dot { fill: #9fb8ff; --glow: rgba(91,134,255,.9); }
+[data-in] .mpb-live-dot { opacity: 1; }
+.latest-polls a b { transition: transform .3s var(--ease-out); }
+.latest-polls a:hover b { transform: translateX(-3px); }
+
+/* ---------- District map: camera zoom, fills, hover outline, floating card ---------- */
+
+.district-map-frame { position: relative; overflow: hidden; border-radius: 12px; }
+.district-map-panel .district-map-frame svg { cursor: default; }
+.district-map-panel .district-map-frame path { transition: fill .6s ease, opacity .45s ease, filter .2s ease; outline: none; }
+.district-map-panel .district-map-frame path:hover, .district-map-panel .district-map-frame path.hovered { stroke: #06070b; stroke-width: .55; filter: brightness(1.25); }
+.district-map-panel .district-map-frame path.outside { opacity: .16; }
+.district-map-panel .district-map-frame path.outside:hover { opacity: .4; }
+.district-map-panel .district-map-frame path.muted { opacity: .2; }
+.district-map-panel .district-map-frame path.outside.muted { opacity: .08; }
+.district-map-panel .district-map-frame .district-hover-outline { fill: none; stroke: #fff; stroke-width: 2; vector-effect: non-scaling-stroke; pointer-events: none; filter: drop-shadow(0 0 6px rgba(255,255,255,.55)); }
+
+.map-float-tip { position: absolute; left: 0; top: 0; z-index: 4; display: grid; gap: 6px; width: 228px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 12px; background: rgba(10,11,16,.92); backdrop-filter: blur(8px); box-shadow: 0 16px 36px -14px rgba(0,0,0,.85); pointer-events: none; opacity: 0; transition: opacity .15s ease, transform .12s var(--ease-out); will-change: transform; }
+.map-float-tip.show { opacity: 1; }
+.map-float-tip-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.map-float-tip-head strong { color: #fff; font-size: 14px; font-weight: 600; }
+.map-float-tip-head b { font-family: var(--font-mono); font-size: 14px; font-weight: 600; }
+.map-float-tip-bar { display: flex; height: 5px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.06); }
+.map-float-tip-bar i { height: 100%; transition: width .3s var(--ease-out); }
+.map-float-tip-bar .dem { background: var(--blue); }
+.map-float-tip-bar .rep { background: var(--red); }
+.map-float-tip small { color: #9a9ea8; font-size: 11.5px; }
+.map-float-tip em { color: #6b707b; font-family: var(--font-mono); font-size: 10px; font-style: normal; letter-spacing: .02em; }
+
+.map-zoom-out { position: absolute; top: 10px; left: 10px; z-index: 3; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 10px; border: 1px solid var(--border-strong); border-radius: 999px; background: rgba(10,11,16,.82); backdrop-filter: blur(8px); color: #e6e8ec; font: inherit; font-size: 12.5px; cursor: pointer; transition: background .2s ease, border-color .2s ease; }
+.map-zoom-out:hover, .map-zoom-out:focus-visible { outline: none; border-color: rgba(159,184,255,.6); background: rgba(20,24,34,.92); }
+.map-zoom-out span { transition: transform .3s var(--ease-out); }
+.map-zoom-out:hover span { transform: translateX(-3px); }
+.map-zoom-out kbd { padding: 1px 5px; border: 1px solid var(--border-strong); border-radius: 4px; color: #7c818c; font-family: var(--font-mono); font-size: 9.5px; }
+.map-zoom-label { position: absolute; top: 12px; right: 14px; z-index: 2; display: grid; justify-items: end; gap: 2px; pointer-events: none; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+.map-zoom-label b { color: #fff; font-size: clamp(18px, 2.2vw, 28px); font-weight: 600; letter-spacing: -.04em; }
+.map-zoom-label span { color: #8b8f99; font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; }
+.district-race-list a { transition: background .2s ease, box-shadow .2s ease; }
+.district-race-list a.linked { background: rgba(255,255,255,.06); box-shadow: inset 2px 0 0 #fff; }
+
+/* ---------- Race profile ---------- */
+
+.mpb-share { position: relative; }
+.mpb-share > span { transition: filter .2s ease; }
+.mpb-share .count-up { display: inline; padding: 0; font-variant-numeric: tabular-nums; }
+.mpb-share > span:hover { filter: brightness(1.12); }
+.mpb-share-mid { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; border-left: 1.5px dashed rgba(255,255,255,.6); pointer-events: none; }
+.race-mini-map { position: relative; }
+.race-geo .race-mini-map path { transition: fill .25s ease, opacity .25s ease; }
+.race-geo .race-mini-map path.peek:not(.active) { fill: #4a515b; cursor: pointer; }
+.race-geo .race-mini-map path.active.dem { --glow: rgba(91,134,255,.8); }
+.race-geo .race-mini-map path.active.rep { --glow: rgba(255,90,110,.8); }
+.race-mini-label { position: absolute; top: 24px; left: 8px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: rgba(10,11,16,.85); color: #dcdde1; font-family: var(--font-mono); font-size: 10.5px; pointer-events: none; opacity: 0; transition: opacity .2s ease; }
+.race-mini-label.show { opacity: 1; }
+.expert-cell { transition: background .2s ease, transform .3s var(--ease-out); }
+a.expert-cell:hover { transform: translateY(-2px); }
+
+/* ---------- Race directory ---------- */
+
+.mpb-directory > a em { white-space: nowrap; }
+.mpb-prob { display: inline-block; width: 26px; height: 3px; margin-right: 8px; vertical-align: middle; border-radius: 99px; background: linear-gradient(90deg, rgba(255,255,255,.75) calc(var(--p) * 100%), rgba(255,255,255,.12) 0); }
+.mpb-arrow { display: inline-block; font-style: normal; transition: transform .3s var(--ease-out); }
+.mpb-directory > a:hover .mpb-arrow, .mpb-directory > a:focus-visible .mpb-arrow { transform: translateX(4px); }
+.race-vote-cell i { transition: width .5s var(--ease-out); }
+
+/* ---------- State profile ---------- */
+
+.mpb-sort { display: inline-block; margin-left: 4px; font-style: normal; opacity: 0; transition: transform .35s var(--ease-spring), opacity .2s ease; }
+.district-table-head button:hover .mpb-sort { opacity: .35; }
+.mpb-sort.up, .mpb-sort.down { opacity: 1; }
+.mpb-sort.down { transform: rotate(180deg); }
+.mpb-sortable > a { will-change: auto; }
+
+/* ---------- History ---------- */
+
+.mpb-swing button { transition: background .2s ease, border-color .2s ease; }
+.mpb-swing .swing-track i { transition: filter .25s ease, box-shadow .25s ease; }
+.mpb-swing button.active .swing-track i { filter: brightness(1.2); box-shadow: 0 0 12px rgba(255,255,255,.18); }
+.mpb-composition { position: relative; }
+.mpb-composition i { transition: width .7s var(--ease-out); }
+.mpb-majority { position: absolute; top: -4px; bottom: -4px; left: calc(218 / 435 * 100%); z-index: 1; width: 0; border-left: 1.5px solid rgba(255,255,255,.75); }
+.mpb-history-table button { transition: background .2s ease, box-shadow .2s ease; }
+.mpb-history-table button.active { background: rgba(255,255,255,.05); box-shadow: inset 2px 0 0 var(--cream); }
+
+/* ---------- Hemicycle: bloc focus ---------- */
+
+svg.hemi circle { transition: fill .45s ease, opacity .25s ease; transition-delay: var(--rd, 0ms), 0ms; }
+svg.hemi.focus-d circle.r, svg.hemi.focus-r circle.d { opacity: .25; }
+.hemi-score > div { transition: opacity .25s ease; }
+.hemi-score.focus-d > div:last-child, .hemi-score.focus-r > div:first-child { opacity: .35; }
+
+/* ---------- Demographics ---------- */
+
+.mpb-demographics .demo-row { border-radius: 6px; transition: opacity .5s ease, transform .6s var(--ease-out), background .2s ease, box-shadow .2s ease; }
+.mpb-demographics .demo-row:hover { background: rgba(255,255,255,.025); box-shadow: 0 0 0 8px rgba(255,255,255,.025); }
+.mpb-demographics .demo-track i { transition: transform .9s var(--ease-out), width .7s var(--ease-out); }
+.mpb-demographics .demo-bar, .mpb-demographics .demo-values span { transition: opacity .25s ease; }
+.mpb-demographics .demo-bar.off, .mpb-demographics .demo-values span.off { opacity: .22; }
+.mpb-demographics.focus-geo-0 :is(.demo-bar, .demo-values span):not(.geo-0),
+.mpb-demographics.focus-geo-1 :is(.demo-bar, .demo-values span):not(.geo-1),
+.mpb-demographics.focus-geo-2 :is(.demo-bar, .demo-values span):not(.geo-2) { opacity: .25; }
+.demo-delta { display: block; width: max-content; max-width: 100%; margin-top: 4px; color: #c9ccd3; font-family: var(--font-mono); font-size: 10px; font-weight: 500; opacity: 0; transform: translateY(-3px); transition: opacity .2s ease, transform .25s var(--ease-out); }
+.demo-row:hover .demo-delta { opacity: 1; transform: none; }
+@media (hover: none) { .demo-delta { opacity: .85; transform: none; } }
+.mpb-demographics .race-bar-row { transition: opacity .25s ease; }
+.mpb-demographics .race-bar-row.off { opacity: .3; }
+.mpb-demographics .race-bar i { transition: transform 1s var(--ease-out) .3s, opacity .25s ease 0s, filter .25s ease 0s; }
+.mpb-demographics.focus-group .race-bar i:not(.lit) { opacity: .22; }
+.mpb-demographics .race-bar i.lit { filter: brightness(1.08); }
+.race-legend button.lit { border-color: var(--border-strong); color: #fff; }
+.race-compare { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; min-height: 20px; margin: 10px 0 0; color: #9a9ea8; font-size: 12px; opacity: 0; transition: opacity .2s ease; }
+.race-compare.show { opacity: 1; }
+.race-compare b { color: #fff; font-weight: 600; }
+.race-compare strong { color: #fff; font-family: var(--font-mono); font-weight: 600; }
+
+/* ---------- Explore + workspace ---------- */
+
+.county-map.mpb-county-map path { transition: fill .5s ease, opacity .5s ease, stroke-width .14s ease; }
+.county-trend-track i { transition: width .5s var(--ease-out); }
+.compare-metric i { transition: width .6s var(--ease-out); }
+.mpb-linked svg { outline: none; border-radius: 8px; }
+.mpb-linked svg:focus-visible { box-shadow: 0 0 0 2px rgba(159,184,255,.55); }
+.mpb-linked-line { stroke-dasharray: 1; transition: opacity .3s ease; }
+.mpb-linked-line.off { opacity: .06; }
+.mpb-linked-dot { stroke: #0b0d13; stroke-width: 2; pointer-events: none; }
+.linked-legend button { gap: 6px; color: #99a2ab; font-size: 13px; }
+
+/* ---------- Choreography (motion allowed) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-in] .history-chart .forecast .mpb-pulse, .history-chart[data-in] .forecast .mpb-pulse { animation: mpb-pulse 2.6s var(--ease-out) 2s infinite; }
+  [data-in] .mpb-live-dot { animation: mpb-breathe 2.4s ease-in-out 2.2s infinite; }
+
+  .district-map-frame svg > path:not(.district-hover-outline) { animation: mpb-fade .7s ease backwards; animation-delay: calc(var(--d, 0) * 700ms); }
+  .district-hover-outline { animation: mpb-fade .15s ease; }
+  .map-zoom-out { animation: mpb-rise .45s var(--ease-out) .35s backwards; }
+  .map-zoom-label { animation: mpb-swap .6s var(--ease-out) .45s backwards; }
+
+  .race-benchmark:not([data-reveal="pending"]) .mpb-share > .dem { animation: mpb-wipe-l 1.1s var(--ease-snap) backwards; animation-delay: calc(var(--rv, 0ms) + .1s); }
+  .race-benchmark:not([data-reveal="pending"]) .mpb-share > .rep { animation: mpb-wipe-r 1.1s var(--ease-snap) backwards; animation-delay: calc(var(--rv, 0ms) + .1s); }
+  .race-benchmark:not([data-reveal="pending"]) .mpb-share-mid { animation: mpb-fade .5s ease backwards; animation-delay: calc(var(--rv, 0ms) + 1s); }
+  .race-experts:not([data-reveal="pending"]) .expert-cell { animation: mpb-rise .6s var(--ease-out) backwards; animation-delay: calc(var(--rv, 0ms) + .15s); }
+  .race-experts:not([data-reveal="pending"]) .expert-cell:nth-child(2) { animation-delay: calc(var(--rv, 0ms) + .23s); }
+  .race-experts:not([data-reveal="pending"]) .expert-cell:nth-child(3) { animation-delay: calc(var(--rv, 0ms) + .31s); }
+  .race-experts:not([data-reveal="pending"]) .expert-cell:nth-child(4) { animation-delay: calc(var(--rv, 0ms) + .39s); }
+  .race-geo:not([data-reveal="pending"]) .race-mini-map path { animation: mpb-fade .6s ease backwards; animation-delay: calc(var(--rv, 0ms) + min(var(--i), 30) * 22ms); }
+  .race-geo:not([data-reveal="pending"]) .race-mini-map path.active { animation: mpb-fade .6s ease backwards, mpb-breathe 3.2s ease-in-out 1.4s infinite; }
+  .panel:not([data-reveal="pending"]) .latest-polls.mpb-stagger > li { animation: mpb-rise .5s var(--ease-out) backwards; animation-delay: calc(var(--rv, 0ms) + .5s + var(--i) * 60ms); }
+
+  .mpb-directory > a[data-reveal="in"] .race-vote-cell .dem { transform-origin: left; animation: mpb-grow .8s var(--ease-out) backwards; animation-delay: calc(var(--rv, 0ms) + .12s); }
+  .mpb-directory > a[data-reveal="in"] .race-vote-cell .rep { transform-origin: right; animation: mpb-grow .8s var(--ease-out) backwards; animation-delay: calc(var(--rv, 0ms) + .12s); }
+  .mpb-directory > a[data-reveal="in"] .mpb-prob { animation: mpb-wipe-l .8s var(--ease-out) backwards; animation-delay: calc(var(--rv, 0ms) + .2s); }
+
+  .state-chips.mpb-stagger > * { animation: mpb-rise .5s var(--ease-out) backwards; }
+  .state-chips.mpb-stagger > :nth-child(2) { animation-delay: .07s; }
+  .state-chips.mpb-stagger > :nth-child(3) { animation-delay: .14s; }
+  .state-chips.mpb-stagger > :nth-child(4) { animation-delay: .21s; }
+
+  .history-timeline-panel:not([data-reveal="pending"]) .mpb-swing .swing-track .dem { transform-origin: left; animation: mpb-grow .8s var(--ease-out) backwards; animation-delay: calc(var(--rv, 0ms) + .2s + var(--i) * 60ms); }
+  .history-timeline-panel:not([data-reveal="pending"]) .mpb-swing .swing-track .rep { transform-origin: right; animation: mpb-grow .8s var(--ease-out) backwards; animation-delay: calc(var(--rv, 0ms) + .2s + var(--i) * 60ms); }
+  .mpb-swap { animation: mpb-swap .5s var(--ease-out); }
+
+  .mpb-linked-line { animation: mpb-draw 1.2s var(--ease-snap) backwards; animation-delay: calc(var(--i) * 120ms); }
+  .workspace-view { animation: mpb-rise .45s var(--ease-out); }
+}
+
+@media (max-width: 720px) {
+  .map-float-tip { width: 196px; padding: 8px 10px; }
+  .map-zoom-label { top: auto; bottom: 8px; right: 10px; }
+  .map-zoom-out kbd { display: none; }
+  .mpb-prob { display: none; }
+}

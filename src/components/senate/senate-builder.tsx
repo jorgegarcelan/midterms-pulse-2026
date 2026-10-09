@@ -5,6 +5,7 @@ import Link from "@/components/i18n/link";
 import { useT } from "@/components/i18n/locale-provider";
 import { CountUp } from "@/components/motion/count-up";
 import { Hemicycle } from "@/components/motion/hemicycle";
+import "@/app/motion-a.css";
 import { ShareImageButton } from "@/components/share-image-button";
 import { stateByCode } from "@/data/geography";
 import { MODEL_VERSION } from "@/lib/mp26";
@@ -75,6 +76,7 @@ export function SenateBuilder({ races }: { races: SenateRace[] }) {
             <circle className="track" cx="60" cy="60" r="52" pathLength={100} />
             <circle className="value" cx="60" cy="60" r="52" pathLength={100} />
           </svg>
+          <i key={control} className="mpa-odds-flash" aria-hidden="true" data-side={control >= 50 ? "D" : "R"} />
           <div><strong><CountUp value={control} duration={600} />%</strong><span>{t("Democratic control")}</span><small>{t("{pct}% chance of a 50–50 tie (VP breaks it for the GOP)", { pct: Math.round(outlook.tieR * 100) })}</small><small className="senate-model-note">{t(decided ? "Your calls are fixed; the other races keep their model odds." : "No calls yet: this is the published MP-26 Senate forecast.")}</small></div>
         </div>
 

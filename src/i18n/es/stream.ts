@@ -33,4 +33,6 @@ export const stream: Record<string, string> = {
   "projected vote": "voto proyectado",
   "Stream mode": "Modo stream",
   "Full-screen scenes for OBS": "Escenas a pantalla completa para OBS",
+  "Geography of the vote": "La geografía del voto",
+  "The county map story in presentation mode: move between axes with the arrow keys, Esc to leave.": "La historia del mapa de condados en modo presentación: pasa de un eje a otro con las flechas y sal con Esc.",
 };

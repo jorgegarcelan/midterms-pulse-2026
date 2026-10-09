@@ -13,6 +13,11 @@ import { state } from "@/i18n/es/state";
 import { night } from "@/i18n/es/night";
 import { stream } from "@/i18n/es/stream";
 import { changes } from "@/i18n/es/changes";
+import { geography } from "@/i18n/es/geography";
+import { playground } from "@/i18n/es/playground";
+import { candidates } from "@/i18n/es/candidates";
+import { motionA } from "@/i18n/es/motionA";
+import { motionB } from "@/i18n/es/motionB";
 
 // One flat dictionary; each area keeps its own file so translations can be edited independently.
-export const es: Record<string, string> = { ...common, ...home, ...model, ...races, ...maps, ...polls, ...markets, ...history, ...live, ...explainer, ...glossary, ...state, ...night, ...stream, ...changes };
+export const es: Record<string, string> = { ...common, ...home, ...model, ...races, ...maps, ...polls, ...markets, ...history, ...live, ...explainer, ...glossary, ...state, ...night, ...stream, ...changes, ...geography, ...playground, ...candidates, ...motionA, ...motionB };

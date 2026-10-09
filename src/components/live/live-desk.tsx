@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "@/components/i18n/link";
 import type { LiveFeed, Mover, WireItem } from "@/app/api/live/route";
 import { CountUp } from "@/components/motion/count-up";
+import { ChartTooltip } from "@/components/motion/chart-tooltip";
+import { useChartScrub } from "@/components/motion/chart-scrub";
+import { useTweenedValues } from "@/components/motion/chart-tween";
 import { OdometerCountdown } from "@/components/motion/odometer-countdown";
 import { SignalTriage } from "@/components/live/signal-triage";
 import { XWatchlist } from "@/components/live/x-watchlist";
@@ -17,21 +20,44 @@ type ModelFeed = { house: { demMajority: number; demSeats: number }; senate: { d
 type Filter = "all" | WireItem["type"];
 
 const REFRESH_MS = 60_000;
-const signed = (value: number) => `${value >= 0 ? "D" : "R"}+${Math.abs(value).toFixed(1)}`;
 
-function Sparkline({ values, width = 120, height = 32, reference, stretch = false }: { values: number[]; width?: number; height?: number; reference?: number; stretch?: boolean }) {
+type SparkProps = { values: number[]; width?: number; height?: number; reference?: number; stretch?: boolean; scrub?: { dates: string[]; title: string; format: (value: number) => string; label: string } };
+
+// Sparklines glide to new values on each refresh; the big one is scrubbable (pointer, touch, arrow keys).
+function Sparkline({ values, width = 120, height = 32, reference, stretch = false, scrub }: SparkProps) {
+  const t = useT();
+  const locale = useIntlLocale();
+  const shown = useTweenedValues(values, 900);
+  const cursor = useChartScrub({ count: scrub ? values.length : 0, indexAt: (ratio) => Math.round(ratio * (values.length - 1)) });
   if (values.length < 2) return <span className="sparkline-empty" aria-hidden="true" />;
   const min = Math.min(...values, reference ?? Infinity);
   const max = Math.max(...values, reference ?? -Infinity);
   const span = Math.max(1e-6, max - min);
   const x = (index: number) => index / (values.length - 1) * width;
   const y = (value: number) => height - 3 - (value - min) / span * (height - 6);
-  return (
+  const svg = (
     <svg className={`sparkline${stretch ? " stretch" : ""}`} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio={stretch ? "none" : undefined} aria-hidden="true">
       {reference !== undefined && <line x1="0" x2={width} y1={y(reference)} y2={y(reference)} className="spark-ref" />}
-      <path d={values.map((value, index) => `${index ? "L" : "M"} ${x(index).toFixed(1)} ${y(value).toFixed(1)}`).join(" ")} pathLength={1} />
-      {!stretch && <circle cx={x(values.length - 1)} cy={y(values.at(-1)!)} r="2.6" />}
+      <path d={shown.map((value, index) => `${index ? "L" : "M"} ${x(index).toFixed(1)} ${y(value).toFixed(1)}`).join(" ")} pathLength={1} />
+      {!stretch && <circle cx={x(shown.length - 1)} cy={y(shown.at(-1)!)} r="2.6" />}
+      {scrub && cursor.active !== null && <line className="mpa-spark-cross" x1={x(cursor.active)} x2={x(cursor.active)} y1="0" y2={height} />}
     </svg>
+  );
+  if (!scrub) return svg;
+  const active = cursor.active;
+  return (
+    <div className="mpa-spark" role="img" aria-label={scrub.label} {...cursor.bind} data-scrub={active !== null ? "true" : undefined}>
+      {svg}
+      {active === null && <i className="mpa-spark-dot live" style={{ left: "100%", top: `${y(shown.at(-1)!) / height * 100}%` }} />}
+      {reference !== undefined && <em className="mpa-spark-ref" style={{ top: `${y(reference) / height * 100}%` }}>{reference}</em>}
+      {active !== null && <>
+        <i className="mpa-spark-dot" style={{ left: `${x(active) / width * 100}%`, top: `${y(values[active]) / height * 100}%` }} />
+        <ChartTooltip x={x(active) / width * 100} y={y(values[active]) / height * 100} title={new Date(scrub.dates[active].length === 10 ? `${scrub.dates[active]}T12:00:00Z` : scrub.dates[active]).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })} rows={[
+          { label: scrub.title, value: scrub.format(values[active]), tone: reference !== undefined && values[active] < reference ? "rep" : "dem" },
+          ...(active > 0 ? [{ label: t("Change vs previous run"), value: `${values[active] - values[active - 1] >= 0 ? "+" : "−"}${Math.abs(values[active] - values[active - 1]).toFixed(1)}`, tone: "muted" as const }] : []),
+        ]} />
+      </>}
+    </div>
   );
 }
 
@@ -124,7 +150,7 @@ export function LiveDesk({ showTriage = false }: { showTriage?: boolean }) {
       <section className="live-kpis" aria-label={t("Current signals")}>
         <article><span>{t("House · model")}</span><strong className="dem-text">{model ? <><CountUp value={model.house.demMajority} />%</> : "—"}</strong><small>{control?.house ? `Polymarket ${(control.house.probability * 100).toFixed(1)}%` : t("D majority")}</small></article>
         <article><span>{t("Senate · model")}</span><strong className={model && model.senate.demMajority < 50 ? "rep-text" : "dem-text"}>{model ? <><CountUp value={model.senate.demMajority} />%</> : "—"}</strong><small>{control?.senate ? `Polymarket ${(control.senate.probability * 100).toFixed(1)}%${control.senate.change24h ? ` · ${control.senate.change24h > 0 ? "▲" : "▼"}${Math.abs(control.senate.change24h * 100).toFixed(1)}` : ""}` : t("D majority")}</small></article>
-        <article><span>{t("Generic ballot")}</span><strong className={model && model.genericBallot.margin < 0 ? "rep-text" : "dem-text"}>{model ? signed(model.genericBallot.margin) : "—"}</strong><small>{t("weighted poll average")}</small></article>
+        <article><span>{t("Generic ballot")}</span><strong className={model && model.genericBallot.margin < 0 ? "rep-text" : "dem-text"}>{model ? <>{model.genericBallot.margin >= 0 ? "D" : "R"}+<CountUp value={Math.abs(model.genericBallot.margin)} decimals={1} /></> : "—"}</strong><small>{t("weighted poll average")}</small></article>
         <article><span>{t("Benchmark House")}</span><strong>{pulse.length ? <CountUp value={Math.round(pulse.at(-1)!.demSeats)} /> : "—"}</strong><small>{pulse.length > 7 ? t("D seats · {change} over 7 runs", { change: `${pulseChange >= 0 ? "+" : ""}${pulseChange.toFixed(1)}` }) : t("mean D seats")}</small></article>
         <article className="live-countdown"><OdometerCountdown /></article>
       </section>
@@ -176,7 +202,7 @@ export function LiveDesk({ showTriage = false }: { showTriage?: boolean }) {
                 <Link key={mover.state} className="mover" href={raceLink(mover.state)} style={{ "--i": index } as React.CSSProperties}>
                   <span><b>{t(mover.name)}</b><small>{t(mover.label)}</small></span>
                   <Sparkline values={mover.history.map((point) => point.probability * 100)} width={90} height={28} />
-                  <strong>{(mover.probability * 100).toFixed(0)}%</strong>
+                  <strong><CountUp value={Math.round(mover.probability * 100)} duration={900} />%</strong>
                   <em className={mover.change24h === 0 ? "" : (mover.side === "D") === mover.change24h > 0 ? "dem-text" : "rep-text"}>{mover.change24h === 0 ? "—" : `${mover.change24h > 0 ? "▲" : "▼"}${Math.abs(mover.change24h * 100).toFixed(1)}`}</em>
                 </Link>
               ))}
@@ -186,7 +212,7 @@ export function LiveDesk({ showTriage = false }: { showTriage?: boolean }) {
             <div className="panel-head"><div><p className="eyebrow">{t("Benchmark pulse")}</p><h2>{t("House, last {count} runs", { count: pulse.length || "—" })}</h2></div><span className="panel-tag">Vote-Scope</span></div>
             {pulse.length > 1 ? <>
               <div className="pulse-now"><strong><CountUp value={Math.round(pulse.at(-1)!.demSeats)} /></strong><span>{t("mean Democratic seats · 218 for majority")}</span></div>
-              <Sparkline values={pulse.map((run) => run.demSeats)} width={320} height={80} reference={218} stretch />
+              <Sparkline values={pulse.map((run) => run.demSeats)} width={320} height={80} reference={218} stretch scrub={{ dates: pulse.map((run) => run.date), title: t("Mean D seats"), format: (value) => value.toFixed(1), label: t("Mean Democratic House seats, by benchmark run") }} />
               <div className="pulse-axis"><span>{pulse[0].date}</span><span>{pulse.at(-1)!.date}</span></div>
             </> : <div className="wire-skeleton small"><i /><i /></div>}
           </article>

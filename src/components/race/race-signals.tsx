@@ -7,6 +7,7 @@ import { stateByCode } from "@/data/geography";
 import type { ForecastRace } from "@/lib/forecast";
 import { pollWeight } from "@/lib/mp26";
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
+import { CountUp } from "@/components/motion/count-up";
 
 const signed = (value: number) => `${value >= 0 ? "D" : "R"}+${Math.abs(value).toFixed(1)}`;
 const DAY = 86_400_000;
@@ -83,9 +84,10 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                   format={(value) => value === 0 ? t("EVEN") : `${value >= 0 ? "D" : "R"}+${Number.isInteger(value) ? Math.abs(value) : Math.abs(value).toFixed(1)}`}
                   reference={national ? undefined : { value: race.signedMargin, label: t("2026 model {margin}", { margin: signed(race.signedMargin) }) }}
                   ariaLabel={national ? t("Generic ballot polls over time") : t("{state} Senate polls over time", { state: stateName })}
+                  legend={{ dots: t("Polls"), line: t("Weighted average") }}
                 />
-                <ul className="latest-polls">
-                  {latest.map((poll) => <li key={poll.id}><a href={poll.url} target="_blank" rel="noreferrer"><span>{poll.pollster}<small>{poll.date} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString(intl)}` : ""}</small></span><b className={poll.dem >= poll.rep ? "dem-text" : "rep-text"}>{signed(poll.dem - poll.rep)}</b></a></li>)}
+                <ul className="latest-polls mpb-stagger">
+                  {latest.map((poll, index) => <li key={poll.id} style={{ "--i": index } as React.CSSProperties}><a href={poll.url} target="_blank" rel="noreferrer"><span>{poll.pollster}<small>{poll.date} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString(intl)}` : ""}</small></span><b className={poll.dem >= poll.rep ? "dem-text" : "rep-text"}>{signed(poll.dem - poll.rep)}</b></a></li>)}
                 </ul>
               </>}
         <p className="chart-note">{national ? `${t("The Vote-Scope index has no district-level polls; the national generic ballot is shown instead.")} ` : ""}{t("Dots are individual polls (D minus R); the line applies the model's weighting (30-day half-life, sample size, likely voters) to the polls released by each date.")}</p>
@@ -101,7 +103,7 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
             : !market ? <p className="table-empty">{t("No Polymarket winner market is listed for this race.")}</p>
               : <>
                 <div className="market-now">
-                  <strong className={market.side === "D" ? "dem-text" : "rep-text"}>{(market.probability * 100).toFixed(1)}%</strong>
+                  <strong className={market.side === "D" ? "dem-text" : "rep-text"}><CountUp value={market.probability * 100} decimals={1} />%</strong>
                   <span>{t(`${market.label}${feed.marketScope === "national" ? " the House" : ""} · now`)}</span>
                   {marketReference !== undefined && <em>{t("Model {value}%", { value: Math.round(marketReference) })}</em>}
                 </div>
@@ -114,6 +116,7 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                   format={(value) => `${Math.round(value)}%`}
                   reference={marketReference !== undefined ? { value: marketReference, label: t("Model {value}%", { value: Math.round(marketReference) }) } : undefined}
                   ariaLabel={t("{title}: {label} probability over time", { title: market.title, label: t(market.label) })}
+                  legend={{ line: t("Price") }}
                 />
               </>}
         <p className="chart-note">{feed?.marketScope === "national" ? `${t("Polymarket lists no market for this district; the national House-control market is shown.")} ` : ""}{t("Daily closing prices from Polymarket. A price is a traded belief, not a poll or a forecast.")}{market?.side === "R" ? ` ${t("A strong third candidate is running, so the Republican side is tracked.")}` : ""}</p>

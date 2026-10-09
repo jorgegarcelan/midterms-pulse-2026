@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/motion-b.css";
 import { useEffect, useMemo, useState } from "react";
 import Link from "@/components/i18n/link";
 import { MarginHistoryChart } from "@/components/charts/margin-history-chart";
@@ -10,6 +11,8 @@ import { loadDemographics, loadHouseHistory, loadPresidentHistory, type Demograp
 import { raceSlug } from "@/lib/races";
 import { ShareImageButton } from "@/components/share-image-button";
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
+import { CountUp } from "@/components/motion/count-up";
+import { useFlipList } from "@/components/motion/race-tween";
 
 type Row = { code: string; race?: ForecastRace; last?: HistoryResult; income: number | null; bachelors: number | null; white: number | null; hispanic: number | null; black: number | null };
 type SortKey = "code" | "model" | "last" | "income" | "bachelors" | "white" | "hispanic" | "black";
@@ -63,6 +66,7 @@ export function StateProfile({ code }: { code: string }) {
     return (typeof left === "string" ? left.localeCompare(String(right)) : left - (right as number)) * sort.direction;
   }), [rows, sort]);
 
+  const tableRef = useFlipList<HTMLDivElement>(`${sort.key}:${sort.direction}:${sorted.map((row) => row.code).join()}`);
   const name = t(stateByCode.get(state)?.name || state);
   const profile = demographics?.states[state];
   const lastPresident = president?.at(-1);
@@ -71,9 +75,9 @@ export function StateProfile({ code }: { code: string }) {
     <section className="state-profile" aria-labelledby="state-profile-title">
       <div className="state-profile-head">
         <div><p className="eyebrow">{t("State profile")}</p><h2 id="state-profile-title">{t("{state} at a glance", { state: name })}</h2><ShareImageButton href={`/api/share/state/${state.toLowerCase()}`} /></div>
-        <div className="state-chips">
+        <div className="state-chips mpb-stagger">
           {profile?.population && <span><b>{new Intl.NumberFormat(intl, { notation: "compact", maximumFractionDigits: 1 }).format(profile.population)}</b> {t("residents")}</span>}
-          <span><b>{rows.length || "—"}</b> {rows.length === 1 ? t("House seat") : t("House seats")}</span>
+          <span><b>{rows.length ? <CountUp value={rows.length} /> : "—"}</b> {rows.length === 1 ? t("House seat") : t("House seats")}</span>
           {lastPresident && <span><b className={lastPresident.m >= 0 ? "dem-text" : "rep-text"}>{signed(lastPresident.m)}</b> {t("for president in 2024")}</span>}
           {senateRace && <Link href={`/races/${raceSlug(senateRace)}`}><b>{t("Senate race")}</b> {signed(senateRace.signedMargin)} →</Link>}
         </div>
@@ -97,12 +101,12 @@ export function StateProfile({ code }: { code: string }) {
 
       {rows.length > 0 && <article className="panel state-districts">
         <div className="panel-head"><div><p className="eyebrow">{t("Districts")}</p><h2>{t("Every {state} district, side by side", { state: name })}</h2></div><span className="panel-tag">{t("click a column to sort")}</span></div>
-        <div className="district-table" role="table">
+        <div className="district-table mpb-sortable" role="table" ref={tableRef}>
           <div className="district-table-head" role="row">
-            {COLUMNS.map((column) => <button key={column.key} type="button" role="columnheader" aria-sort={sort.key === column.key ? (sort.direction === 1 ? "ascending" : "descending") : "none"} className={sort.key === column.key ? "active" : ""} onClick={() => setSort((current) => ({ key: column.key, direction: current.key === column.key ? (current.direction === 1 ? -1 : 1) : column.key === "code" ? 1 : -1 }))}>{t(column.label)}{sort.key === column.key ? (sort.direction === 1 ? " ↑" : " ↓") : ""}</button>)}
+            {COLUMNS.map((column) => <button key={column.key} type="button" role="columnheader" aria-sort={sort.key === column.key ? (sort.direction === 1 ? "ascending" : "descending") : "none"} className={sort.key === column.key ? "active" : ""} onClick={() => setSort((current) => ({ key: column.key, direction: current.key === column.key ? (current.direction === 1 ? -1 : 1) : column.key === "code" ? 1 : -1 }))}>{t(column.label)}<i className={`mpb-sort${sort.key === column.key ? (sort.direction === 1 ? " up" : " down") : ""}`} aria-hidden="true">↑</i></button>)}
           </div>
           {sorted.map((row) => (
-            <Link key={row.code} role="row" href={`/races/${row.code.toLowerCase()}`}>
+            <Link key={row.code} role="row" data-flip={row.code} href={`/races/${row.code.toLowerCase()}`}>
               <strong>{row.code}</strong>
               <b className={row.race ? (row.race.signedMargin >= 0 ? "dem-text" : "rep-text") : ""}>{row.race ? signed(row.race.signedMargin) : "—"}</b>
               <span className={row.last ? (row.last.w === "D" ? "dem-text" : row.last.w === "R" ? "rep-text" : "") : ""}>{row.last ? (row.last.u ? t("{party} unopposed", { party: row.last.w }) : signed(row.last.m)) : "—"}</span>

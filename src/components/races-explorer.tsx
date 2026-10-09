@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/motion-b.css";
 import { useEffect, useMemo, useState } from "react";
 import Link from "@/components/i18n/link";
 import { useElectionContext } from "@/components/election-context";
@@ -8,6 +9,8 @@ import type { ForecastRace } from "@/lib/forecast";
 import { raceSlug } from "@/lib/races";
 import { disagreement, expertBook } from "@/lib/expert-ratings";
 import { useT } from "@/components/i18n/locale-provider";
+import { CountUp } from "@/components/motion/count-up";
+import { useFlipList } from "@/components/motion/race-tween";
 
 type ModelFeed = { races: ForecastRace[]; runDate: string; version: string };
 
@@ -41,9 +44,10 @@ export function RacesExplorer() {
     if (onlySplits && !disagreement(race)) return false;
     return !search || `${race.code} ${race.name} ${race.rating} ${t(race.rating)}`.toLowerCase().includes(search.toLowerCase());
   }).sort((a, b) => a.margin - b.margin), [context.chamber, context.stateCode, maxMargin, model, onlySplits, search, t]);
+  const tableRef = useFlipList<HTMLDivElement>(races.map((race) => `${race.chamber}-${race.code}`).join());
 
   return <>
-    <section className="page-intro"><div><p className="eyebrow">{t("HOUSE + SENATE · RACE DIRECTORY")}</p><h1>{t("Every race, one profile")}</h1><p>{t("Search the full forecast, rank contests by competitiveness and open a profile with candidates, campaign finance, model signals and geography.")}</p></div><div className="stat-stamp"><strong>{races.length}</strong><span>{t("races in view")}</span><small>{model ? `${model.version} · ${model.runDate}` : t("Loading model…")}</small></div></section>
+    <section className="page-intro"><div><p className="eyebrow">{t("HOUSE + SENATE · RACE DIRECTORY")}</p><h1>{t("Every race, one profile")}</h1><p>{t("Search the full forecast, rank contests by competitiveness and open a profile with candidates, campaign finance, model signals and geography.")}</p></div><div className="stat-stamp"><strong><CountUp value={races.length} /></strong><span>{t("races in view")}</span><small>{model ? `${model.version} · ${model.runDate}` : t("Loading model…")}</small></div></section>
     <section className="panel races-directory">
       <div className="race-directory-filters">
         <label>{t("Search")}<input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("PA-07, Alaska, Toss Up…")} /></label>
@@ -52,9 +56,9 @@ export function RacesExplorer() {
         <label>{t("Maximum margin")}<select value={maxMargin} onChange={(event) => setMaxMargin(event.target.value)}><option value="all">{t("All ratings")}</option><option value="3">{t("{count} points", { count: 3 })}</option><option value="5">{t("{count} points", { count: 5 })}</option><option value="10">{t("{count} points", { count: 10 })}</option></select></label>
         <label>{t("Handicappers")}<select value={onlySplits ? "split" : "all"} onChange={(event) => setOnlySplits(event.target.value === "split")}><option value="all">{t("All races")}</option><option value="split">{t("Model disagrees with experts")}</option></select></label>
       </div>
-      <div className="race-directory-table">
+      <div className="race-directory-table mpb-directory" ref={tableRef}>
         <div className="race-directory-head"><span>{t("Race")}</span><span>{t("Model rating")}</span><span>Cook · IE · Sabato</span><span>{t("Projected vote")}</span><span>{t("Margin")}</span><span>{t("Win probability")}</span></div>
-        {races.map((race) => <Link key={`${race.chamber}-${race.code}`} href={`/races/${raceSlug(race)}`}><span><strong>{race.chamber === "senate" ? t("{code} Senate", { code: race.code }) : race.code}</strong><small>{race.chamber === "house" ? t("U.S. House") : t("U.S. Senate")}</small></span><span>{t(race.rating)}</span><ExpertCell race={race} /><span className="race-vote-cell"><i className="dem" style={{ width: `${race.demVote || 50}%` }} /><i className="rep" style={{ width: `${race.repVote || 50}%` }} /></span><b className={race.leader === "D" ? "dem-text" : "rep-text"}>{race.leader}+{race.margin.toFixed(1)}</b><em>{race.winProbability}% →</em></Link>)}
+        {races.map((race) => <Link key={`${race.chamber}-${race.code}`} data-flip={`${race.chamber}-${race.code}`} href={`/races/${raceSlug(race)}`}><span><strong>{race.chamber === "senate" ? t("{code} Senate", { code: race.code }) : race.code}</strong><small>{race.chamber === "house" ? t("U.S. House") : t("U.S. Senate")}</small></span><span>{t(race.rating)}</span><ExpertCell race={race} /><span className="race-vote-cell" title={race.demVote && race.repVote ? `D ${race.demVote.toFixed(1)}% · R ${race.repVote.toFixed(1)}%` : undefined}><i className="dem" style={{ width: `${race.demVote || 50}%` }} /><i className="rep" style={{ width: `${race.repVote || 50}%` }} /></span><b className={race.leader === "D" ? "dem-text" : "rep-text"}>{race.leader}+{race.margin.toFixed(1)}</b><em><span className="mpb-prob" style={{ "--p": race.winProbability / 100 } as React.CSSProperties} aria-hidden="true" />{race.winProbability}% <i className="mpb-arrow" aria-hidden="true">→</i></em></Link>)}
         {model && races.length === 0 && <p className="table-empty">{t("No races match the selected filters.")}</p>}
       </div>
     </section>

@@ -25,7 +25,7 @@ export function ContextBar() {
     <section className={`context-bar${expanded ? " expanded" : ""}`} aria-label={t("Global election context")}>
       <button type="button" className="context-toggle" aria-expanded={expanded} onClick={() => setExpanded((open) => !open)}><span>{summary}</span><b>{t(expanded ? "Close" : "Filters")}</b></button>
       <div className="context-primary">
-        <label>{t("Geography")}<select value={stateCode} onChange={(event) => setContext({ stateCode: event.target.value, county: "" })}><option value="US">{t("United States")}</option>{states.map((state) => <option key={state.code} value={state.code}>{t(state.name)}</option>)}</select></label>
+        <label>{t("Area")}<select value={stateCode} onChange={(event) => setContext({ stateCode: event.target.value, county: "" })}><option value="US">{t("United States")}</option>{states.map((state) => <option key={state.code} value={state.code}>{t(state.name)}</option>)}</select></label>
         <label>{t("Cycle")}<select value={cycle} onChange={(event) => setContext({ cycle: event.target.value as ElectionCycle })}><option value="2026">2026</option><option value="2024">2024</option><option value="2020">2020</option><option value="2016">2016</option></select></label>
         <label>{t("Chamber")}<select value={chamber} onChange={(event) => setContext({ chamber: event.target.value as ChamberFilter })}><option value="all">{t("All chambers")}</option><option value="house">{t("House")}</option><option value="senate">{t("Senate")}</option></select></label>
         {stateName && <Link className="context-link" href={`/states/${stateCode.toLowerCase()}`}>{t("Open {code} profile →", { code: stateCode })}</Link>}

@@ -335,3 +335,13 @@ html body .command-input input { flex: 1; height: 54px; padding: 0; border: 0 !i
   .topbar nav { gap: 10px; }
   .topbar nav a { font-size: 12.5px; }
 }
+
+/* "More" menu in the top bar */
+.nav-more { position: relative; height: 100%; display: grid; place-items: center; }
+.nav-more > button { height: 100%; display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.nav-more > button span { font-size: 9px; }
+.nav-more > button:hover, .nav-more.active > button { color: var(--ink); }
+.nav-more-menu { position: absolute; top: calc(100% - 6px); right: -12px; z-index: 70; display: grid; min-width: 200px; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: rgba(13,16,20,.98); box-shadow: 0 18px 40px rgba(0,0,0,.5); }
+.topbar nav .nav-more-menu a { height: auto; display: block; padding: 9px 12px; border: 0; border-radius: 8px; font-size: 13px; }
+.topbar nav .nav-more-menu a:hover, .topbar nav .nav-more-menu a.active { background: rgba(255,255,255,.06); color: var(--ink); }
+@media (max-width: 720px) { .nav-more-menu { position: fixed; top: 112px; right: 12px; } }

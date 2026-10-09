@@ -13,6 +13,7 @@
     "data:history": "node scripts/build-election-history.mjs",
     "data:demographics": "node scripts/build-demographics.mjs",
     "data:ratings": "node scripts/build-expert-ratings.mjs",
+    "data:candidates": "node scripts/build-candidates.mjs",
     "brand:icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {

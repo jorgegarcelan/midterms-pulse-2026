@@ -1,5 +1,6 @@
 "use client";
 
+import "@/app/motion-b.css";
 import { useMemo, useState } from "react";
 import { CountUp } from "@/components/motion/count-up";
 import { seeded } from "@/components/motion/motion-utils";
@@ -33,11 +34,13 @@ export function Hemicycle({ label, total, dem, majority, rows, inner = .38, majo
   const origin = boundary.origin;
   const rep = total - dem;
   const demControl = dem >= majority;
+  // Pointing at a seat lifts its party's bloc and dims the other side.
+  const [bloc, setBloc] = useState<"d" | "r" | null>(null);
 
   return (
     <article className="hemi-card">
       <div className="hemi-card-head"><span>{label}</span><span><b>{majority}</b> {t("for majority")}</span></div>
-      <svg className="hemi" viewBox={`${-RADIUS - 12} ${-RADIUS - 28} ${RADIUS * 2 + 24} ${RADIUS + 36}`} role="img" aria-label={t("{label}: {dem} Democratic seats, {rep} Republican seats", { label, dem, rep })}>
+      <svg className={`hemi${bloc ? ` focus-${bloc}` : ""}`} onPointerMove={(event) => { const target = event.target as Element; setBloc(target instanceof SVGCircleElement ? (target.classList.contains("d") ? "d" : "r") : null); }} onPointerLeave={() => setBloc(null)} viewBox={`${-RADIUS - 12} ${-RADIUS - 28} ${RADIUS * 2 + 24} ${RADIUS + 36}`} role="img" aria-label={t("{label}: {dem} Democratic seats, {rep} Republican seats", { label, dem, rep })}>
         <line className="hemi-majority" x1="0" y1="4" x2="0" y2={-RADIUS - 8} />
         <text className="hemi-majority-label" x="0" y={-RADIUS - 14}>{majority}{majorityNote ? ` · ${majorityNote}` : ""}</text>
         {seats.map((seat, index) => (
@@ -51,7 +54,7 @@ export function Hemicycle({ label, total, dem, majority, rows, inner = .38, majo
           />
         ))}
       </svg>
-      <div className="hemi-score">
+      <div className={`hemi-score${bloc ? ` focus-${bloc}` : ""}`}>
         <div><strong className="dem-text"><CountUp value={dem} delay={500} /></strong> <span>{t("Dem")}</span></div>
         <div className={`hemi-verdict ${demControl ? "d" : "r"}`}>{demControl ? t("Democratic control") : t("Republican control")}</div>
         <div><span>{t("Rep")}</span> <strong className="rep-text"><CountUp value={rep} delay={500} /></strong></div>
