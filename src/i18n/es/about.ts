@@ -35,4 +35,11 @@ export const about: Record<string, string> = {
   "Selected papers": "Publicaciones",
   "NLP, gender bias in the media and AI for public policy, including tools that help journalists analyse coverage.": "Procesamiento del lenguaje, sesgos de género en los medios e IA para políticas públicas, incluidas herramientas que ayudan a los periodistas a analizar la cobertura.",
   "More on jorgegarcelan.com ↗": "Más en jorgegarcelan.com ↗",
+  "An independent, open forecast of the 2026 US midterms, told in Spanish: every race, every source, every assumption in the open.": "Un pronóstico independiente y abierto de las midterms de 2026 en EE. UU., contado en español: cada carrera, cada fuente y cada supuesto a la vista.",
+  "updated daily": "actualizado a diario",
+  "Footer navigation": "Navegación del pie",
+  "Start": "Empieza",
+  "Made in Madrid by": "Hecho en Madrid por",
+  "Not affiliated with any party, campaign or media outlet.": "Sin vínculo con ningún partido, campaña ni medio.",
+  "Back to top": "Volver arriba",
 };

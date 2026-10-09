@@ -21,6 +21,7 @@ import "../stream.css";
 import "../changes.css";
 import "../geography.css";
 import "../nav.css";
+import "../footer.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });

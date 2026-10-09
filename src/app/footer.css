@@ -1,0 +1,44 @@
+/* Site footer */
+.site-footer.site-footer { display: grid; gap: 0; margin-top: 72px; padding: 0; border-top: 0; color: #8e97a0; font-size: 13px; }
+.site-footer a { color: inherit; text-decoration: none; transition: color .2s ease; }
+.site-footer a:hover { color: var(--ink); }
+.footer-top { display: grid; grid-template-columns: minmax(260px, 1.1fr) 2.4fr; gap: 48px; padding: 40px 0 34px; border-top: 1px solid var(--line); position: relative; }
+.footer-top::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, rgba(157,187,250,.6), rgba(241,141,148,.6), transparent); }
+.footer-brand { display: grid; gap: 14px; align-content: start; }
+.footer-logo { display: inline-flex; align-items: center; gap: 10px; width: max-content; color: var(--ink) !important; font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
+.footer-logo svg { width: 36px; height: 22px; }
+.footer-logo em { font-family: Georgia, serif; font-style: italic; font-weight: 400; color: var(--blue-soft); }
+.footer-logo small { color: #6f7780; font-family: var(--font-mono, monospace); font-size: 11px; font-weight: 400; }
+.footer-brand > p { margin: 0; max-width: 380px; color: #a5abb5; font: 400 15px/1.55 Georgia, serif; }
+.footer-status { display: grid; gap: 4px; color: #6f7780; font-family: var(--font-mono, monospace); font-size: 11px; }
+.footer-status span { display: inline-flex; align-items: center; gap: 8px; }
+.footer-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green, #63d69b); box-shadow: 0 0 10px rgba(99,214,155,.7); }
+.footer-cta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.footer-night { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid rgba(242,196,109,.4); border-radius: 999px; background: rgba(242,196,109,.08); color: #f2d9a6 !important; }
+.footer-night:hover { background: rgba(242,196,109,.16); }
+.footer-night i { width: 6px; height: 6px; border-radius: 50%; background: #f2c46d; box-shadow: 0 0 10px #f2c46d; }
+.footer-night small { color: #c9a967; font-size: 12px; }
+.footer-stream { display: inline-flex; align-items: center; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; }
+.footer-stream:hover { border-color: #66717d; }
+.footer-columns { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
+.footer-columns > div { display: grid; gap: 9px; align-content: start; }
+.footer-columns .eyebrow { margin: 0 0 4px; }
+.footer-columns a { width: max-content; max-width: 100%; color: #a2aab2; }
+.footer-sources { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 16px 0; border-top: 1px solid var(--line-soft); }
+.footer-sources > span { margin-right: 6px; color: #6f7780; font-family: var(--font-mono, monospace); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.footer-sources a { padding: 4px 10px; border: 1px solid var(--line-soft); border-radius: 999px; color: #8e97a0; font-size: 12px; }
+.footer-sources a:hover { border-color: #66717d; }
+.footer-sources .footer-more { border: 0; color: var(--blue-soft); }
+.footer-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; padding: 18px 0 32px; border-top: 1px solid var(--line-soft); color: #6f7780; font-size: 12px; }
+.footer-bottom p { margin: 0; }
+.footer-bottom a { color: #a2aab2; }
+.footer-legal { flex: 1; }
+.footer-tools { display: flex; gap: 8px; }
+.footer-tools a, .footer-tools button { padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: #a2aab2; font: inherit; font-size: 12px; cursor: pointer; }
+.footer-tools a:hover, .footer-tools button:hover { border-color: #66717d; color: var(--ink); }
+@media (max-width: 1100px) { .footer-top { grid-template-columns: 1fr; gap: 32px; } }
+@media (max-width: 720px) {
+  .footer-columns { grid-template-columns: 1fr 1fr; gap: 26px 18px; }
+  .footer-bottom { display: grid; }
+  .footer-legal { flex: none; }
+}
