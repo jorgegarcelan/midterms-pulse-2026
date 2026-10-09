@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useIntlLocale } from "@/components/i18n/locale-provider";
 import { easeOutQuart, prefersReducedMotion } from "@/components/motion/motion-utils";
 
 type CountUpProps = { value: number; decimals?: number; delay?: number; duration?: number; locale?: boolean };
@@ -48,6 +49,7 @@ export function CountUp({ value, decimals = 0, delay = 0, duration = 1400, local
     return () => { cancelAnimationFrame(frame); window.clearTimeout(timer); observer?.disconnect(); };
   }, [value, decimals, delay, duration]);
 
-  const text = locale ? Math.round(display).toLocaleString("en-US") : display.toFixed(decimals);
+  const intl = useIntlLocale();
+  const text = locale ? Math.round(display).toLocaleString(intl) : display.toFixed(decimals);
   return <span className="count-up" ref={ref}>{text}</span>;
 }

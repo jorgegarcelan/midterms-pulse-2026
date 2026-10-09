@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useInView } from "@/components/explainer/use-in-view";
+import { useIntlLocale } from "@/components/i18n/locale-provider";
 
 type Dot = { date: string; value: number; tone: "dem" | "rep"; title: string };
 type Props = {
@@ -23,6 +24,7 @@ const time = (date: string) => Date.parse(`${date}T00:00:00Z`);
 
 // Time series for polls (dots + weighted trend) and market prices (line + area), with a model reference.
 export function SignalChart({ dots = [], line, domain, ticks, format, baseline, reference, tone = "margin", ariaLabel }: Props) {
+  const locale = useIntlLocale();
   const [ref, inView] = useInView<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
 
@@ -40,11 +42,11 @@ export function SignalChart({ dots = [], line, domain, ticks, format, baseline, 
     cursor.setUTCDate(1);
     const step = end - start > 300 * 86_400_000 ? 3 : 1;
     while (cursor.getTime() <= end) {
-      if (cursor.getTime() >= start) months.push({ label: cursor.toLocaleDateString("en-US", { month: "short", year: "2-digit", timeZone: "UTC" }), x: x(cursor.toISOString().slice(0, 10)) });
+      if (cursor.getTime() >= start) months.push({ label: cursor.toLocaleDateString(locale, { month: "short", year: "2-digit", timeZone: "UTC" }), x: x(cursor.toISOString().slice(0, 10)) });
       cursor.setUTCMonth(cursor.getUTCMonth() + step);
     }
     return { x, y, path, area, months };
-  }, [baseline, domain, dots, line]);
+  }, [baseline, domain, dots, line, locale]);
 
   const { x, y, path, area, months } = layout;
   const hovered = hover === null ? null : line[hover];
@@ -72,7 +74,7 @@ export function SignalChart({ dots = [], line, domain, ticks, format, baseline, 
         <rect className="hover-capture" x={PAD.left} y={0} width={VW - PAD.left - PAD.right} height={VH} onPointerMove={move} onPointerLeave={() => setHover(null)} />
       </svg>
       {hovered && <div className="chart-tip" style={{ left: `${x(hovered.date) / VW * 100}%`, top: `${y(hovered.value) / VH * 100}%` }}>
-        <strong>{new Date(time(hovered.date)).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}</strong>
+        <strong>{new Date(time(hovered.date)).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}</strong>
         <b>{format(hovered.value)}</b>
       </div>}
       </div>

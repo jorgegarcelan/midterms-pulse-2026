@@ -21,7 +21,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .brand-name em { color: var(--blue-soft); font-family: Georgia, serif; font-weight: 400; }
 .brand-name small { margin-left: 4px; color: #686f79; font: 700 9px/1 Arial; letter-spacing: .13em; }
 .topbar nav { display: flex; height: 72px; gap: clamp(14px, 1.8vw, 26px); align-items: center; }
-.topbar nav a { height: 100%; display: grid; place-items: center; color: var(--muted); font-size: 13px; border-bottom: 2px solid transparent; }
+.topbar nav a { height: 100%; display: grid; white-space: nowrap; place-items: center; color: var(--muted); font-size: 13px; border-bottom: 2px solid transparent; }
 .topbar nav a:hover, .topbar nav a.active { color: var(--ink); border-color: var(--blue); }
 .update-pill { justify-self: end; color: #b9c0ca; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
 .update-pill > i, .live-indicator i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 8px; box-shadow: 0 0 12px rgba(99,214,155,.72); }
@@ -805,3 +805,8 @@ a.expert-cell:hover { background: #1d2125; }
 @media (max-width: 760px) { .race-experts .expert-grid { grid-template-columns: 1fr 1fr; } }
 
 .workbench-grid.solo, .workspace-overview-grid.solo { grid-template-columns: 1fr; }
+
+/* Language switch */
+.lang-switch { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 1px solid #3a3f44; border-radius: 999px; color: #8e97a0; font-size: 11px; letter-spacing: .06em; text-decoration: none; }
+.lang-switch b { color: var(--ink); font-weight: 600; }
+.lang-switch:hover { border-color: #66717d; color: var(--ink); }

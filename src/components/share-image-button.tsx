@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/components/i18n/locale-provider";
 
 type ShareImageButtonProps = { href: string; label?: string; className?: string };
 
 // Downloads a server-rendered share card. The card takes a moment to render, so the button shows
 // progress; without JavaScript the link still downloads the image.
-export function ShareImageButton({ href, label = "Download image", className = "" }: ShareImageButtonProps) {
+export function ShareImageButton({ href, label, className = "" }: ShareImageButtonProps) {
+  const t = useT();
   const [state, setState] = useState<"idle" | "busy" | "error">("idle");
   const url = `${href}${href.includes("?") ? "&" : "?"}download=1`;
 
@@ -34,7 +36,7 @@ export function ShareImageButton({ href, label = "Download image", className = "
   return (
     <a className={`share-image ${className}`} href={url} download onClick={download} data-state={state} aria-busy={state === "busy"}>
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7.5M4.8 7 8 10.2 11.2 7M3 12.8h10" /></svg>
-      <span>{state === "busy" ? "Rendering…" : state === "error" ? "Try again" : label}</span>
+      <span>{state === "busy" ? t("Rendering…") : state === "error" ? t("Try again") : label ?? t("Download image")}</span>
     </a>
   );
 }

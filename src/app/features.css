@@ -321,3 +321,17 @@ html body .command-input input { flex: 1; height: 54px; padding: 0; border: 0 !i
   .tip-why-steps li { font-size: 12px; }
   .pulse-chapter-3 .tip-why-copy { display: none; }
 }
+
+/* Nine nav items plus the language switch: tighten the bar before it wraps. */
+@media (max-width: 1360px) and (min-width: 721px) {
+  .topbar { gap: 20px; }
+  .topbar nav { gap: 14px; }
+  .topbar nav a { font-size: 13px; }
+  .search-trigger span, .search-trigger kbd { display: none; }
+}
+@media (max-width: 1180px) and (min-width: 721px) {
+  .update-pill { display: none; }
+  .topbar .brand-name small { display: none; }
+  .topbar nav { gap: 10px; }
+  .topbar nav a { font-size: 12.5px; }
+}

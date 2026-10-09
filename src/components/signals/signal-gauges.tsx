@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
+import { useT } from "@/components/i18n/locale-provider";
 import { CountUp } from "@/components/motion/count-up";
 
 type Chamber = { demMajority: number; demSeats: number; repSeats: number };
@@ -35,25 +36,27 @@ function Gauge({ model, market }: { model: number; market: number | null }) {
 }
 
 function SignalCard({ label, seats, chamber, total, majority, market, marketUrl }: { label: string; seats: string; chamber: Chamber; total: number; majority: number; market: number | null; marketUrl?: string }) {
+  const t = useT();
   const gap = market === null ? null : market - chamber.demMajority;
   return (
     <article className="signal-card">
       <div className="card-kicker"><span>{label}</span><small>{seats}</small></div>
       <Gauge model={chamber.demMajority} market={market} />
       <div className="signal-readout">
-        <div><span><i className="model-dot" />Model</span><strong><CountUp value={chamber.demMajority} delay={200} />%</strong></div>
-        <div><span><i className="market-dot" />Market</span><strong>{market === null ? "—" : <><CountUp value={market} decimals={1} delay={300} />%</>}</strong></div>
+        <div><span><i className="model-dot" />{t("Model")}</span><strong><CountUp value={chamber.demMajority} delay={200} />%</strong></div>
+        <div><span><i className="market-dot" />{t("Market")}</span><strong>{market === null ? "—" : <><CountUp value={market} decimals={1} delay={300} />%</>}</strong></div>
       </div>
-      <p className="signal-gap">{gap === null ? "Prediction market unavailable right now." : Math.abs(gap) < 2 ? "Model and traders broadly agree." : `Traders are ${Math.abs(gap).toFixed(1)} pts ${gap > 0 ? "more" : "less"} bullish on a Democratic majority than the model.`}</p>
-      <div className="seat-line"><b className="dem-text">D <CountUp value={chamber.demSeats} delay={400} /></b><i>{majority} TO WIN</i><b className="rep-text"><CountUp value={chamber.repSeats} delay={400} /> R</b></div>
-      <div className="party-bar" aria-label={`${chamber.demSeats} Democratic and ${chamber.repSeats} Republican seats`}><span className="party-bar-dem" style={{ width: `${chamber.demSeats / total * 100}%` }} /><span className="party-bar-rep" style={{ width: `${chamber.repSeats / total * 100}%` }} /></div>
-      {marketUrl && <Link className="signal-link" href="/markets">Markets dashboard →</Link>}
+      <p className="signal-gap">{gap === null ? t("Prediction market unavailable right now.") : Math.abs(gap) < 2 ? t("Model and traders broadly agree.") : t(gap > 0 ? "Traders are {gap} pts more bullish on a Democratic majority than the model." : "Traders are {gap} pts less bullish on a Democratic majority than the model.", { gap: Math.abs(gap).toFixed(1) })}</p>
+      <div className="seat-line"><b className="dem-text">D <CountUp value={chamber.demSeats} delay={400} /></b><i>{t("{majority} TO WIN", { majority })}</i><b className="rep-text"><CountUp value={chamber.repSeats} delay={400} /> R</b></div>
+      <div className="party-bar" aria-label={t("{dem} Democratic and {rep} Republican seats", { dem: chamber.demSeats, rep: chamber.repSeats })}><span className="party-bar-dem" style={{ width: `${chamber.demSeats / total * 100}%` }} /><span className="party-bar-rep" style={{ width: `${chamber.repSeats / total * 100}%` }} /></div>
+      {marketUrl && <Link className="signal-link" href="/markets">{t("Markets dashboard →")}</Link>}
     </article>
   );
 }
 
 // Model vs market: where the statistical forecast and traders disagree.
 export function SignalGauges({ house, senate }: { house: Chamber; senate: Chamber }) {
+  const t = useT();
   const [markets, setMarkets] = useState<MarketFeed | null>(null);
   useEffect(() => {
     const controller = new AbortController();
@@ -65,7 +68,7 @@ export function SignalGauges({ house, senate }: { house: Chamber; senate: Chambe
   }, []);
 
   return <>
-    <SignalCard label="HOUSE CONTROL" seats="435 seats" chamber={house} total={435} majority={218} market={democraticPrice(markets?.events.house.markets)} marketUrl={markets?.events.house.url} />
-    <SignalCard label="SENATE CONTROL" seats="100 seats" chamber={senate} total={100} majority={51} market={democraticPrice(markets?.events.senate.markets)} marketUrl={markets?.events.senate.url} />
+    <SignalCard label={t("HOUSE CONTROL")} seats={t("{count} seats", { count: 435 })} chamber={house} total={435} majority={218} market={democraticPrice(markets?.events.house.markets)} marketUrl={markets?.events.house.url} />
+    <SignalCard label={t("SENATE CONTROL")} seats={t("{count} seats", { count: 100 })} chamber={senate} total={100} majority={51} market={democraticPrice(markets?.events.senate.markets)} marketUrl={markets?.events.senate.url} />
   </>;
 }

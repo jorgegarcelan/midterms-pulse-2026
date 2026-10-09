@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useInView } from "@/components/explainer/use-in-view";
+import { useT } from "@/components/i18n/locale-provider";
 
 export type HistoryPoint = { year: number; margin: number; winner: "D" | "R" | "O"; title: string; detail: string; hollow?: boolean };
 type ContextSeries = { label: string; points: { year: number; margin: number }[] };
@@ -21,6 +22,7 @@ const signed = (value: number) => `${value >= 0 ? "D" : "R"}+${Math.abs(value).t
 
 // Margin over time: D above the line, R below. Dots are races, the dashed tail is today's forecast.
 export function MarginHistoryChart({ points, label, forecast, context, markers = [], ariaLabel }: Props) {
+  const t = useT();
   const [ref, inView] = useInView<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
 
@@ -52,7 +54,7 @@ export function MarginHistoryChart({ points, label, forecast, context, markers =
   }
 
   const tip = hover === null ? null : hover === points.length && forecast
-    ? { x: x(forecast.year), y: y(forecast.margin), title: `${forecast.year} · forecast`, detail: forecast.label, margin: forecast.margin }
+    ? { x: x(forecast.year), y: y(forecast.margin), title: t("{year} · forecast", { year: forecast.year }), detail: forecast.label, margin: forecast.margin }
     : hovered ? { x: x(hovered.year), y: y(hovered.margin), title: hovered.title, detail: hovered.detail, margin: hovered.margin } : null;
 
   return (
@@ -61,7 +63,7 @@ export function MarginHistoryChart({ points, label, forecast, context, markers =
       <svg viewBox={`0 0 ${VW} ${VH}`} role="img" aria-label={ariaLabel}>
         <rect className="band dem" x={PAD.left} y={PAD.top} width={VW - PAD.left - PAD.right} height={y(0) - PAD.top} />
         <rect className="band rep" x={PAD.left} y={y(0)} width={VW - PAD.left - PAD.right} height={VH - PAD.bottom - y(0)} />
-        {[limit, limit / 2, 0, -limit / 2, -limit].map((tick) => <g key={tick} className="grid"><line x1={PAD.left} x2={VW - PAD.right} y1={y(tick)} y2={y(tick)} className={tick === 0 ? "zero" : undefined} /><text x={PAD.left - 8} y={y(tick) + 4}>{tick === 0 ? "EVEN" : signed(tick)}</text></g>)}
+        {[limit, limit / 2, 0, -limit / 2, -limit].map((tick) => <g key={tick} className="grid"><line x1={PAD.left} x2={VW - PAD.right} y1={y(tick)} y2={y(tick)} className={tick === 0 ? "zero" : undefined} /><text x={PAD.left - 8} y={y(tick) + 4}>{tick === 0 ? t("EVEN") : signed(tick)}</text></g>)}
         {xTicks.map((year) => <text key={year} className="x-tick" x={x(year)} y={VH - 10}>{year}</text>)}
         {markers.map((marker) => <g key={marker.year} className="marker"><line x1={x(marker.year)} x2={x(marker.year)} y1={PAD.top} y2={VH - PAD.bottom} /><text x={x(marker.year) + 4} y={PAD.top + 10}>{marker.label}</text></g>)}
         {context && context.points.length > 1 && <g className="context-series">
@@ -89,16 +91,16 @@ export function MarginHistoryChart({ points, label, forecast, context, markers =
       </svg>
       {tip && <div className="chart-tip" style={{ left: `${tip.x / VW * 100}%`, top: `${tip.y / VH * 100}%` }}>
         <strong>{tip.title}</strong>
-        <b className={tip.margin >= 0 ? "dem-text" : "rep-text"}>{Math.abs(tip.margin) >= 100 ? "Unopposed" : signed(tip.margin)}</b>
+        <b className={tip.margin >= 0 ? "dem-text" : "rep-text"}>{Math.abs(tip.margin) >= 100 ? t("Unopposed") : signed(tip.margin)}</b>
         <span>{tip.detail}</span>
       </div>}
       </div>
       <div className="chart-legend">
-        <span><i className="dot dem" />{label}: Democratic win</span>
-        <span><i className="dot rep" />Republican win</span>
-        {points.some((point) => point.winner === "O") && <span><i className="dot other" />Other</span>}
+        <span><i className="dot dem" />{t("{label}: Democratic win", { label })}</span>
+        <span><i className="dot rep" />{t("Republican win")}</span>
+        {points.some((point) => point.winner === "O") && <span><i className="dot other" />{t("Other")}</span>}
         {context && <span><i className="dash" />{context.label}</span>}
-        {forecast && <span><i className="ring" />2026 model</span>}
+        {forecast && <span><i className="ring" />{t("2026 model")}</span>}
       </div>
     </div>
   );

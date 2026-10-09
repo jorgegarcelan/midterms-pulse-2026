@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useT } from "@/components/i18n/locale-provider";
 
 // First polls open at 6:00 a.m. Eastern (UTC−5 after DST ends) on November 3, 2026.
 const POLLS_OPEN = Date.UTC(2026, 10, 3, 11, 0, 0);
@@ -17,6 +18,7 @@ function Digit({ value, delay }: { value: number; delay: number }) {
 }
 
 export function OdometerCountdown() {
+  const t = useT();
   const [values, setValues] = useState([0, 0, 0, 0]);
   const [rolled, setRolled] = useState(false);
 
@@ -34,14 +36,14 @@ export function OdometerCountdown() {
   const labels = ["days", "hrs", "min", "sec"];
   const [days] = values;
   return (
-    <div className="countdown odometer" role="timer" aria-label={`${days} days until polls open on November 3, 2026`}>
-      <div className="odometer-label"><i />Until polls open · Nov 3</div>
+    <div className="countdown odometer" role="timer" aria-label={t("{days} days until polls open on November 3, 2026", { days })}>
+      <div className="odometer-label"><i />{t("Until polls open · Nov 3")}</div>
       <div className="odometer-row" aria-hidden="true">
         {values.map((value, group) => {
           const text = String(value).padStart(2, "0");
           return <div className="odometer-group" key={labels[group]}>
             <div className="odometer-digits">{text.split("").map((digit, index) => <Digit key={index} value={Number(digit)} delay={rolled ? 0 : group * 120 + index * 60} />)}</div>
-            <small>{labels[group]}</small>
+            <small>{t(labels[group])}</small>
           </div>;
         }).flatMap((node, index) => index === 0 ? [node] : [<span className="odometer-sep" key={`sep-${index}`}>:</span>, node])}
       </div>

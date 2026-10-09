@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useElectionContext } from "@/components/election-context";
 import { pollMapMargins, seedPolls, type Poll } from "@/data/polls";
 import { StateTileMap } from "@/components/state-tile-map";
+import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 
 const STORAGE_KEY = "midterm-pulse-user-polls";
 
@@ -11,7 +12,8 @@ type TrendPoint = { date: string; dem: number; rep: number; margin: number; poll
 type PollFeed = { meta: { run_date: string; n_polls: number; latest_field_end: string }; polls: Poll[]; trend: TrendPoint[]; source: string };
 
 function PollingTrend({ values }: { values: TrendPoint[] }) {
-  if (!values.length) return <div className="market-empty">Waiting for the polling trend…</div>;
+  const t = useT();
+  if (!values.length) return <div className="market-empty">{t("Waiting for the polling trend…")}</div>;
   const min = Math.min(...values.map((item) => item.margin), 0) - 1;
   const max = Math.max(...values.map((item) => item.margin), 0) + 1;
   const points = values.map((item, index) => {
@@ -20,17 +22,19 @@ function PollingTrend({ values }: { values: TrendPoint[] }) {
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
   const latest = values.at(-1);
-  return <><div className="large-trend" aria-label="Generic ballot Democratic margin trend"><svg viewBox="0 0 620 220"><line x1="0" x2="620" y1={190 - (0 - min) / (max - min) * 155} y2={190 - (0 - min) / (max - min) * 155} stroke="#59616d" strokeDasharray="5 6" /><polyline points={points} fill="none" stroke="#7ca6f8" strokeWidth="4" /></svg><div><span>{values[0]?.date.slice(5)}</span><span>{values[Math.floor(values.length / 2)]?.date.slice(5)}</span><span>{latest?.date.slice(5)}</span></div></div><p className="chart-note">Weekly average from {values.reduce((sum, item) => sum + item.polls, 0)} poll observations in the visible period.</p></>;
+  return <><div className="large-trend" aria-label={t("Generic ballot Democratic margin trend")}><svg viewBox="0 0 620 220"><line x1="0" x2="620" y1={190 - (0 - min) / (max - min) * 155} y2={190 - (0 - min) / (max - min) * 155} stroke="#59616d" strokeDasharray="5 6" /><polyline points={points} fill="none" stroke="#7ca6f8" strokeWidth="4" /></svg><div><span>{values[0]?.date.slice(5)}</span><span>{values[Math.floor(values.length / 2)]?.date.slice(5)}</span><span>{latest?.date.slice(5)}</span></div></div><p className="chart-note">{t("Weekly average from {count} poll observations in the visible period.", { count: values.reduce((sum, item) => sum + item.polls, 0) })}</p></>;
 }
 
 function PollRow({ poll }: { poll: Poll }) {
+  const t = useT();
+  const locale = useIntlLocale();
   const margin = poll.dem - poll.rep;
   const demWidth = Math.max(0, Math.min(100, poll.dem));
   const repWidth = Math.max(0, Math.min(100, poll.rep));
   return (
     <article className="poll-row">
-      <div className="poll-meta"><strong>{poll.race}</strong><span>{poll.pollster} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString("en-US")}` : ""}</span></div>
-      <div className="poll-bars" aria-label={`Democrat ${poll.dem}, Republican ${poll.rep}`}>
+      <div className="poll-meta"><strong>{poll.race}</strong><span>{poll.pollster} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString(locale)}` : ""}</span></div>
+      <div className="poll-bars" aria-label={t("Democrat {dem}, Republican {rep}", { dem: poll.dem, rep: poll.rep })}>
         <span className="poll-bar dem" style={{ width: `${demWidth}%` }}><i>D {poll.dem.toFixed(1)}</i></span>
         <span className="poll-bar rep" style={{ width: `${repWidth}%` }}><i>R {poll.rep.toFixed(1)}</i></span>
       </div>
@@ -41,6 +45,8 @@ function PollRow({ poll }: { poll: Poll }) {
 
 export function PollsExplorer() {
   const electionContext = useElectionContext();
+  const t = useT();
+  const locale = useIntlLocale();
   const [userPolls, setUserPolls] = useState<Poll[]>([]);
   const [livePolls, setLivePolls] = useState<Poll[]>([]);
   const [trend, setTrend] = useState<TrendPoint[]>([]);
@@ -122,32 +128,32 @@ export function PollsExplorer() {
   return (
     <>
       <section className="page-intro">
-        <div><p className="eyebrow">2026 POLLING</p><h1>Polling tracker</h1><p>Individual toplines, national trend and locally saved research entries, with source and field dates attached.</p></div>
-        <div className="stat-stamp"><strong>{feedMeta?.n_polls.toLocaleString("en-US") || seedPolls.length + userPolls.length}</strong><span>polls indexed</span><small>{feedMeta ? `${feedSource} · through ${feedMeta.latest_field_end}` : feedError || feedSource}</small></div>
+        <div><p className="eyebrow">{t("2026 POLLING")}</p><h1>{t("Polling tracker")}</h1><p>{t("Individual toplines, national trend and locally saved research entries, with source and field dates attached.")}</p></div>
+        <div className="stat-stamp"><strong>{feedMeta?.n_polls.toLocaleString(locale) || seedPolls.length + userPolls.length}</strong><span>{t("polls indexed")}</span><small>{feedMeta ? t("{source} · through {date}", { source: feedSource, date: feedMeta.latest_field_end }) : t(feedError || feedSource)}</small></div>
       </section>
 
       <section className="split-grid map-grid">
-        <article className="panel map-panel"><div className="panel-head"><div><p className="eyebrow">BATTLEGROUND MAP</p><h2>Latest margin signal</h2></div><span className="panel-tag">D ↔ R</span></div><StateTileMap values={pollMapMargins} label="Latest polling margin by battleground state" /><p className="chart-note">Tiles without a current benchmark remain neutral. Hover a state for its margin.</p></article>
-        <article className="panel trend-panel"><div className="panel-head"><div><p className="eyebrow">GENERIC BALLOT</p><h2>Weekly movement</h2></div>{trend.at(-1) && <span className={`big-signal ${trend.at(-1)!.margin >= 0 ? "dem-text" : "rep-text"}`}>{trend.at(-1)!.margin >= 0 ? "D" : "R"}+{Math.abs(trend.at(-1)!.margin).toFixed(1)}</span>}</div><PollingTrend values={trend} /></article>
+        <article className="panel map-panel"><div className="panel-head"><div><p className="eyebrow">{t("BATTLEGROUND MAP")}</p><h2>{t("Latest margin signal")}</h2></div><span className="panel-tag">D ↔ R</span></div><StateTileMap values={pollMapMargins} label={t("Latest polling margin by battleground state")} /><p className="chart-note">{t("Tiles without a current benchmark remain neutral. Hover a state for its margin.")}</p></article>
+        <article className="panel trend-panel"><div className="panel-head"><div><p className="eyebrow">{t("GENERIC BALLOT")}</p><h2>{t("Weekly movement")}</h2></div>{trend.at(-1) && <span className={`big-signal ${trend.at(-1)!.margin >= 0 ? "dem-text" : "rep-text"}`}>{trend.at(-1)!.margin >= 0 ? "D" : "R"}+{Math.abs(trend.at(-1)!.margin).toFixed(1)}</span>}</div><PollingTrend values={trend} /></article>
       </section>
 
       <section className="split-grid polls-workbench">
         <article className="panel poll-list-panel">
-          <div className="panel-head"><div><p className="eyebrow">POLL FEED</p><h2>Latest toplines</h2></div><div className="segmented">{(["All", "Generic", "Senate", "House"] as const).map((item) => <button className={filter === item ? "selected" : ""} key={item} onClick={() => setFilter(item)}>{item}</button>)}</div></div>
-          <div className="poll-filter-grid"><label>Search<input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Pollster, race or state" /></label><label>Population<select value={population} onChange={(event) => setPopulation(event.target.value as typeof population)}><option>All</option><option>LV</option><option>RV</option><option>A</option></select></label><label>Period<select value={windowDays} onChange={(event) => setWindowDays(event.target.value as typeof windowDays)}><option value="30">30 days</option><option value="90">90 days</option><option value="all">Full cycle</option></select></label><label>Sort<select value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}><option value="newest">Newest</option><option value="margin">Largest margin</option><option value="sample">Sample size</option></select></label></div>
-          <p className="filter-summary">Showing {polls.length} records · global context: {electionContext.chamber === "all" ? "all chambers" : electionContext.chamber}</p>
+          <div className="panel-head"><div><p className="eyebrow">{t("POLL FEED")}</p><h2>{t("Latest toplines")}</h2></div><div className="segmented">{(["All", "Generic", "Senate", "House"] as const).map((item) => <button className={filter === item ? "selected" : ""} key={item} onClick={() => setFilter(item)}>{t(item)}</button>)}</div></div>
+          <div className="poll-filter-grid"><label>{t("Search")}<input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Pollster, race or state")} /></label><label>{t("Population")}<select value={population} onChange={(event) => setPopulation(event.target.value as typeof population)}><option value="All">{t("All")}</option><option>LV</option><option>RV</option><option>A</option></select></label><label>{t("Period")}<select value={windowDays} onChange={(event) => setWindowDays(event.target.value as typeof windowDays)}><option value="30">{t("30 days")}</option><option value="90">{t("90 days")}</option><option value="all">{t("Full cycle")}</option></select></label><label>{t("Sort")}<select value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}><option value="newest">{t("Newest")}</option><option value="margin">{t("Largest margin")}</option><option value="sample">{t("Sample size")}</option></select></label></div>
+          <p className="filter-summary">{t("Showing {count} records · global context: {context}", { count: polls.length, context: electionContext.chamber === "all" ? t("all chambers") : t(electionContext.chamber) })}</p>
           <div className="poll-list">{polls.map((poll) => <PollRow key={poll.id} poll={poll} />)}</div>
         </article>
         <aside className="panel add-poll-panel">
-          <p className="eyebrow">LOCAL RESEARCH QUEUE</p><h2>Add a poll</h2><p>Entries stay in this browser for now. A shared database and review workflow come next.</p>
+          <p className="eyebrow">{t("LOCAL RESEARCH QUEUE")}</p><h2>{t("Add a poll")}</h2><p>{t("Entries stay in this browser for now. A shared database and review workflow come next.")}</p>
           <form onSubmit={addPoll} className="data-form">
-            <label>Pollster<input name="pollster" required placeholder="Pollster name" /></label>
-            <label>Race<input name="race" required placeholder="e.g. Maine Senate" /></label>
-            <div className="form-row"><label>State<input name="state" defaultValue="US" maxLength={2} /></label><label>Chamber<select name="chamber" defaultValue="Senate"><option>Generic</option><option>House</option><option>Senate</option></select></label></div>
-            <div className="form-row"><label>Dem %<input name="dem" type="number" step="0.1" min="0" max="100" required /></label><label>Rep %<input name="rep" type="number" step="0.1" min="0" max="100" required /></label></div>
-            <div className="form-row"><label>Sample<input name="sample" type="number" min="0" /></label><label>Population<select name="population"><option>LV</option><option>RV</option><option>A</option></select></label></div>
-            <label>Field end<input name="endDate" type="date" defaultValue="2026-09-19" required /></label>
-            <button className="primary-action" type="submit">Add poll</button>{notice && <p className="form-notice" role="status">{notice}</p>}
+            <label>{t("Pollster")}<input name="pollster" required placeholder={t("Pollster name")} /></label>
+            <label>{t("Race")}<input name="race" required placeholder={t("e.g. Maine Senate")} /></label>
+            <div className="form-row"><label>{t("State")}<input name="state" defaultValue="US" maxLength={2} /></label><label>{t("Chamber")}<select name="chamber" defaultValue="Senate"><option value="Generic">{t("Generic")}</option><option value="House">{t("House")}</option><option value="Senate">{t("Senate")}</option></select></label></div>
+            <div className="form-row"><label>{t("Dem %")}<input name="dem" type="number" step="0.1" min="0" max="100" required /></label><label>{t("Rep %")}<input name="rep" type="number" step="0.1" min="0" max="100" required /></label></div>
+            <div className="form-row"><label>{t("Sample")}<input name="sample" type="number" min="0" /></label><label>{t("Population")}<select name="population"><option>LV</option><option>RV</option><option>A</option></select></label></div>
+            <label>{t("Field end")}<input name="endDate" type="date" defaultValue="2026-09-19" required /></label>
+            <button className="primary-action" type="submit">{t("Add poll")}</button>{notice && <p className="form-notice" role="status">{t(notice)}</p>}
           </form>
         </aside>
       </section>
