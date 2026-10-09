@@ -20,6 +20,7 @@ import "../night.css";
 import "../stream.css";
 import "../changes.css";
 import "../geography.css";
+import "../nav.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
