@@ -12,6 +12,7 @@ import { glossary } from "@/i18n/es/glossary";
 import { state } from "@/i18n/es/state";
 import { night } from "@/i18n/es/night";
 import { stream } from "@/i18n/es/stream";
+import { changes } from "@/i18n/es/changes";
 
 // One flat dictionary; each area keeps its own file so translations can be edited independently.
-export const es: Record<string, string> = { ...common, ...home, ...model, ...races, ...maps, ...polls, ...markets, ...history, ...live, ...explainer, ...glossary, ...state, ...night, ...stream };
+export const es: Record<string, string> = { ...common, ...home, ...model, ...races, ...maps, ...polls, ...markets, ...history, ...live, ...explainer, ...glossary, ...state, ...night, ...stream, ...changes };

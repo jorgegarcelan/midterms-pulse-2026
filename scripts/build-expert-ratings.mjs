@@ -68,13 +68,20 @@ function parse(text, chamber) {
   return { dates: Object.fromEntries(Object.entries(columns).map(([key, column]) => [key, column.date])), races };
 }
 
-const [house, senate] = await Promise.all([wikitext(PAGES.house), wikitext(PAGES.senate)]);
-const output = {
-  source: "Wikipedia rating tables (Cook Political Report, Inside Elections, Sabato's Crystal Ball)",
-  sourceUrls: Object.values(PAGES).map((page) => `https://en.wikipedia.org/wiki/${page}`),
-  retrieved: new Date().toISOString().slice(0, 10),
-  house: parse(house, "house"),
-  senate: parse(senate, "senate"),
-};
-await writeFile("src/data/expert-ratings.json", `${JSON.stringify(output, null, 1)}\n`);
-console.log(`House: ${Object.keys(output.house.races).length} rated, Senate: ${Object.keys(output.senate.races).length} rated`, output.house.dates, output.senate.dates);
+export async function fetchExpertRatings() {
+  const [house, senate] = await Promise.all([wikitext(PAGES.house), wikitext(PAGES.senate)]);
+  return {
+    source: "Wikipedia rating tables (Cook Political Report, Inside Elections, Sabato's Crystal Ball)",
+    sourceUrls: Object.values(PAGES).map((page) => `https://en.wikipedia.org/wiki/${page}`),
+    retrieved: new Date().toISOString().slice(0, 10),
+    house: parse(house, "house"),
+    senate: parse(senate, "senate"),
+  };
+}
+
+// Run directly (npm run data:ratings) to refresh the copy bundled with the site.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const output = await fetchExpertRatings();
+  await writeFile("src/data/expert-ratings.json", `${JSON.stringify(output, null, 1)}\n`);
+  console.log(`House: ${Object.keys(output.house.races).length} rated, Senate: ${Object.keys(output.senate.races).length} rated`, output.house.dates, output.senate.dates);
+}

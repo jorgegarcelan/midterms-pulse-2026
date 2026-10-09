@@ -15,6 +15,9 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 - **Markets** — live Polymarket House, Senate and balance-of-power probabilities with daily price history.
 - **History** — House seat-change chart, cycle comparison, turnout context and interactive historical map.
 - **Methodology** — model pipeline, current limitations and source register.
+- **Election night** — poll closing times hour by hour in Spanish time, with the races to watch and slow-count notes.
+- **What changed** — chamber odds over time, biggest race moves and handicapper rating changes, read from the daily forecast archive.
+- **Stream mode** — 1920×1080 OBS scenes (control scoreboard, Senate builder, race card), with a transparent overlay variant.
 - **Brand system** — original navigation mark, generated election-signal artwork, palette and typography guidance.
 
 The control forecast now uses **MP-26 v0.4**, an owned and reproducible simulation layer anchored to Vote-Scope public data. Both chambers are simulated bottom-up, race by race, so chamber and race odds always agree. It is deliberately labeled experimental because it is not yet historically calibrated. See [`docs/MODEL-V0.4.md`](docs/MODEL-V0.4.md) for every coefficient, the version changelog and limitations.
@@ -22,6 +25,14 @@ The control forecast now uses **MP-26 v0.4**, an owned and reproducible simulati
 ## Interaction model
 
 The global context bar keeps geography, election cycle and chamber synchronized across routes and writes the selection to a shareable URL. State profiles use the same workspace as the national view, so signals, comparisons, scenarios, timeline annotations and AI questions always inherit the active context. Pinned states, saved scenarios, timeline notes and watchlist accounts remain local to the device.
+
+## Languages
+
+Spanish is the default and is served at bare paths (`/races`); English lives under `/en` (`/en/races`). `src/proxy.ts` rewrites bare paths to `app/[lang]`. Every string goes through `t()` with the English text as the key; Spanish lives in `src/i18n/es/*.ts`, one file per area. `node scripts/check-i18n.mjs` flags keys translated differently in two files.
+
+## Forecast archive
+
+`.github/workflows/archive-forecast.yml` runs `scripts/archive-run.mjs` daily, storing the published `/api/model` run and the Cook / Inside Elections / Sabato ratings on the `forecast-archive` branch (`index.json` plus `runs/YYYY-MM-DD.json`). `/changes` reads that branch from raw.githubusercontent.com, so new days appear without a redeploy. Scheduled workflows only run from the default branch, so the archive starts once the workflow is on `main`.
 
 ## Run locally
 

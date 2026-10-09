@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { CommandPalette } from "@/components/command-palette";
 import { ElectionContextProvider } from "@/components/election-context";
 import { LocaleProvider } from "@/components/i18n/locale-provider";
@@ -17,6 +18,7 @@ import "../race-data.css";
 import "../live.css";
 import "../night.css";
 import "../stream.css";
+import "../changes.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
@@ -48,7 +50,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   if (!isLocale(lang)) notFound();
   return (
     <html lang={lang} className={`${geist.variable} ${geistMono.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body><LocaleProvider locale={lang}><ElectionContextProvider><SiteChrome />{children}<MotionDirector /><CommandPalette /></ElectionContextProvider></LocaleProvider></body>
+      <body><LocaleProvider locale={lang}><ElectionContextProvider><SiteChrome />{children}<MotionDirector /><CommandPalette /></ElectionContextProvider></LocaleProvider><Analytics /></body>
     </html>
   );
 }

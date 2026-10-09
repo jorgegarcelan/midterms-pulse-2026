@@ -18,7 +18,7 @@ const keywordsFor = (...parts: string[]) => [...new Set(parts)].join(" ").toLowe
 const PAGES: [string, string, string][] = [
   ["Dashboard", "/", "Home, story and scenario tools"], ["Forecast model", "/model", "MP-26 distributions and assumptions"], ["How the model works", "/how-it-works", "The pipeline, step by step"], ["Glossary", "/glossary", "Every term, in plain words"], ["District map", "/districts", "All 435 House districts"],
   ["Race directory", "/races", "Every House and Senate race"], ["Polls", "/polls", "Polling tracker"], ["Prediction markets", "/markets", "Polymarket control odds"],
-  ["Election night", "/election-night", "Poll closing times and races to watch, hour by hour"], ["Stream mode", "/stream", "Full-screen scenes for OBS"], ["Live desk", "/live", "X watchlist and signal triage"], ["History", "/history", "2010–2024 cycles"], ["County explorer", "/explore", "3,000+ counties"],
+  ["What changed", "/changes", "Forecast history and the races that moved"], ["Election night", "/election-night", "Poll closing times and races to watch, hour by hour"], ["Stream mode", "/stream", "Full-screen scenes for OBS"], ["Live desk", "/live", "X watchlist and signal triage"], ["History", "/history", "2010–2024 cycles"], ["County explorer", "/explore", "3,000+ counties"],
   ["Workspace", "/workspace", "Compare, scenarios, timeline"], ["Methodology", "/methodology", "Sources and validation"],
 ];
 
