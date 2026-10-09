@@ -208,7 +208,8 @@ export function ModelExplainer() {
               <ol className="version-line">
                 <li><b>v0.1</b><span>Top-down chambers against a fixed D+7.4 baseline. The Senate read 69% while its own races implied 43%.</span></li>
                 <li><b>v0.2</b><span>Like-for-like movement, Senate simulated race by race, race error calibrated to the benchmark.</span></li>
-                <li className="current"><b>v0.3 · current</b><span>House simulated race by race too; national error sized to the benchmark&apos;s correlated error.</span></li>
+                <li><b>v0.3</b><span>House simulated race by race too; national error sized to the benchmark&apos;s correlated error.</span></li>
+                <li className="current"><b>v0.4 · current</b><span>Race margins read as the benchmark&apos;s expected D−R vote, not its expected winning margin; race error refitted to ±{RACE_SD}.</span></li>
               </ol>
               <div className="limits">
                 <p>Known limits</p>

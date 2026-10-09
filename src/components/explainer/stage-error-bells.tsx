@@ -52,7 +52,7 @@ export function StageErrorBells({ races }: { races: ExplainerRace[] }) {
   return (
     <div className="stage-viz bells-viz" ref={ref} data-in={inView ? "true" : undefined}>
       <div className="viz-toolbar">
-        <span>{draw ? <>Draw #{draw.count} · national error <b className={draw.national >= 0 ? "dem-text" : "rep-text"}>{signedLabel(draw.national)}</b> for every race</> : "Each race: expected margin ± 10 pts"}</span>
+        <span>{draw ? <>Draw #{draw.count} · national error <b className={draw.national >= 0 ? "dem-text" : "rep-text"}>{signedLabel(draw.national)}</b> for every race</> : `Each race: expected margin ± ${RACE_SD} pts`}</span>
         <button type="button" className="viz-button" onClick={roll}>Draw an election</button>
       </div>
       <svg viewBox={`0 0 ${VW} ${height}`} className="viz-svg" role="img" aria-label="Error distributions for three races moving together with a shared national error">

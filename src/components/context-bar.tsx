@@ -9,7 +9,9 @@ export function ContextBar() {
   const { stateCode, county, cycle, chamber, pinnedStates, setContext, togglePinnedState } = useElectionContext();
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const stateName = stateByCode.get(stateCode)?.name;
+  const summary = [stateName || "United States", cycle, chamber === "all" ? "All chambers" : chamber === "house" ? "House" : "Senate"].join(" · ");
 
   async function copyLink() {
     await navigator.clipboard?.writeText(window.location.href);
@@ -18,7 +20,8 @@ export function ContextBar() {
   }
 
   return <>
-    <section className="context-bar" aria-label="Global election context">
+    <section className={`context-bar${expanded ? " expanded" : ""}`} aria-label="Global election context">
+      <button type="button" className="context-toggle" aria-expanded={expanded} onClick={() => setExpanded((open) => !open)}><span>{summary}</span><b>{expanded ? "Close" : "Filters"}</b></button>
       <div className="context-primary">
         <label>Geography<select value={stateCode} onChange={(event) => setContext({ stateCode: event.target.value, county: "" })}><option value="US">United States</option>{states.map((state) => <option key={state.code} value={state.code}>{state.name}</option>)}</select></label>
         <label>Cycle<select value={cycle} onChange={(event) => setContext({ cycle: event.target.value as ElectionCycle })}><option value="2026">2026</option><option value="2024">2024</option><option value="2020">2020</option><option value="2016">2016</option></select></label>

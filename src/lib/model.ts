@@ -45,7 +45,8 @@ function adjustedRaces(races: ForecastRace[], movement: number) {
 }
 
 /*
-  MP-26 v0.3
+  MP-26 v0.4
+  - Race margins are the benchmark's expected D − R vote share (see expectedMargin in forecast.ts).
   - Movement is measured like for like: the same poll index and weighting, evaluated today and at
     the benchmark's run date. A same-day benchmark therefore gets (almost) no adjustment; a dated
     fallback benchmark is moved by what the polls did since it was published.

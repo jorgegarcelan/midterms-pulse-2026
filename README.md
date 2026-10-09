@@ -5,9 +5,9 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 ## Product surfaces
 
 - **Dashboard** — House and Senate control benchmarks, generic-ballot trend, closest races, scenario lab and grounded AI analyst.
-- **Model** — MP-26 v0.3 inputs, 50,000-draw seat distributions, explicit assumptions and an interactive swing test.
+- **Model** — MP-26 v0.4 inputs, 50,000-draw seat distributions, explicit assumptions and an interactive swing test.
 - **District map** — official 119th Congress boundaries for all 435 voting districts, colored by the current model and linked to race profiles.
-- **Race profiles** — full House and Senate directory with model output, FEC candidates and finance, polling context, geography and source ledger.
+- **Race profiles** — full House and Senate directory with model output, Cook / Inside Elections / Sabato ratings side by side, FEC candidates and finance, polling context, geography and source ledger.
 - **Workspace** — persistent national/state context with linked signals, territory comparison, scenario controls, event timeline and contextual AI.
 - **Explore** — national, state and county filters; a 3,000+ county map; 2016–2024 movement; county results and ACS context.
 - **Live** — device-local X/Twitter watchlist with embedded public timelines and an experimental Jev signal-triage panel.
@@ -17,7 +17,7 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 - **Methodology** — model pipeline, current limitations and source register.
 - **Brand system** — original navigation mark, generated election-signal artwork, palette and typography guidance.
 
-The control forecast now uses **MP-26 v0.3**, an owned and reproducible simulation layer anchored to Vote-Scope public data. Both chambers are simulated bottom-up, race by race, so chamber and race odds always agree. It is deliberately labeled experimental because it is not yet historically calibrated. See [`docs/MODEL-V0.3.md`](docs/MODEL-V0.3.md) for every coefficient, the version changelog and limitations.
+The control forecast now uses **MP-26 v0.4**, an owned and reproducible simulation layer anchored to Vote-Scope public data. Both chambers are simulated bottom-up, race by race, so chamber and race odds always agree. It is deliberately labeled experimental because it is not yet historically calibrated. See [`docs/MODEL-V0.4.md`](docs/MODEL-V0.4.md) for every coefficient, the version changelog and limitations.
 
 ## Interaction model
 

@@ -35,7 +35,7 @@ export function ModelInBrief({ model }: { model: BriefModel | null }) {
     },
     {
       title: "Admit what we don't know",
-      body: "Any race can miss by around 10 points. Part of that miss hits every race at once, because polls tend to be wrong in the same direction everywhere.",
+      body: `Any race can miss by around ${RACE_SD} points. Part of that miss hits every race at once, because polls tend to be wrong in the same direction everywhere.`,
       value: `±${RACE_SD}`,
       caption: `points per race, ±${RACE_COMMON_SD.toFixed(1)} of it shared nationally`,
     },

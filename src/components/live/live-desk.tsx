@@ -49,7 +49,7 @@ function dayLabel(iso: string, now: number) {
 }
 
 // The election desk as it moves: headlines, new polls and market swings in one wire, refreshed every minute.
-export function LiveDesk() {
+export function LiveDesk({ showTriage = false }: { showTriage?: boolean }) {
   const [feed, setFeed] = useState<LiveFeed | null>(null);
   const [model, setModel] = useState<ModelFeed | null>(null);
   const [failed, setFailed] = useState(false);
@@ -186,7 +186,7 @@ export function LiveDesk() {
           </article>
 
           <XWatchlist />
-          <SignalTriage />
+          {showTriage && <SignalTriage />}
         </aside>
       </section>
     </div>

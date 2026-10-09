@@ -8,6 +8,7 @@ import { stateByCode } from "@/data/geography";
 import { electionSnapshot, type Race } from "@/data/election";
 import type { ForecastRace } from "@/lib/forecast";
 import { raceSlug } from "@/lib/races";
+import { useAnalystEnabled } from "@/lib/use-analyst";
 import { CountUp } from "@/components/motion/count-up";
 import { RaceTicker } from "@/components/motion/race-ticker";
 import { PulseStory } from "@/components/pulse/pulse-story";
@@ -180,6 +181,8 @@ export default function Home() {
     return () => lifecycle.abort();
   }, []);
 
+  const analystEnabled = useAnalystEnabled();
+
   async function askAnalyst(event: FormEvent) {
     event.preventDefault();
     if (!question.trim()) return;
@@ -220,7 +223,7 @@ export default function Home() {
 
         <SenateBuilder races={senateRaces} />
 
-        <section className="workbench-grid">
+        <section className={`workbench-grid${analystEnabled ? "" : " solo"}`}>
           <article className="panel races-panel" id="races">
             <div className="panel-head">
               <div><p className="eyebrow">RACE BOARD</p><h2>Closest contests</h2></div>
@@ -231,7 +234,7 @@ export default function Home() {
             <Link className="text-button" href="/races">Open complete race directory <span>→</span></Link>
           </article>
 
-          <aside className="panel analyst-panel">
+          {analystEnabled && <aside className="panel analyst-panel">
             <div className="analyst-title"><div className="pulse-orb"><span /></div><div><p className="eyebrow">AI ANALYST</p><h2>Ask the election desk</h2></div></div>
             <div className="answer-box"><p>{loading ? "Reading the current snapshot…" : answer}</p><span>Sources: current snapshot · methodology notes</span></div>
             <div className="suggestions">{suggestedQuestions.map((item) => <button key={item} type="button" onClick={() => setQuestion(item)}>{item}</button>)}</div>
@@ -240,7 +243,7 @@ export default function Home() {
               <input id="analyst-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask about a race or the model…" />
               <button aria-label="Ask analyst" disabled={loading}>↗</button>
             </form>
-          </aside>
+          </aside>}
         </section>
 
         <SiteFooter />

@@ -1,14 +1,15 @@
 // Shared MP-26 constants, so the server model and client tools cannot drift apart.
 
-export const MODEL_VERSION = "MP-26 v0.3";
+export const MODEL_VERSION = "MP-26 v0.4";
 
 // Shared national error, in generic-ballot points. Chosen so the correlated part of a race's error
 // (NATIONAL_SD × NATIONALIZATION ≈ 2.87 pts) matches the common error the benchmark publishes (common_sd 2.867).
 export const NATIONAL_SD = 4.1;
 export const NATIONALIZATION = 0.7; // share of national movement a race absorbs
-// Total error on a race margin. Calibrated to the benchmark: the median error implied by Vote-Scope's
-// own race odds (|margin| / Φ⁻¹(p)) is ≈9.8 pts for Senate races and ≈8.8 for House races (Sep 2026).
-export const RACE_SD = 10;
+// Total error on a race margin, fitted to the benchmark's own race odds with its expected D − R margin
+// (9 Oct 2026, races between 3% and 97%): best fit ≈6 pts for the Senate and ≈8 for the House.
+// 7.5 keeps one engine for both chambers; mean odds error vs the benchmark is 5.5 pts (Senate) and 1.2 (House).
+export const RACE_SD = 7.5;
 export const RACE_COMMON_SD = NATIONAL_SD * NATIONALIZATION;
 export const RACE_LOCAL_SD = Math.sqrt(RACE_SD ** 2 - RACE_COMMON_SD ** 2);
 export const SIMULATIONS = 50_000;

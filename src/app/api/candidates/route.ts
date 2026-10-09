@@ -8,7 +8,7 @@ type FecCandidate = {
 };
 type FecTotal = {
   candidate_id: string; candidate_election_year: number; coverage_end_date: string; receipts: number; disbursements: number;
-  last_cash_on_hand_end_period: number; last_debts_owed_by_committee: number; individual_contributions: number;
+  cash_on_hand_end_period: number | string; debts_owed_by_committee: number | string; individual_contributions: number;
 };
 
 const FEC_API = "https://api.open.fec.gov/v1";
@@ -63,8 +63,8 @@ export async function GET(request: NextRequest) {
         finance: finance ? {
           receipts: finance.receipts || 0,
           disbursements: finance.disbursements || 0,
-          cashOnHand: finance.last_cash_on_hand_end_period || 0,
-          debt: finance.last_debts_owed_by_committee || 0,
+          cashOnHand: Number(finance.cash_on_hand_end_period) || 0,
+          debt: Number(finance.debts_owed_by_committee) || 0,
           individualContributions: finance.individual_contributions || 0,
           through: finance.coverage_end_date || null,
         } : null,
