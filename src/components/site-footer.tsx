@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "@/components/brand-mark";
+import { useDataDate, useDataStatus } from "@/components/data-status";
 import Link from "@/components/i18n/link";
 import { useLocale, useT } from "@/components/i18n/locale-provider";
 import { NAV_GROUPS } from "@/components/nav/main-nav";
@@ -35,6 +36,8 @@ export function SiteFooter() {
   const pathname = stripLocale(usePathname());
   const other = locale === "es" ? "en" : "es";
   const [days, setDays] = useState<number | null>(null);
+  const dataStatus = useDataStatus();
+  const dataDate = useDataDate(dataStatus);
   useEffect(() => {
     const timer = window.setTimeout(() => setDays(Math.max(0, Math.ceil((ELECTION - Date.now()) / 86_400_000))), 0);
     return () => window.clearTimeout(timer);
@@ -47,7 +50,7 @@ export function SiteFooter() {
           <Link href="/" className="footer-logo" aria-label={t("Midterm Pulse 2026 home")}><BrandMark /><span>Midterm <em>Pulse</em> <small>2026</small></span></Link>
           <p>{t("An independent, open forecast of the 2026 US midterms, told in Spanish: every race, every source, every assumption in the open.")}</p>
           <div className="footer-status">
-            <span><i className="footer-dot" />{MODEL_VERSION} · {t("updated daily")}</span>
+            <span><i className={`footer-dot${dataStatus?.stale ? " stale" : ""}`} />{MODEL_VERSION} · {dataStatus ? t("Vote-Scope run of {date}", { date: dataDate }) : t("updated daily")}</span>
             <span>{t("Experimental model · not a prediction of certainty")}</span>
           </div>
           <div className="footer-cta">

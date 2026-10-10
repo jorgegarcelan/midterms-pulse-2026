@@ -146,4 +146,8 @@ export const common: Record<string, string> = {
   "Scenarios, map builder and data lab": "Escenarios, constructor de mapas y laboratorio de datos",
   "Compare states and test scenarios": "Compara estados y prueba escenarios",
   "Headlines, new polls and market moves": "Titulares, nuevas encuestas y movimientos de mercado",
+  "Forecast and polling data are from {date}: the latest update has not arrived yet.": "Los datos del pronóstico y de las encuestas son del {date}: la última actualización aún no ha llegado.",
+  "Vote-Scope run of {date}": "Datos de Vote-Scope del {date}",
+  "Data delayed": "Datos con retraso",
+  "Data": "Datos",
 };

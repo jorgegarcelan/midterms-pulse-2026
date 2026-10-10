@@ -1,8 +1,9 @@
 /*
   Vote-Scope's public JSON sits behind Cloudflare, which refuses many datacenter IPs (Vercel's among
-  them). Every read tries the source first and falls back to a mirror that the "Mirror Vote-Scope"
-  GitHub Action refreshes every 30 minutes on the data-mirror branch. Callers keep their own last-resort
-  fallback (the snapshot bundled with the site) for when both are unreachable.
+  them, and GitHub's and cloud runners'). Every read tries the source first and falls back to a mirror
+  on the data-mirror branch, refreshed from a normal connection with `npm run data:mirror` (a daily
+  task in the Claude app runs it). Callers keep their own last-resort fallback (the snapshot bundled
+  with the site); /api/status reports how old the data is so the site can say so.
 */
 const SOURCE = "https://vote-scope.com/web_data";
 const MIRROR = process.env.VOTE_SCOPE_MIRROR_URL || "https://raw.githubusercontent.com/jorgegarcelan/midterms-pulse-2026/data-mirror/vote-scope";
