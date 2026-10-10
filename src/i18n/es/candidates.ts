@@ -92,4 +92,10 @@ export const candidates: Record<string, string> = {
   "On the ballot": "En la papeleta",
   "Candidate lists retrieved {date}": "Listas de candidatos consultadas el {date}",
   "No general-election candidates listed yet.": "Todavía no hay candidatos a las elecciones generales.",
+  "Filter on the map": "Filtrar en el mapa",
+  "Click a state to see only its candidates": "Haz clic en un estado para ver solo sus candidatos",
+  "Showing {state} · click it again to see every state": "Mostrando {state} · vuelve a hacer clic para ver todos los estados",
+  "Candidates by state": "Candidatos por estado",
+  "Click to show every state": "Haz clic para ver todos los estados",
+  "Click to filter": "Haz clic para filtrar",
 };

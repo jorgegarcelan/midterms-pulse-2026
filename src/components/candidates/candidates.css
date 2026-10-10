@@ -180,3 +180,13 @@
   .cand-kpis strong { font-size: 26px; }
   .cand-opponents li { flex-wrap: wrap; }
 }
+
+/* Map filter */
+.cand-map { margin: 6px 0 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(13,16,20,.6); }
+.cand-map summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 12px 16px; cursor: pointer; list-style: none; }
+.cand-map summary::-webkit-details-marker { display: none; }
+.cand-map summary span { font-weight: 600; font-size: 14px; }
+.cand-map summary span::before { content: "▸ "; color: #8e97a0; }
+.cand-map[open] summary span::before { content: "▾ "; }
+.cand-map summary small { color: #8e97a0; font-size: 12px; }
+.cand-map .state-geo-map { max-width: 640px; margin: 0 auto; padding: 0 16px 16px; }

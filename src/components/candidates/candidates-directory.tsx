@@ -1,6 +1,8 @@
 "use client";
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { StateGeoMap } from "@/components/states/state-geo-map";
+import "@/components/states/states.css";
 import { useSearchParams } from "next/navigation";
 import Link from "@/components/i18n/link";
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
@@ -38,6 +40,7 @@ export function CandidatesDirectory() {
   const [sort, setSort] = useState<Sort>((params.get("sort") as Sort) || "competitive");
   const [view, setView] = useState<"cards" | "list">(params.get("view") === "list" ? "list" : "cards");
   const [limit, setLimit] = useState(PAGE);
+  const [mapOpen, setMapOpen] = useState(true);
   const search = useDeferredValue(query);
 
   useEffect(() => {
@@ -79,18 +82,28 @@ export function CandidatesDirectory() {
     });
   }, [data, model, t]);
 
-  const filtered = useMemo(() => {
+  // Every filter except the state: the map counts these per state, the list then narrows to one state.
+  const beforeState = useMemo(() => {
     const needle = fold(search.trim());
-    const list = rows.filter(({ candidate, race, model: forecast, search: haystack }) => {
+    return rows.filter(({ candidate, race, model: forecast, search: haystack }) => {
       if (chamber !== "all" && candidate.chamber !== chamber) return false;
       if (party !== "all" && (party === "other" ? ["D", "R", "I"].includes(candidate.party) : candidate.party !== party)) return false;
-      if (state !== "all" && candidateState(candidate) !== state) return false;
       if (status === "incumbent" && !candidate.incumbent) return false;
       if (status === "challenger" && (candidate.incumbent || race.open)) return false;
       if (status === "open" && !race.open) return false;
       if (competitiveOnly && !isCompetitive(forecast)) return false;
       return !needle || needle.split(/\s+/).every((word) => haystack.includes(word));
     });
+  }, [chamber, competitiveOnly, party, rows, search, status]);
+  const perState = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const row of beforeState) { const code = candidateState(row.candidate); counts[code] = (counts[code] ?? 0) + 1; }
+    return counts;
+  }, [beforeState]);
+  const maxPerState = Math.max(1, ...Object.values(perState));
+
+  const filtered = useMemo(() => {
+    const list = beforeState.filter(({ candidate }) => state === "all" || candidateState(candidate) === state);
     const partyOrder = (value: CandidateParty) => ["D", "R", "I", "L", "G", "O"].indexOf(value);
     const byRace = (a: Row, b: Row) => a.candidate.chamber.localeCompare(b.candidate.chamber) * -1 || a.candidate.race.localeCompare(b.candidate.race) || partyOrder(a.candidate.party) - partyOrder(b.candidate.party);
     return list.sort((a, b) => {
@@ -98,7 +111,7 @@ export function CandidatesDirectory() {
       if (sort === "state") return t(stateByCode.get(candidateState(a.candidate))?.name || "").localeCompare(t(stateByCode.get(candidateState(b.candidate))?.name || ""), intl) || byRace(a, b);
       return competitiveness(a.model) - competitiveness(b.model) || byRace(a, b);
     });
-  }, [chamber, competitiveOnly, intl, party, rows, search, sort, state, status, t]);
+  }, [beforeState, intl, sort, state, t]);
 
   const reset = () => { setQuery(""); setChamber("all"); setParty("all"); setState("all"); setStatus("all"); setCompetitiveOnly(false); setSort("competitive"); };
   const filtersKey = [search, chamber, party, state, status, competitiveOnly, sort].join("|");
@@ -131,6 +144,16 @@ export function CandidatesDirectory() {
         </div>
       </div>
       <p className="cand-hint">{t("Competitive: the model gives either party between 25% and 75%, or at least one handicapper rates the race Lean, Tilt or Toss-up.")}</p>
+
+      <details className="cand-map" open={mapOpen} onToggle={(event) => setMapOpen((event.currentTarget as HTMLDetailsElement).open)}>
+        <summary><span>{t("Filter on the map")}</span><small>{state === "all" ? t("Click a state to see only its candidates") : t("Showing {state} · click it again to see every state", { state: t(stateByCode.get(state)?.name || state) })}</small></summary>
+        {mapOpen && <StateGeoMap values={{}} label={t("Candidates by state")} selected={state === "all" ? null : state}
+          onSelect={(code) => setState(state === code ? "all" : code)}
+          fillFor={(code) => { const count = perState[code] ?? 0; return count ? `color-mix(in srgb, #f2c46d ${Math.round(18 + Math.sqrt(count / maxPerState) * 72)}%, #161a20)` : "#161a20"; }}
+          rowsFor={(code) => [{ label: t("Candidates"), value: String(perState[code] ?? 0) }]}
+          chipFor={(code) => String(perState[code] ?? 0)}
+          note={(code) => state === code ? t("Click to show every state") : t("Click to filter")} />}
+      </details>
 
       {failed && <p className="table-empty">{t("The candidate directory could not be loaded. Try reloading the page.")}</p>}
       {!data && !failed && <div className={`cand-grid ${view}`} aria-busy="true">{Array.from({ length: 8 }, (_, index) => <div key={index} className="cand-card skeleton" />)}</div>}

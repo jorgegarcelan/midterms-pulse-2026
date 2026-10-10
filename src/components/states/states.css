@@ -91,3 +91,5 @@
   .state-geo-small button { grid-template-columns: 10px 1fr; }
   .state-geo-small span { display: none; }
 }
+.state-geo-selected { fill: none; stroke: #f2c46d; stroke-width: 2.6; pointer-events: none; vector-effect: non-scaling-stroke; }
+.state-geo-small button.selected { border-color: #f2c46d; background: rgba(242,196,109,.1); }
