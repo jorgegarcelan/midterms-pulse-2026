@@ -50,4 +50,10 @@ export const states: Record<string, string> = {
   "No House race here is in play.": "Aquí no hay ninguna carrera a la Cámara en juego.",
   "ADVANCED ANALYSIS": "ANÁLISIS AVANZADO",
   "Compare {state} with other states, test scenarios and follow its signals over time.": "Compara {state} con otros estados, prueba escenarios y sigue sus señales a lo largo del tiempo.",
+  "Map type": "Tipo de mapa",
+  "Geographic": "Geográfico",
+  "Tiles": "Mosaico",
+  "Small states": "Estados pequeños",
+  "Click to open": "Haz clic para abrir",
+  "Loading map…": "Cargando el mapa…",
 };

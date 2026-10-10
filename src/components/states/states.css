@@ -68,3 +68,26 @@
 .state-advanced > header p:not(.eyebrow) { color: #8e97a0; font-size: 14px; }
 @media (max-width: 720px) { .state-senate { grid-template-columns: 1fr; } .state-hero-stats { gap: 18px; } .state-hero-stats strong { font-size: 24px; } }
 .state-house .panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 10px; }
+
+/* Geographic state map */
+.state-geo-map { display: grid; grid-template-columns: 1fr 120px; gap: 16px; align-items: center; margin-top: 8px; }
+.state-geo-frame { position: relative; }
+.state-geo-frame svg { display: block; width: 100%; height: auto; }
+.state-geo { stroke: none; cursor: pointer; transition: opacity .2s ease, filter .2s ease; outline: none; }
+.state-geo.dim { opacity: .45; }
+.state-geo.active, .state-geo:focus-visible { filter: brightness(1.18); }
+.state-geo-line { fill: none; stroke: #0b0d0f; stroke-width: 1; pointer-events: none; vector-effect: non-scaling-stroke; }
+.state-geo-highlight { fill: none; stroke: #fff; stroke-width: 2.2; pointer-events: none; vector-effect: non-scaling-stroke; }
+.state-geo-small { display: grid; gap: 4px; }
+.state-geo-small button { display: grid; grid-template-columns: 12px 30px 1fr; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: #c7cdd3; font: inherit; font-size: 12px; cursor: pointer; text-align: left; }
+.state-geo-small button:hover, .state-geo-small button.active { border-color: #66717d; background: rgba(255,255,255,.05); }
+.state-geo-small i { width: 12px; height: 12px; border-radius: 3px; }
+.state-geo-small span { color: #8e97a0; font-family: var(--font-mono, monospace); font-size: 11px; }
+.states-map-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; }
+.states-map-panel .state-geo-map { max-width: 980px; margin: 8px auto 0; }
+@media (max-width: 720px) {
+  .state-geo-map { grid-template-columns: 1fr; }
+  .state-geo-small { grid-template-columns: repeat(4, 1fr); }
+  .state-geo-small button { grid-template-columns: 10px 1fr; }
+  .state-geo-small span { display: none; }
+}

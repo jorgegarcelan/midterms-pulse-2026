@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "@/components/i18n/link";
 import { useLocalePath, useT } from "@/components/i18n/locale-provider";
 import { StateTileMap } from "@/components/state-tile-map";
+import { StateGeoMap } from "@/components/states/state-geo-map";
 import type { StateSummary } from "@/lib/state-summary";
 import "./states.css";
 
@@ -22,6 +23,7 @@ export function StatesDirectory({ states }: { states: StateSummary[] }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("competitive");
   const [query, setQuery] = useState("");
+  const [shape, setShape] = useState<"geo" | "tiles">("geo");
 
   // Map values on the shared D+ / R+ colour scale.
   const values = useMemo(() => Object.fromEntries(states.flatMap((state) => {
@@ -67,8 +69,13 @@ export function StatesDirectory({ states }: { states: StateSummary[] }) {
         <div><p className="eyebrow">{t("MAP")}</p><h2>{lens === "house" ? t("House delegation, expected") : lens === "senate" ? t("Senate races, 2026 model") : t("President, 2024")}</h2></div>
         <div className="segmented" role="group" aria-label={t("Map lens")}>{([["house", t("House")], ["senate", t("Senate")], ["president", t("President 2024")]] as const).map(([key, label]) => <button key={key} type="button" className={lens === key ? "selected" : ""} aria-pressed={lens === key} onClick={() => setLens(key)}>{label}</button>)}</div>
       </div>
-      <StateTileMap values={values} label={t("State map")} onSelect={(code) => router.push(localize(`/states/${code.toLowerCase()}`))} note={note} />
-      <p className="chart-note">{t("Click a state to open it.")}</p>
+      {shape === "geo"
+        ? <StateGeoMap values={values} label={t("State map")} onSelect={(code) => router.push(localize(`/states/${code.toLowerCase()}`))} note={note} />
+        : <StateTileMap values={values} label={t("State map")} onSelect={(code) => router.push(localize(`/states/${code.toLowerCase()}`))} note={note} />}
+      <div className="states-map-foot">
+        <p className="chart-note">{t("Click a state to open it.")}</p>
+        <div className="segmented small" role="group" aria-label={t("Map type")}><button type="button" className={shape === "geo" ? "selected" : ""} aria-pressed={shape === "geo"} onClick={() => setShape("geo")}>{t("Geographic")}</button><button type="button" className={shape === "tiles" ? "selected" : ""} aria-pressed={shape === "tiles"} onClick={() => setShape("tiles")}>{t("Tiles")}</button></div>
+      </div>
     </section>
 
     <section className="states-controls">
