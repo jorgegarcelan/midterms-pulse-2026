@@ -1,0 +1,45 @@
+name: Mirror Vote-Scope
+
+# Vote-Scope's JSON sits behind Cloudflare, which refuses Vercel's servers. Every 30 minutes, copy the
+# four files the site reads to the data-mirror branch; src/lib/vote-scope.ts falls back to them.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [dev, main]
+    paths: [".github/workflows/mirror-vote-scope.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-vote-scope
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: data-mirror
+          path: mirror
+      - name: Download and validate
+        run: |
+          set -euo pipefail
+          for file in us-house/latest.json us-senate/latest.json us-house/polls/index.json us-senate/polls/index.json; do
+            curl -sfL --retry 3 --retry-delay 5 -A "Mozilla/5.0 (compatible; midterm-pulse-mirror)" "https://vote-scope.com/web_data/$file" -o download.json
+            node -e 'const d = JSON.parse(require("fs").readFileSync("download.json", "utf8")); if (!d.meta) throw new Error("unexpected payload")'
+            mkdir -p "mirror/vote-scope/$(dirname "$file")"
+            mv download.json "mirror/vote-scope/$file"
+          done
+      - name: Commit
+        working-directory: mirror
+        run: |
+          git config user.name "midterm-pulse-mirror"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "Mirror Vote-Scope $(date -u +%FT%H:%MZ)"
+          git push

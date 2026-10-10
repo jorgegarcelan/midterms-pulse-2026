@@ -1,4 +1,5 @@
 import { seedPolls } from "@/data/polls";
+import { fetchVoteScope } from "@/lib/vote-scope";
 import { fetchForecast } from "@/lib/forecast";
 import { runModel, type ModelPoll, type ModelResult } from "@/lib/model";
 import { isTwoPartyTopline } from "@/lib/mp26";
@@ -6,9 +7,7 @@ import { isGenericBallotPoll, type IndexPoll } from "@/lib/poll-index";
 
 async function modelPolls(): Promise<{ polls: ModelPoll[]; source: string }> {
   try {
-    const response = await fetch("https://vote-scope.com/web_data/us-house/polls/index.json", { next: { revalidate: 900 } });
-    if (!response.ok) throw new Error("Poll feed unavailable");
-    const payload = await response.json() as { polls: IndexPoll[] };
+    const payload = await fetchVoteScope<{ polls: IndexPoll[] }>("us-house/polls/index.json");
     // The House index also carries district polls; only national generic-ballot polls measure the environment.
     const polls = payload.polls.filter((poll) => isGenericBallotPoll(poll) && isTwoPartyTopline(poll.topline.us_dem, poll.topline.us_rep)).map((poll) => ({
       endDate: poll.field_end, dem: poll.topline.us_dem || 0, rep: poll.topline.us_rep || 0, sample: poll.sample_size || 0,

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { fetchVoteScope } from "@/lib/vote-scope";
 import { stateByCode } from "@/data/geography";
 import { fetchForecast } from "@/lib/forecast";
 import { isTwoPartyTopline } from "@/lib/mp26";
@@ -69,10 +70,7 @@ async function news(): Promise<WireItem[]> {
 
 
 async function polls(): Promise<WireItem[]> {
-  const load = async (chamber: "house" | "senate") => {
-    const response = await fetch(`https://vote-scope.com/web_data/us-${chamber}/polls/index.json`, { next: { revalidate: 900 } });
-    return response.ok ? (await response.json() as { polls: IndexPoll[] }).polls : [];
-  };
+  const load = (chamber: "house" | "senate") => fetchVoteScope<{ polls: IndexPoll[] }>(`us-${chamber}/polls/index.json`).then((index) => index.polls).catch(() => [] as IndexPoll[]);
   const [house, senate] = await Promise.all([load("house"), load("senate")]);
   const item = (poll: IndexPoll, chamber: "house" | "senate"): WireItem => {
     const margin = poll.topline.us_dem! - poll.topline.us_rep!;
@@ -117,10 +115,9 @@ async function markets() {
 }
 
 async function pulse() {
-  const response = await fetch("https://vote-scope.com/web_data/us-house/latest.json", { next: { revalidate: 900 } });
-  if (!response.ok) return [];
   // previous_runs carry mean seats, so the current run uses seats_mean too.
-  const payload = await response.json() as { meta: { run_date: string }; parties: { party: string; seats_mean?: number }[]; previous_runs?: { run_date: string; seats: { us_dem: number } }[] };
+  const payload = await fetchVoteScope<{ meta: { run_date: string }; parties: { party: string; seats_mean?: number }[]; previous_runs?: { run_date: string; seats: { us_dem: number } }[] }>("us-house/latest.json").catch(() => null);
+  if (!payload) return [];
   const current = payload.parties.find((party) => party.party === "us_dem")?.seats_mean;
   const runs = (payload.previous_runs || []).map((run) => ({ date: run.run_date, demSeats: run.seats.us_dem }));
   if (current !== undefined && !runs.some((run) => run.date === payload.meta.run_date)) runs.unshift({ date: payload.meta.run_date, demSeats: current });

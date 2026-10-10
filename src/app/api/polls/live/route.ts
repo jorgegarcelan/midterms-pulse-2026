@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fetchVoteScope } from "@/lib/vote-scope";
 import { electionSnapshot } from "@/data/election";
 import { seedPolls } from "@/data/polls";
 import { isTwoPartyTopline } from "@/lib/mp26";
@@ -12,11 +13,7 @@ export async function GET(request: NextRequest) {
   // ?kind=generic returns only national generic-ballot polls (the model explainer); the default mixes all three kinds.
   const genericOnly = request.nextUrl.searchParams.get("kind") === "generic";
   try {
-    const load = async (chamber: "house" | "senate") => {
-      const response = await fetch(`https://vote-scope.com/web_data/us-${chamber}/polls/index.json`, { next: { revalidate: 900 } });
-      if (!response.ok) throw new Error("Poll source unavailable");
-      return response.json() as Promise<PollIndex>;
-    };
+    const load = (chamber: "house" | "senate") => fetchVoteScope<PollIndex>(`us-${chamber}/polls/index.json`);
     const [house, senate] = await Promise.all([load("house"), load("senate").catch(() => null)]);
     const usable = (list: IndexPoll[]) => list.filter((poll) => isTwoPartyTopline(poll.topline.us_dem, poll.topline.us_rep));
     const generic = usable(house.polls).filter(isGenericBallotPoll);
