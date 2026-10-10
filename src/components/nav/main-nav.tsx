@@ -15,6 +15,7 @@ export const NAV_GROUPS: Group[] = [
     { href: "/polls", label: "Polls", note: "Generic ballot and battleground polls" },
     { href: "/markets", label: "Markets", note: "Prediction markets against the model" },
     { href: "/how-it-works", label: "How it works", note: "The pipeline, step by step" },
+    { href: "/validation", label: "Model validation", note: "How MP-26 would have done in 2018 and 2022" },
   ] },
   { key: "races", label: "Races", items: [
     { href: "/races", label: "Race directory", note: "All 470 House and Senate races" },

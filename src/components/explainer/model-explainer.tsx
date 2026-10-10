@@ -204,8 +204,9 @@ export function ModelExplainer() {
             {model ? <StageOutput model={model} tippingCode={tipping?.code} /> : <div className="stage-viz viz-empty">{t("Loading…")}</div>}
           </Stage>
 
-          <Stage id="versions" n="08" title={t("Versioned, documented, and not yet backtested.")} copy={<>
-            <p>{t("Every change to the method gets a new version and a changelog. MP-26 is labelled experimental until it has been replayed on past elections and scored.")}</p>
+          <Stage id="versions" n="08" title={t("Versioned, documented, and backtested.")} copy={<>
+            <p>{t("Every change to the method gets a new version and a changelog. The probability engine has been replayed on the 2018 and 2022 midterms and scored; the model stays labelled experimental because its benchmark cannot be replayed.")}</p>
+            <Link className="secondary-action" href="/validation">{t("Model validation")} <span>→</span></Link>
             <Link className="secondary-action" href="/methodology">{t("Sources and methodology")} <span>→</span></Link>
           </>}>
             <div className="stage-viz versions-viz">
@@ -221,7 +222,7 @@ export function ModelExplainer() {
                   <li>{t("Normal errors; the benchmark uses fatter tails.")}</li>
                   <li>{t("One national factor; no regional correlation.")}</li>
                   <li>{t("No pollster house effects or candidate fundamentals.")}</li>
-                  <li>{t("No historical backtest yet (Brier score, calibration).")}</li>
+                  <li>{t("Backtest covers the probability engine, not the benchmark (no 2018/2022 Vote-Scope data).")}</li>
                 </ul>
               </div>
             </div>

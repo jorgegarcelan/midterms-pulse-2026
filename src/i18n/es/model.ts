@@ -66,6 +66,7 @@ export const model: Record<string, string> = {
   "Estimate": "Estimar",
   "Weight the national environment and run 50,000 seeded, correlated simulations.": "Ponderar el ambiente nacional y ejecutar 50.000 simulaciones correlacionadas y con semilla fija.",
   "Validate": "Validar",
+  "The probability engine is backtested on 2018 and 2022; the benchmark itself cannot be replayed, so the model stays experimental.": "El motor de probabilidades está validado con 2018 y 2022; la referencia en sí no se puede reproducir, así que el modelo sigue siendo experimental.",
   "Backtesting and calibration remain required before the experimental label can be removed.": "El backtesting y la calibración siguen siendo necesarios antes de poder retirar la etiqueta de experimental.",
   "Explain": "Explicar",
   "Use AI for retrieval and synthesis while keeping every numeric claim grounded.": "Usar IA para buscar y sintetizar, con cada dato numérico siempre respaldado por su fuente.",

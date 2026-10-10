@@ -56,7 +56,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/about">) 
         <p className="eyebrow">{t("THE PROJECT")}</p>
         <h2>{t("Why Midterm Pulse")}</h2>
         <p>{t("Midterm Pulse is an independent, open forecast of the 2026 US midterms, written for Spanish-speaking readers and journalists. Every number on the site can be traced: the model's coefficients are public, every race shows its sources, and the expert ratings sit next to the model so you can see where they disagree.")}</p>
-        <p>{t("It is not affiliated with any party, campaign or media outlet. The model is experimental and has not been backtested; treat it as one more signal, not a prediction of certainty.")}</p>
+        <p>{t("It is not affiliated with any party, campaign or media outlet. The model is experimental: its probability engine is backtested on 2018 and 2022, but treat it as one more signal, not a prediction of certainty.")}</p>
         <div className="about-actions"><Link href="/how-it-works">{t("How the model works →")}</Link><Link href="/methodology">{t("Sources and methodology →")}</Link></div>
       </article>
       <article className="panel about-card">

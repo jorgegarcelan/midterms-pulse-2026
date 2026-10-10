@@ -180,7 +180,9 @@ export const explainer: Record<string, string> = {
   "Model page": "Página del modelo",
 
   // 08 Versions
-  "Versioned, documented, and not yet backtested.": "Versionado, documentado y aún sin backtesting.",
+  "Versioned, documented, and backtested.": "Versionado, documentado y validado.",
+  "Every change to the method gets a new version and a changelog. The probability engine has been replayed on the 2018 and 2022 midterms and scored; the model stays labelled experimental because its benchmark cannot be replayed.": "Cada cambio de método lleva una nueva versión y un registro de cambios. El motor de probabilidades se ha reproducido sobre las midterms de 2018 y 2022 y se ha puntuado; el modelo sigue marcado como experimental porque su referencia no se puede reproducir.",
+  "Backtest covers the probability engine, not the benchmark (no 2018/2022 Vote-Scope data).": "La validación cubre el motor de probabilidades, no la referencia (no hay datos de Vote-Scope de 2018/2022).",
   "Every change to the method gets a new version and a changelog. MP-26 is labelled experimental until it has been replayed on past elections and scored.": "Cada cambio en el método recibe una nueva versión y una entrada en el registro de cambios. MP-26 se considera experimental hasta que se haya probado con elecciones pasadas y se haya evaluado.",
   "Sources and methodology": "Fuentes y metodología",
   "Top-down chambers against a fixed D+7.4 baseline. The Senate read 69% while its own races implied 43%.": "Cámaras calculadas de arriba abajo frente a una base fija de D+7.4. El Senado marcaba un 69% mientras que sus propias carreras implicaban un 43%.",

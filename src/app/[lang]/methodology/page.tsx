@@ -7,7 +7,7 @@ const pipeline = [
   ["01", "Collect", "Polling, official results, ratings, demographics and campaign-finance data."],
   ["02", "Normalize", "Preserve field dates, sample, population, mode, sponsor and source URL."],
   ["03", "Estimate", "Weight the national environment and run 50,000 seeded, correlated simulations."],
-  ["04", "Validate", "Backtesting and calibration remain required before the experimental label can be removed."],
+  ["04", "Validate", "The probability engine is backtested on 2018 and 2022; the benchmark itself cannot be replayed, so the model stays experimental."],
   ["05", "Explain", "Use AI for retrieval and synthesis while keeping every numeric claim grounded."],
 ];
 

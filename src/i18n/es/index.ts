@@ -19,6 +19,7 @@ import { candidates } from "@/i18n/es/candidates";
 import { motionA } from "@/i18n/es/motionA";
 import { motionB } from "@/i18n/es/motionB";
 import { about } from "@/i18n/es/about";
+import { validation } from "@/i18n/es/validation";
 
 // One flat dictionary; each area keeps its own file so translations can be edited independently.
-export const es: Record<string, string> = { ...common, ...home, ...model, ...races, ...maps, ...polls, ...markets, ...history, ...live, ...explainer, ...glossary, ...state, ...night, ...stream, ...changes, ...geography, ...playground, ...candidates, ...motionA, ...motionB, ...about };
+export const es: Record<string, string> = { ...common, ...home, ...model, ...races, ...maps, ...polls, ...markets, ...history, ...live, ...explainer, ...glossary, ...state, ...night, ...stream, ...changes, ...geography, ...playground, ...candidates, ...motionA, ...motionB, ...about, ...validation };

@@ -12,7 +12,7 @@ export const about: Record<string, string> = {
   "THE PROJECT": "EL PROYECTO",
   "Why Midterm Pulse": "Por qué Midterm Pulse",
   "Midterm Pulse is an independent, open forecast of the 2026 US midterms, written for Spanish-speaking readers and journalists. Every number on the site can be traced: the model's coefficients are public, every race shows its sources, and the expert ratings sit next to the model so you can see where they disagree.": "Midterm Pulse es un pronóstico independiente y abierto de las elecciones de mitad de mandato de 2026 en EE. UU., pensado para lectores y periodistas en español. Cada cifra de la web se puede rastrear: los coeficientes del modelo son públicos, cada carrera muestra sus fuentes y los ratings de los analistas aparecen junto al modelo para ver dónde discrepan.",
-  "It is not affiliated with any party, campaign or media outlet. The model is experimental and has not been backtested; treat it as one more signal, not a prediction of certainty.": "No está vinculado a ningún partido, campaña ni medio. El modelo es experimental y no se ha validado con elecciones pasadas: tómalo como una señal más, no como una certeza.",
+  "It is not affiliated with any party, campaign or media outlet. The model is experimental: its probability engine is backtested on 2018 and 2022, but treat it as one more signal, not a prediction of certainty.": "No está vinculado a ningún partido, campaña ni medio. El modelo es experimental: su motor de probabilidades está validado con 2018 y 2022, pero tómalo como una señal más, no como una certeza.",
   "How the model works →": "Cómo funciona el modelo →",
   "Sources and methodology →": "Fuentes y metodología →",
   "HOW IT IS BUILT": "CÓMO ESTÁ HECHO",

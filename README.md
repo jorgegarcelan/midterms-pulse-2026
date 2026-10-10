@@ -20,7 +20,7 @@ A transparent election intelligence dashboard for the 2026 U.S. House and Senate
 - **Stream mode** — 1920×1080 OBS scenes (control scoreboard, Senate builder, race card), with a transparent overlay variant.
 - **Brand system** — original navigation mark, generated election-signal artwork, palette and typography guidance.
 
-The control forecast now uses **MP-26 v0.4**, an owned and reproducible simulation layer anchored to Vote-Scope public data. Both chambers are simulated bottom-up, race by race, so chamber and race odds always agree. It is deliberately labeled experimental because it is not yet historically calibrated. See [`docs/MODEL-V0.4.md`](docs/MODEL-V0.4.md) for every coefficient, the version changelog and limitations.
+The control forecast now uses **MP-26 v0.4**, an owned and reproducible simulation layer anchored to Vote-Scope public data. Both chambers are simulated bottom-up, race by race, so chamber and race odds always agree. It is labeled experimental: its probability engine is backtested on the 2018 and 2022 midterms ([`docs/BACKTEST.md`](docs/BACKTEST.md), `/validation`), but the benchmark it starts from cannot be replayed. See [`docs/MODEL-V0.4.md`](docs/MODEL-V0.4.md) for every coefficient, the version changelog and limitations.
 
 ## Interaction model
 

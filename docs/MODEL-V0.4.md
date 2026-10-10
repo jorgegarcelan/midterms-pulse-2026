@@ -31,3 +31,7 @@ Effect on the 9 October 2026 run (movement 0, same-day benchmark):
 ## Expert ratings alongside the model
 
 Race profiles and the race directory now show the Cook Political Report, Inside Elections and Sabato's Crystal Ball ratings next to the model (`npm run data:ratings`, read from the dated Wikipedia rating tables). House races missing from those tables are on no rater's competitive list and are shown as Safe for the 2024 winner. A race is flagged when the model's rating band (Toss-up < 60%, Lean < 75%, Likely < 90%, Safe) is two or more steps from the raters' average, or favours the other party outside the toss-up band. Ratings are displayed, never used as a model input.
+
+## Backtest
+
+The probability engine (this `RACE_SD`, the national error and the chamber simulation) is replayed on 2018 and 2022 in [BACKTEST.md](BACKTEST.md): all four chamber results fall inside the 80% interval, race-level Brier 0.032 vs 0.030 for FiveThirtyEight's own odds on the same inputs, and the engine is somewhat cautious at race level.
