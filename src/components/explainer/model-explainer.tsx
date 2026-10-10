@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { ScrambleText } from "@/components/motion/scramble-text";
+import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 import { ModelInBrief } from "@/components/explainer/model-in-brief";
 import { PipelineHero } from "@/components/explainer/pipeline-hero";
 import { StageErrorBells } from "@/components/explainer/stage-error-bells";
@@ -36,11 +37,12 @@ const STAGES = [
 ];
 
 function Stage({ id, n, title, children, copy }: { id: string; n: string; title: string; copy: React.ReactNode; children: React.ReactNode }) {
+  const t = useT();
   const [ref, inView] = useInView<HTMLElement>({ rootMargin: "0px 0px -25% 0px" });
   return (
     <section className="stage" id={id} ref={ref} data-in={inView ? "true" : undefined} aria-labelledby={`${id}-title`}>
       <div className="stage-copy">
-        <p className="eyebrow"><span className="stage-n">{n}</span> {STAGES.find((stage) => stage.id === id)?.label}</p>
+        <p className="eyebrow"><span className="stage-n">{n}</span> {t(STAGES.find((stage) => stage.id === id)?.label || "")}</p>
         <h2 id={`${id}-title`}>{title}</h2>
         {copy}
       </div>
@@ -55,6 +57,8 @@ function Formula({ children }: { children: React.ReactNode }) {
 
 // The MP-26 pipeline, stage by stage, animated with the live model's own data and engine.
 export function ModelExplainer() {
+  const t = useT();
+  const intl = useIntlLocale();
   const [model, setModel] = useState<ModelFeed | null>(null);
   const [polls, setPolls] = useState<PollFeed | null>(null);
   const [forecast, setForecast] = useState<ForecastFeed | null>(null);
@@ -65,7 +69,7 @@ export function ModelExplainer() {
     const controller = new AbortController();
     const get = <T,>(url: string) => fetch(url, { signal: controller.signal }).then((response) => response.json() as Promise<T>);
     get<ModelFeed>("/api/model").then(setModel).catch(() => undefined);
-    get<PollFeed>("/api/polls/live?limit=240").then(setPolls).catch(() => undefined);
+    get<PollFeed>("/api/polls/live?limit=240&kind=generic").then(setPolls).catch(() => undefined);
     get<ForecastFeed>("/api/forecast").then(setForecast).catch(() => undefined);
     return () => controller.abort();
   }, []);
@@ -113,110 +117,112 @@ export function ModelExplainer() {
   return (
     <div className="explainer" data-motion>
       <section className="explainer-hero">
-        <p className="eyebrow"><ScrambleText text={`HOW IT WORKS · ${model?.version || "MP-26"}`} delay={150} /></p>
-        <h1>From {polls ? polls.meta.n_polls.toLocaleString("en-US") : "every"} polls to one probability.</h1>
-        <p className="explainer-deck">Midterm Pulse turns a public poll index and a race-level benchmark into House and Senate odds in seven auditable steps. Every chart below runs on the live model, its data and its engine.</p>
+        <p className="eyebrow"><ScrambleText text={`${t("HOW IT WORKS")} · ${model?.version || "MP-26"}`} delay={150} /></p>
+        <h1>{polls ? t("From {count} polls to one probability.", { count: polls.meta.n_polls.toLocaleString(intl) }) : t("From every poll to one probability.")}</h1>
+        <p className="explainer-deck">{t("Midterm Pulse turns a public poll index and a race-level benchmark into House and Senate odds in seven auditable steps. Every chart below runs on the live model, its data and its engine.")}</p>
         {model && polls ? <PipelineHero
-          polls={`${polls.meta.n_polls.toLocaleString("en-US")} polls`}
-          races={`${model.races.length} races`}
+          polls={t("{count} polls", { count: polls.meta.n_polls.toLocaleString(intl) })}
+          races={t("{count} races", { count: model.races.length })}
           ballot={signedLabel(model.genericBallot.margin)}
           movement={signedLabel(model.genericBallot.movement)}
           house={`${model.house.demMajority}% D · ${model.house.demSeats}`}
           senate={`${model.senate.demMajority}% D · ${model.senate.demSeats}`}
           onJump={jump}
-        /> : <div className="pipeline-hero pipeline-loading">Loading the live model…</div>}
+        /> : <div className="pipeline-hero pipeline-loading">{t("Loading the live model…")}</div>}
       </section>
 
       <ModelInBrief model={model} />
 
       <div className="explainer-body" ref={bodyRef}>
-        <nav className="explainer-rail" aria-label="Pipeline stages">
+        <nav className="explainer-rail" aria-label={t("Pipeline stages")}>
           <span className="rail-spine" aria-hidden="true"><i /></span>
-          {STAGES.map((stage) => <button key={stage.id} type="button" className={active === stage.id ? "active" : ""} onClick={() => jump(stage.id)}><i /><b>{stage.n}</b>{stage.label}</button>)}
+          {STAGES.map((stage) => <button key={stage.id} type="button" className={active === stage.id ? "active" : ""} onClick={() => jump(stage.id)}><i /><b>{stage.n}</b>{t(stage.label)}</button>)}
         </nav>
 
         <div className="explainer-stages">
-          <Stage id="inputs" n="01" title="Two public sources feed the model. Everything else is context." copy={<>
-            <p>MP-26 does not collect polls or rate races itself. It reads Vote-Scope&apos;s generic-ballot poll index and its race-level forecast, adds the current Senate composition, and keeps other data strictly out of the probabilities.</p>
-            <ul className="stage-facts"><li><b>Refresh</b> every 15 minutes, with a dated fallback snapshot</li><li><b>Benchmark run</b> {forecast?.updated || model?.runDate || "—"}{forecast?.stale ? " (dated fallback)" : ""}</li></ul>
+          <Stage id="inputs" n="01" title={t("Two public sources feed the model. Everything else is context.")} copy={<>
+            <p>{t("MP-26 does not collect polls or rate races itself. It reads Vote-Scope's generic-ballot poll index and its race-level forecast, adds the current Senate composition, and keeps other data strictly out of the probabilities.")}</p>
+            <ul className="stage-facts"><li><b>{t("Refresh")}</b> {t("every 15 minutes, with a dated fallback snapshot")}</li><li><b>{t("Benchmark run")}</b> {forecast?.updated || model?.runDate || "—"}{forecast?.stale ? ` (${t("dated fallback")})` : ""}</li></ul>
           </>}>
             <div className="stage-viz sources-viz">
               <div className="source-column feeds">
-                <p>Feeds the model</p>
-                <article><b>Vote-Scope poll index</b><span>{polls ? `${polls.meta.n_polls.toLocaleString("en-US")} generic-ballot polls · through ${polls.meta.latest_field_end}` : "Generic-ballot polls"}</span><em>→ weighting</em></article>
-                <article><b>Vote-Scope race forecast</b><span>{model ? `${houseRaces.length} districts + ${senateCount} Senate races` : "Every race's expected margin"}</span><em>→ race margins</em></article>
-                <article><b>119th Congress</b><span>47 D caucus · 53 R · 34 D and 31 R seats not up</span><em>→ fixed Senate seats</em></article>
+                <p>{t("Feeds the model")}</p>
+                <article><b>{t("Vote-Scope poll index")}</b><span>{polls ? t("{count} generic-ballot polls · through {date}", { count: polls.meta.n_polls.toLocaleString(intl), date: polls.meta.latest_field_end }) : t("Generic-ballot polls")}</span><em>{t("→ weighting")}</em></article>
+                <article><b>{t("Vote-Scope race forecast")}</b><span>{model ? t("{districts} districts + {senate} Senate races", { districts: houseRaces.length, senate: senateCount }) : t("Every race's expected margin")}</span><em>{t("→ race margins")}</em></article>
+                <article><b>{t("119th Congress")}</b><span>{t("47 D caucus · 53 R · 34 D and 31 R seats not up")}</span><em>{t("→ fixed Senate seats")}</em></article>
               </div>
               <div className="source-column context">
-                <p>Context only</p>
-                <article><b>Census boundaries</b><span>Maps and district shapes</span><em>not an input</em></article>
-                <article><b>FEC filings</b><span>Candidates and finance on race pages</span><em>not an input</em></article>
-                <article><b>Polymarket</b><span>Compared against the model, never blended</span><em>not an input</em></article>
+                <p>{t("Context only")}</p>
+                <article><b>{t("Census boundaries")}</b><span>{t("Maps and district shapes")}</span><em>{t("not an input")}</em></article>
+                <article><b>{t("FEC filings")}</b><span>{t("Candidates and finance on race pages")}</span><em>{t("not an input")}</em></article>
+                <article><b>Polymarket</b><span>{t("Compared against the model, never blended")}</span><em>{t("not an input")}</em></article>
               </div>
             </div>
           </Stage>
 
-          <Stage id="weights" n="02" title="Recent, large, likely-voter polls count most." copy={<>
-            <p>Every poll gets a weight from three factors. Recency halves every {POLL_HALF_LIFE_DAYS} days, sample size counts by its square root, and likely-voter samples beat registered voters and adults. The weighted average of all polls is the national environment.</p>
+          <Stage id="weights" n="02" title={t("Recent, large, likely-voter polls count most.")} copy={<>
+            <p>{t("Every poll gets a weight from three factors. Recency halves every {days} days, sample size counts by its square root, and likely-voter samples beat registered voters and adults. The weighted average of all polls is the national environment.", { days: POLL_HALF_LIFE_DAYS })}</p>
             <Formula>w = 0.5<sup>age/{POLL_HALF_LIFE_DAYS}</sup> × √(n / 1,000) × pop</Formula>
-            <ul className="stage-facts"><li><b>pop</b> LV {POPULATION_WEIGHT.LV} · RV {POPULATION_WEIGHT.RV} · A {POPULATION_WEIGHT.A}</li><li><b>Result</b> {model ? `${signedLabel(model.genericBallot.margin)} (D ${model.genericBallot.dem} · R ${model.genericBallot.rep})` : "—"}</li></ul>
+            <ul className="stage-facts"><li><b>pop</b> LV {POPULATION_WEIGHT.LV} · RV {POPULATION_WEIGHT.RV} · A {POPULATION_WEIGHT.A}</li><li><b>{t("Result")}</b> {model ? `${signedLabel(model.genericBallot.margin)} (D ${model.genericBallot.dem} · R ${model.genericBallot.rep})` : "—"}</li></ul>
           </>}>
-            {ready ? <StagePollWeights polls={explainerPolls} runDate={model.runDate} modelMargin={model.genericBallot.margin} totalPolls={polls.meta.n_polls} /> : <div className="stage-viz viz-empty">Loading polls…</div>}
+            {ready ? <StagePollWeights polls={explainerPolls} runDate={model.runDate} modelMargin={model.genericBallot.margin} totalPolls={polls.meta.n_polls} /> : <div className="stage-viz viz-empty">{t("Loading polls…")}</div>}
           </Stage>
 
-          <Stage id="movement" n="03" title="Only real movement since the benchmark is applied." copy={<>
-            <p>The benchmark was built with the polls available on its run date. So the model compares the same index, with the same weights, today and on that date. The difference is the only national movement it adds, and each race absorbs {Math.round(NATIONALIZATION * 100)}% of it.</p>
+          <Stage id="movement" n="03" title={t("Only real movement since the benchmark is applied.")} copy={<>
+            <p>{t("The benchmark was built with the polls available on its run date. So the model compares the same index, with the same weights, today and on that date. The difference is the only national movement it adds, and each race absorbs {pct}% of it.", { pct: Math.round(NATIONALIZATION * 100) })}</p>
             <Formula>movement = ballot<sub>today</sub> − ballot<sub>benchmark date</sub></Formula>
           </>}>
-            {model ? <StageMovement today={model.genericBallot.margin} benchmark={model.genericBallot.benchmarkMargin} movement={model.genericBallot.movement} benchmarkDate={forecast?.updated || model.runDate} runDate={model.runDate} /> : <div className="stage-viz viz-empty">Loading…</div>}
+            {model ? <StageMovement today={model.genericBallot.margin} benchmark={model.genericBallot.benchmarkMargin} movement={model.genericBallot.movement} benchmarkDate={forecast?.updated || model.runDate} runDate={model.runDate} /> : <div className="stage-viz viz-empty">{t("Loading…")}</div>}
           </Stage>
 
-          <Stage id="races" n="04" title="Every race becomes a probability." copy={<>
-            <p>Each of the {model?.races.length || 470} races starts from the benchmark&apos;s expected margin, plus its share of the movement. A normal error of ±{RACE_SD} points, calibrated to the benchmark&apos;s own race odds, turns that margin into a win probability.</p>
-            <ul className="stage-facts"><li><b>Tipping point</b> {tipping ? `${tipping.code}, the 218th most Democratic seat, at ${signedLabel(tipping.signedMargin)}` : "—"}</li></ul>
+          <Stage id="races" n="04" title={t("Every race becomes a probability.")} copy={<>
+            <p>{t("Each of the {count} races starts from the benchmark's expected margin, plus its share of the movement. A normal error of ±{sd} points, calibrated to the benchmark's own race odds, turns that margin into a win probability.", { count: model?.races.length || 470, sd: RACE_SD })}</p>
+            <ul className="stage-facts"><li><b>{t("Tipping point")}</b> {tipping ? t("{code}, the 218th most Democratic seat, at {margin}", { code: tipping.code, margin: signedLabel(tipping.signedMargin) }) : "—"}</li></ul>
           </>}>
-            {model ? <StageRaceCurve races={model.races} tippingCode={tipping?.code} /> : <div className="stage-viz viz-empty">Loading races…</div>}
+            {model ? <StageRaceCurve races={model.races} tippingCode={tipping?.code} /> : <div className="stage-viz viz-empty">{t("Loading races…")}</div>}
           </Stage>
 
-          <Stage id="error" n="05" title="Races miss together, not one by one." copy={<>
-            <p>Polls tend to miss in the same direction everywhere. So each race&apos;s error is split in two: a national error shared by all races, and local noise of its own. The shared part is sized to match the correlated error the benchmark publishes.</p>
+          <Stage id="error" n="05" title={t("Races miss together, not one by one.")} copy={<>
+            <p>{t("Polls tend to miss in the same direction everywhere. So each race's error is split in two: a national error shared by all races, and local noise of its own. The shared part is sized to match the correlated error the benchmark publishes.")}</p>
             <Formula>outcome = margin + national + local</Formula>
-            <ul className="stage-facts"><li><b>National</b> ±{NATIONAL_SD} ballot pts × {NATIONALIZATION} = ±{RACE_COMMON_SD.toFixed(2)}</li><li><b>Total per race</b> ±{RACE_SD} pts</li></ul>
+            <ul className="stage-facts"><li><b>{t("National")}</b> {t("±{sd} ballot pts × {factor} = ±{race}", { sd: NATIONAL_SD, factor: NATIONALIZATION, race: RACE_COMMON_SD.toFixed(2) })}</li><li><b>{t("Total per race")}</b> {t("±{sd} pts", { sd: RACE_SD })}</li></ul>
           </>}>
-            {bellRaces.length ? <StageErrorBells races={bellRaces} /> : <div className="stage-viz viz-empty">Loading…</div>}
+            {bellRaces.length ? <StageErrorBells races={bellRaces} /> : <div className="stage-viz viz-empty">{t("Loading…")}</div>}
           </Stage>
 
-          <Stage id="simulate" n="06" title="Run the election 50,000 times." copy={<>
-            <p>One simulation draws a national error, then a local error for every race, and counts the seats each party wins. Repeat {SIMULATIONS.toLocaleString("en-US")} times per chamber and the share of runs with a majority is the control probability.</p>
-            <ul className="stage-facts"><li><b>House</b> 435 districts, 218 to win</li><li><b>Senate</b> {senateCount} races + 65 seats not up; a 50–50 tie goes to the GOP via the Vice President</li></ul>
+          <Stage id="simulate" n="06" title={t("Run the election 50,000 times.")} copy={<>
+            <p>{t("One simulation draws a national error, then a local error for every race, and counts the seats each party wins. Repeat {count} times per chamber and the share of runs with a majority is the control probability.", { count: SIMULATIONS.toLocaleString(intl) })}</p>
+            <ul className="stage-facts"><li><b>{t("House")}</b> {t("435 districts, 218 to win")}</li><li><b>{t("Senate")}</b> {t("{count} races + 65 seats not up; a 50–50 tie goes to the GOP via the Vice President", { count: senateCount })}</li></ul>
           </>}>
-            {model ? <StageLiveSim races={model.races} houseMajority={model.house.demMajority} senateMajority={model.senate.demMajority} /> : <div className="stage-viz viz-empty">Loading…</div>}
+            {model ? <StageLiveSim races={model.races} houseMajority={model.house.demMajority} senateMajority={model.senate.demMajority} /> : <div className="stage-viz viz-empty">{t("Loading…")}</div>}
           </Stage>
 
-          <Stage id="outputs" n="07" title="One response feeds the whole site." copy={<>
-            <p>The API returns control odds, seat medians and 80% intervals, and a probability for every race. The home story, the Senate builder, the district map, race pages and the model page all read the same numbers.</p>
-            <ul className="stage-facts"><li><b>Deterministic</b> fixed seeds: same inputs, same output</li><li><b>Cached</b> until the benchmark, polls or date change</li></ul>
+          <Stage id="outputs" n="07" title={t("One response feeds the whole site.")} copy={<>
+            <p>{t("The API returns control odds, seat medians and 80% intervals, and a probability for every race. The home story, the Senate builder, the district map, race pages and the model page all read the same numbers.")}</p>
+            <ul className="stage-facts"><li><b>{t("Deterministic")}</b> {t("fixed seeds: same inputs, same output")}</li><li><b>{t("Cached")}</b> {t("until the benchmark, polls or date change")}</li></ul>
           </>}>
-            {model ? <StageOutput model={model} tippingCode={tipping?.code} /> : <div className="stage-viz viz-empty">Loading…</div>}
+            {model ? <StageOutput model={model} tippingCode={tipping?.code} /> : <div className="stage-viz viz-empty">{t("Loading…")}</div>}
           </Stage>
 
-          <Stage id="versions" n="08" title="Versioned, documented, and not yet backtested." copy={<>
-            <p>Every change to the method gets a new version and a changelog. MP-26 is labelled experimental until it has been replayed on past elections and scored.</p>
-            <Link className="secondary-action" href="/methodology">Sources and methodology <span>→</span></Link>
+          <Stage id="versions" n="08" title={t("Versioned, documented, and backtested.")} copy={<>
+            <p>{t("Every change to the method gets a new version and a changelog. The probability engine has been replayed on the 2018 and 2022 midterms and scored; the model stays labelled experimental because its benchmark cannot be replayed.")}</p>
+            <Link className="secondary-action" href="/validation">{t("Model validation")} <span>→</span></Link>
+            <Link className="secondary-action" href="/methodology">{t("Sources and methodology")} <span>→</span></Link>
           </>}>
             <div className="stage-viz versions-viz">
               <ol className="version-line">
-                <li><b>v0.1</b><span>Top-down chambers against a fixed D+7.4 baseline. The Senate read 69% while its own races implied 43%.</span></li>
-                <li><b>v0.2</b><span>Like-for-like movement, Senate simulated race by race, race error calibrated to the benchmark.</span></li>
-                <li className="current"><b>v0.3 · current</b><span>House simulated race by race too; national error sized to the benchmark&apos;s correlated error.</span></li>
+                <li><b>v0.1</b><span>{t("Top-down chambers against a fixed D+7.4 baseline. The Senate read 69% while its own races implied 43%.")}</span></li>
+                <li><b>v0.2</b><span>{t("Like-for-like movement, Senate simulated race by race, race error calibrated to the benchmark.")}</span></li>
+                <li><b>v0.3</b><span>{t("House simulated race by race too; national error sized to the benchmark's correlated error.")}</span></li>
+                <li className="current"><b>v0.4 · {t("current")}</b><span>{t("Race margins read as the benchmark's expected D−R vote, not its expected winning margin; race error refitted to ±{sd}.", { sd: RACE_SD })}</span></li>
               </ol>
               <div className="limits">
-                <p>Known limits</p>
+                <p>{t("Known limits")}</p>
                 <ul>
-                  <li>Normal errors; the benchmark uses fatter tails.</li>
-                  <li>One national factor; no regional correlation.</li>
-                  <li>No pollster house effects or candidate fundamentals.</li>
-                  <li>No historical backtest yet (Brier score, calibration).</li>
+                  <li>{t("Normal errors; the benchmark uses fatter tails.")}</li>
+                  <li>{t("One national factor; no regional correlation.")}</li>
+                  <li>{t("No pollster house effects or candidate fundamentals.")}</li>
+                  <li>{t("Backtest covers the probability engine, not the benchmark (no 2018/2022 Vote-Scope data).")}</li>
                 </ul>
               </div>
             </div>

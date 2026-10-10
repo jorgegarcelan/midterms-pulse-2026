@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { CountUp } from "@/components/motion/count-up";
 import { useInView } from "@/components/explainer/use-in-view";
+import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 
 type Token = { text: string; kind?: "key" | "string" | "number" | "comment"; start?: number };
 type OutputModel = {
@@ -33,6 +34,8 @@ function tokenize(source: string): Token[] {
 
 // What the pipeline hands to the rest of the product: the API response types itself out.
 export function StageOutput({ model, tippingCode }: { model: OutputModel; tippingCode?: string }) {
+  const t = useT();
+  const intl = useIntlLocale();
   const [ref, inView] = useInView<HTMLDivElement>();
   const [shown, setShown] = useState(0);
   const tipping = model.races.find((race) => race.code === tippingCode && race.chamber === "house");
@@ -49,11 +52,11 @@ export function StageOutput({ model, tippingCode }: { model: OutputModel; tippin
       `  "senate": { "demMajority": ${model.senate.demMajority}, "demSeats": ${model.senate.demSeats}, "interval80": [${model.senate.interval80.join(", ")}] },`,
       `  "races": [`,
       `    { "code": "${sample.code}", "signedMargin": ${sample.signedMargin.toFixed(1)}, "winProbability": ${sample.winProbability} },`,
-      `    // …${model.races.length - 1} more races`,
+      `    // …${t("{count} more races", { count: model.races.length - 1 })}`,
       "  ]",
       "}",
     ].join("\n");
-  }, [model, tipping]);
+  }, [model, tipping, t]);
   const tokens = useMemo(() => tokenize(source), [source]);
 
   useEffect(() => {
@@ -76,10 +79,10 @@ export function StageOutput({ model, tippingCode }: { model: OutputModel; tippin
   ));
 
   const cards = [
-    { label: "House control", value: model.house.demMajority, suffix: "%", note: `D ${model.house.demSeats} median · 80% ${model.house.interval80.join("–")}` },
-    { label: "Senate control", value: model.senate.demMajority, suffix: "%", note: `D ${model.senate.demSeats} median · 80% ${model.senate.interval80.join("–")}` },
-    { label: "Race probabilities", value: model.races.length, suffix: "", note: "one per House district and Senate race" },
-    { label: "Simulated elections", value: model.simulations * 2, suffix: "", note: `${model.simulations.toLocaleString("en-US")} per chamber, seeded`, locale: true },
+    { label: t("House control"), value: model.house.demMajority, suffix: "%", note: t("D {seats} median · 80% {interval}", { seats: model.house.demSeats, interval: model.house.interval80.join("–") }) },
+    { label: t("Senate control"), value: model.senate.demMajority, suffix: "%", note: t("D {seats} median · 80% {interval}", { seats: model.senate.demSeats, interval: model.senate.interval80.join("–") }) },
+    { label: t("Race probabilities"), value: model.races.length, suffix: "", note: t("one per House district and Senate race") },
+    { label: t("Simulated elections"), value: model.simulations * 2, suffix: "", note: t("{count} per chamber, seeded", { count: model.simulations.toLocaleString(intl) }), locale: true },
   ];
 
   return (
@@ -93,10 +96,10 @@ export function StageOutput({ model, tippingCode }: { model: OutputModel; tippin
           </article>
         ))}
       </div>
-      <pre className="api-code" aria-label="Example API response"><code>{visible}<i className="caret" /></code></pre>
+      <pre className="api-code" aria-label={t("Example API response")}><code>{visible}<i className="caret" /></code></pre>
       <div className="consumers">
-        <span>Consumed by</span>
-        <Link href="/">Home story</Link><Link href="/#senate">Senate builder</Link><Link href="/districts">District map</Link><Link href="/races">Race profiles</Link><Link href="/model">Model page</Link>
+        <span>{t("Consumed by")}</span>
+        <Link href="/">{t("Home story")}</Link><Link href="/#senate">{t("Senate builder")}</Link><Link href="/races?view=map">{t("District map")}</Link><Link href="/races">{t("Race profiles")}</Link><Link href="/model">{t("Model page")}</Link>
       </div>
     </div>
   );

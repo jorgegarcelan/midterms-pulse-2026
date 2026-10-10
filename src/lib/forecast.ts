@@ -59,10 +59,22 @@ function normalizeCode(value: string) {
   return `${match[1]}-${match[2] === "AL" ? "00" : match[2].padStart(2, "0")}`;
 }
 
+/*
+  The source's `mean_margin` is the expected size of the winning margin, |D − R|, not the expected
+  D − R margin: a dead-even race with ±5 pts of uncertainty reports ≈4. The signed expectation is the
+  difference of the mean vote shares, which always agrees with the projected winner.
+*/
+function expectedMargin(race: SourceRiding) {
+  const vote = race.projection.vote_mean;
+  if (vote?.us_dem !== undefined && vote.us_rep !== undefined) return Math.round((vote.us_dem - vote.us_rep) * 100) / 100;
+  return (race.projection.winner === "us_dem" ? 1 : -1) * Math.abs(race.projection.mean_margin);
+}
+
 function normalizeRaces(payload: SourcePayload, chamber: "house" | "senate"): ForecastRace[] {
   return payload.ridings.map((race) => {
-    const leader = race.projection.winner === "us_dem" ? "D" : "R";
-    const margin = Math.abs(race.projection.mean_margin);
+    const signed = expectedMargin(race);
+    const leader = signed >= 0 ? "D" : "R";
+    const margin = Math.abs(signed);
     return {
       code: chamber === "house" ? normalizeCode(race.name_en) : race.province,
       state: race.province,

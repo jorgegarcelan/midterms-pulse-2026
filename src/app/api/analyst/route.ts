@@ -15,6 +15,10 @@ function fallbackAnswer(question: string) {
   return "The House signal combines a Democratic generic-ballot advantage of 7.4 points with a public benchmark of 231 Democratic seats. District geography remains the main caveat because national movement does not translate evenly across all 435 seats. Sources: Cook Political Report — https://www.cookpolitical.com/ratings/house-race-ratings; U.S. Polling Data — https://uspollingdata.com/polls/generic-ballot/";
 }
 
+export function GET() {
+  return NextResponse.json({ enabled: Boolean(process.env.OPENAI_API_KEY) });
+}
+
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as { question?: unknown; context?: AnalystContext } | null;
   const question = typeof body?.question === "string" ? body.question.trim() : "";

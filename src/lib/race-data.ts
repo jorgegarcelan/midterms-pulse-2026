@@ -19,17 +19,19 @@ export const loadHouseHistory = (state: string) => load<{ source: string; distri
 export const loadSenateHistory = () => load<{ source: string; states: Record<string, HistoryResult[]> }>("/data/history/senate.json");
 export const loadPresidentHistory = () => load<{ source: string; states: Record<string, HistoryResult[]> }>("/data/history/president.json");
 
-export type Metric = { key: Exclude<keyof DemographicProfile, "race">; label: string; format: (value: number) => string; hint?: string };
+// Labels and hints are English source strings: translate them at render time. `locale` is an Intl tag (en-US by default).
+export type Metric = { key: Exclude<keyof DemographicProfile, "race">; label: string; format: (value: number, locale?: string) => string; hint?: string };
+const percent = (value: number, locale = "en-US") => `${value.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
 export const METRICS: Metric[] = [
-  { key: "population", label: "Population", format: (value) => new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(value) },
-  { key: "medianIncome", label: "Median household income", format: (value) => `$${new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value)}` },
-  { key: "medianAge", label: "Median age", format: (value) => value.toFixed(1) },
-  { key: "bachelors", label: "Bachelor's degree or higher", format: (value) => `${value.toFixed(1)}%`, hint: "adults 25+" },
-  { key: "poverty", label: "Below poverty line", format: (value) => `${value.toFixed(1)}%` },
-  { key: "unemployment", label: "Unemployment", format: (value) => `${value.toFixed(1)}%`, hint: "civilian labor force" },
-  { key: "ownerOccupied", label: "Homeowners", format: (value) => `${value.toFixed(1)}%`, hint: "owner-occupied homes" },
-  { key: "foreignBorn", label: "Foreign-born", format: (value) => `${value.toFixed(1)}%` },
-  { key: "veterans", label: "Veterans", format: (value) => `${value.toFixed(1)}%`, hint: "adults 18+" },
+  { key: "population", label: "Population", format: (value, locale = "en-US") => new Intl.NumberFormat(locale, { notation: "compact", maximumFractionDigits: 2 }).format(value) },
+  { key: "medianIncome", label: "Median household income", format: (value, locale = "en-US") => locale.startsWith("en") ? `$${new Intl.NumberFormat(locale, { notation: "compact", maximumFractionDigits: 1 }).format(value)}` : new Intl.NumberFormat(locale, { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(value) },
+  { key: "medianAge", label: "Median age", format: (value, locale = "en-US") => value.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) },
+  { key: "bachelors", label: "Bachelor's degree or higher", format: percent, hint: "adults 25+" },
+  { key: "poverty", label: "Below poverty line", format: percent },
+  { key: "unemployment", label: "Unemployment", format: percent, hint: "civilian labor force" },
+  { key: "ownerOccupied", label: "Homeowners", format: percent, hint: "owner-occupied homes" },
+  { key: "foreignBorn", label: "Foreign-born", format: percent },
+  { key: "veterans", label: "Veterans", format: percent, hint: "adults 18+" },
 ];
 export const RACE_GROUPS = [
   { key: "white", label: "White" }, { key: "hispanic", label: "Hispanic" }, { key: "black", label: "Black" }, { key: "asian", label: "Asian" }, { key: "other", label: "Other / multiracial" },

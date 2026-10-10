@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { pollWeight, POLL_HALF_LIFE_DAYS, type WeightedPoll } from "@/lib/mp26";
 import { signedLabel, useInView } from "@/components/explainer/use-in-view";
+import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 
 export type ExplainerPoll = WeightedPoll & { id: string; pollster: string; dem: number; rep: number };
 
@@ -14,6 +15,8 @@ const Y_MAX = 14;
 
 // Every poll starts equal; then each one grows or shrinks to the weight the model gives it.
 export function StagePollWeights({ polls, runDate, modelMargin, totalPolls }: { polls: ExplainerPoll[]; runDate: string; modelMargin: number; totalPolls: number }) {
+  const t = useT();
+  const intl = useIntlLocale();
   const [ref, inView] = useInView<HTMLDivElement>();
   const [weighted, setWeighted] = useState(false);
 
@@ -41,24 +44,24 @@ export function StagePollWeights({ polls, runDate, modelMargin, totalPolls }: { 
       return `${x(date).toFixed(1)},${(band.bottom - recency * (band.bottom - band.top)).toFixed(1)}`;
     });
     const heaviest = [...scored].sort((a, b) => b.weight - a.weight)[0];
-    const months = Array.from({ length: 5 }, (_, index) => start + (end - start) * index / 4).map((date) => ({ x: x(date), label: new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) }));
+    const months = Array.from({ length: 5 }, (_, index) => start + (end - start) * index / 4).map((date) => ({ x: x(date), label: new Date(date).toLocaleDateString(intl, { month: "short", day: "numeric", timeZone: "UTC" }) }));
     return { dots, y, unweighted, curve, band, heaviest, months };
-  }, [polls, runDate]);
+  }, [polls, runDate, intl]);
 
-  if (!layout) return <div className="stage-viz viz-empty" ref={ref}>Loading polls…</div>;
+  if (!layout) return <div className="stage-viz viz-empty" ref={ref}>{t("Loading polls…")}</div>;
   const { dots, y, unweighted, curve, band, heaviest, months } = layout;
 
   return (
     <div className="stage-viz" ref={ref} data-in={inView ? "true" : undefined} data-weighted={weighted ? "true" : undefined}>
       <div className="viz-toolbar">
-        <span>Latest {polls.length} of {totalPolls.toLocaleString("en-US")} polls · dot area = model weight</span>
-        <div className="segmented" role="group" aria-label="Poll weighting">
-          <button type="button" className={!weighted ? "selected" : ""} onClick={() => setWeighted(false)}>Equal</button>
-          <button type="button" className={weighted ? "selected" : ""} onClick={() => setWeighted(true)}>Weighted</button>
+        <span>{t("Latest {count} of {total} polls · dot area = model weight", { count: polls.length, total: totalPolls.toLocaleString(intl) })}</span>
+        <div className="segmented" role="group" aria-label={t("Poll weighting")}>
+          <button type="button" className={!weighted ? "selected" : ""} onClick={() => setWeighted(false)}>{t("Equal")}</button>
+          <button type="button" className={weighted ? "selected" : ""} onClick={() => setWeighted(true)}>{t("Weighted")}</button>
         </div>
       </div>
-      <svg viewBox={`0 0 ${VW} ${VH}`} className="viz-svg" role="img" aria-label={`Generic-ballot polls sized by model weight; weighted average ${signedLabel(modelMargin)}`}>
-        {[-5, 0, 5, 10].map((tick) => <g key={tick} className="viz-grid"><line x1={PAD.left} x2={VW - PAD.right} y1={y(tick)} y2={y(tick)} /><text x={PAD.left - 8} y={y(tick) + 4}>{tick === 0 ? "EVEN" : signedLabel(tick, 0)}</text></g>)}
+      <svg viewBox={`0 0 ${VW} ${VH}`} className="viz-svg" role="img" aria-label={t("Generic-ballot polls sized by model weight; weighted average {margin}", { margin: signedLabel(modelMargin) })}>
+        {[-5, 0, 5, 10].map((tick) => <g key={tick} className="viz-grid"><line x1={PAD.left} x2={VW - PAD.right} y1={y(tick)} y2={y(tick)} /><text x={PAD.left - 8} y={y(tick) + 4}>{tick === 0 ? t("EVEN") : signedLabel(tick, 0)}</text></g>)}
         {dots.map((dot, index) => (
           <circle
             key={dot.poll.id}
@@ -68,21 +71,21 @@ export function StagePollWeights({ polls, runDate, modelMargin, totalPolls }: { 
             r="3"
             style={{ "--i": index, "--s": dot.scale.toFixed(2), "--o": (.3 + .7 * dot.recency).toFixed(2) } as React.CSSProperties}
           >
-            <title>{`${dot.poll.pollster} · ${dot.poll.endDate} · ${signedLabel(dot.poll.dem - dot.poll.rep)} · weight ${dot.weight.toFixed(2)}`}</title>
+            <title>{`${dot.poll.pollster} · ${dot.poll.endDate} · ${signedLabel(dot.poll.dem - dot.poll.rep)} · ${t("weight {value}", { value: dot.weight.toFixed(2) })}`}</title>
           </circle>
         ))}
-        <g className="avg-line unweighted"><line x1={PAD.left} x2={VW - PAD.right} y1={y(unweighted)} y2={y(unweighted)} pathLength={1} /><text className="start" x={PAD.left + 4} y={y(unweighted) + (unweighted > modelMargin ? -6 : 14)}>simple mean {signedLabel(unweighted)}</text></g>
-        <g className="avg-line weighted"><line x1={PAD.left} x2={VW - PAD.right} y1={y(modelMargin)} y2={y(modelMargin)} pathLength={1} /><text x={VW - PAD.right} y={y(modelMargin) + (unweighted > modelMargin ? 14 : -6)}>weighted {signedLabel(modelMargin)}</text></g>
+        <g className="avg-line unweighted"><line x1={PAD.left} x2={VW - PAD.right} y1={y(unweighted)} y2={y(unweighted)} pathLength={1} /><text className="start" x={PAD.left + 4} y={y(unweighted) + (unweighted > modelMargin ? -6 : 14)}>{t("simple mean {margin}", { margin: signedLabel(unweighted) })}</text></g>
+        <g className="avg-line weighted"><line x1={PAD.left} x2={VW - PAD.right} y1={y(modelMargin)} y2={y(modelMargin)} pathLength={1} /><text x={VW - PAD.right} y={y(modelMargin) + (unweighted > modelMargin ? 14 : -6)}>{t("weighted {margin}", { margin: signedLabel(modelMargin) })}</text></g>
         <g className="recency-band">
-          <text x={PAD.left} y={band.top - 8}>RECENCY WEIGHT · HALF-LIFE {POLL_HALF_LIFE_DAYS} DAYS</text>
+          <text x={PAD.left} y={band.top - 8}>{t("RECENCY WEIGHT · HALF-LIFE {days} DAYS", { days: POLL_HALF_LIFE_DAYS })}</text>
           <path className="recency-area" d={`M ${curve[0].split(",")[0]},${band.bottom} L ${curve.join(" L ")} L ${curve.at(-1)!.split(",")[0]},${band.bottom} Z`} />
           <path className="recency-line" d={`M ${curve.join(" L ")}`} pathLength={1} />
           {months.map((month) => <text key={month.x} className="axis-label" x={month.x} y={VH - 1} textAnchor="middle">{month.label}</text>)}
         </g>
       </svg>
       <div className="viz-foot">
-        <span>Heaviest: <b>{heaviest.poll.pollster}</b> · {heaviest.poll.population} · n={heaviest.poll.sample.toLocaleString("en-US")} · w {heaviest.weight.toFixed(2)}</span>
-        <span>A poll from 60 days ago counts <b>{(.5 ** (60 / POLL_HALF_LIFE_DAYS) * 100).toFixed(0)}%</b> as much as today&apos;s</span>
+        <span>{t("Heaviest:")} <b>{heaviest.poll.pollster}</b> · {heaviest.poll.population} · n={heaviest.poll.sample.toLocaleString(intl)} · w {heaviest.weight.toFixed(2)}</span>
+        <span>{t("A poll from 60 days ago counts")} <b>{(.5 ** (60 / POLL_HALF_LIFE_DAYS) * 100).toFixed(0)}%</b> {t("as much as today's")}</span>
       </div>
     </div>
   );

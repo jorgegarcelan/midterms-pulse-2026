@@ -6,6 +6,7 @@ import { SIMULATIONS } from "@/lib/mp26";
 import { seatsNotUp } from "@/lib/senate-sim";
 import { useInView } from "@/components/explainer/use-in-view";
 import type { ExplainerRace } from "@/components/explainer/stage-race-curve";
+import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 
 const LIVE_RUNS = 3000;
 const PER_FRAME = 10;
@@ -13,6 +14,8 @@ const PER_FRAME = 10;
 type Chamber = { key: "house" | "senate"; label: string; spec: ChamberSpec; margins: number[]; domain: [number, number]; published: number };
 
 function Histogram({ chamber, counts, runs }: { chamber: Chamber; counts: Uint32Array; runs: number }) {
+  const t = useT();
+  const intl = useIntlLocale();
   const [low, high] = chamber.domain;
   const step = chamber.key === "house" ? 2 : 1;
   const bins = [];
@@ -30,21 +33,23 @@ function Histogram({ chamber, counts, runs }: { chamber: Chamber; counts: Uint32
   return (
     <div className="sim-chart">
       <div className="sim-chart-head">
-        <span>{chamber.label}</span>
+        <span>{t(chamber.label)}</span>
         <strong className={share >= .5 ? "dem-text" : "rep-text"}>{(share * 100).toFixed(runs >= SIMULATIONS ? 0 : 1)}%</strong>
-        <small>D majority · published {chamber.published}%</small>
+        <small>{t("D majority · published {pct}%", { pct: chamber.published })}</small>
       </div>
       <div className="sim-bars" style={{ "--bins": bins.length, "--majority": majorityIndex } as React.CSSProperties}>
-        {bins.map((bin) => <i key={bin.seats} className={bin.seats >= chamber.spec.majority ? "dem" : "rep"} style={{ height: `${bin.count / max * 100}%` }} title={`${bin.seats}${step > 1 ? `–${bin.seats + step - 1}` : ""} seats: ${bin.count.toLocaleString("en-US")} runs`} />)}
+        {bins.map((bin) => <i key={bin.seats} className={bin.seats >= chamber.spec.majority ? "dem" : "rep"} style={{ height: `${bin.count / max * 100}%` }} title={t("{seats} seats: {count} runs", { seats: `${bin.seats}${step > 1 ? `–${bin.seats + step - 1}` : ""}`, count: bin.count.toLocaleString(intl) })} />)}
         <b className="sim-majority" />
       </div>
-      <div className="sim-axis"><span>{low}</span><span>{chamber.spec.majority} to win</span><span>{high}</span></div>
+      <div className="sim-axis"><span>{low}</span><span>{t("{seats} to win", { seats: chamber.spec.majority })}</span><span>{high}</span></div>
     </div>
   );
 }
 
 // Runs the model's own engine in the browser, a few simulations per frame, so the estimate visibly converges.
 export function StageLiveSim({ races, houseMajority, senateMajority }: { races: ExplainerRace[]; houseMajority: number; senateMajority: number }) {
+  const t = useT();
+  const intl = useIntlLocale();
   const [ref, inView] = useInView<HTMLDivElement>();
   const chambers = useMemo<Chamber[]>(() => {
     const senate = races.filter((race) => race.chamber === "senate");
@@ -108,16 +113,16 @@ export function StageLiveSim({ races, houseMajority, senateMajority }: { races: 
   return (
     <div className="stage-viz sim-viz" ref={ref} data-in={inView ? "true" : undefined}>
       <div className="viz-toolbar">
-        <span className="sim-counter"><b>{runs.toLocaleString("en-US")}</b> simulated elections{done ? " · full seeded model" : runs >= LIVE_RUNS ? " · live sample" : ""}</span>
+        <span className="sim-counter"><b>{runs.toLocaleString(intl)}</b> {t("simulated elections")}{done ? ` · ${t("full seeded model")}` : runs >= LIVE_RUNS ? ` · ${t("live sample")}` : ""}</span>
         <div className="viz-actions">
-          <button type="button" className="viz-button" onClick={() => { reset(); window.setTimeout(play, 60); }}>Replay</button>
-          <button type="button" className="viz-button primary" onClick={fastForward} disabled={done}>Run all {SIMULATIONS.toLocaleString("en-US")}</button>
+          <button type="button" className="viz-button" onClick={() => { reset(); window.setTimeout(play, 60); }}>{t("Replay")}</button>
+          <button type="button" className="viz-button primary" onClick={fastForward} disabled={done}>{t("Run all {count}", { count: SIMULATIONS.toLocaleString(intl) })}</button>
         </div>
       </div>
       <div className="sim-grid">
         {chambers.map((chamber) => <Histogram key={chamber.key} chamber={chamber} counts={counts[chamber.key]} runs={runs} />)}
       </div>
-      <p className="viz-note">Each bar counts how many simulated elections ended with that many Democratic seats. The live sample wobbles and then settles; the full seeded run reproduces the published odds exactly.</p>
+      <p className="viz-note">{t("Each bar counts how many simulated elections ended with that many Democratic seats. The live sample wobbles and then settles; the full seeded run reproduces the published odds exactly.")}</p>
     </div>
   );
 }

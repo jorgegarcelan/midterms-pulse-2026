@@ -1,7 +1,8 @@
 "use client";
 
+import "@/app/motion-b.css";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { MarginHistoryChart } from "@/components/charts/margin-history-chart";
 import { DemographicCompare } from "@/components/demographics/demographic-compare";
 import { stateByCode } from "@/data/geography";
@@ -9,6 +10,9 @@ import type { ForecastRace } from "@/lib/forecast";
 import { loadDemographics, loadHouseHistory, loadPresidentHistory, type Demographics, type HistoryResult } from "@/lib/race-data";
 import { raceSlug } from "@/lib/races";
 import { ShareImageButton } from "@/components/share-image-button";
+import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
+import { CountUp } from "@/components/motion/count-up";
+import { useFlipList } from "@/components/motion/race-tween";
 
 type Row = { code: string; race?: ForecastRace; last?: HistoryResult; income: number | null; bachelors: number | null; white: number | null; hispanic: number | null; black: number | null };
 type SortKey = "code" | "model" | "last" | "income" | "bachelors" | "white" | "hispanic" | "black";
@@ -30,8 +34,9 @@ function sortValue(row: Row, key: SortKey) {
 
 // State page: Census profile against the nation, presidential history, and every district side by side.
 export function StateProfile({ code }: { code: string }) {
+  const t = useT();
+  const intl = useIntlLocale();
   const state = code.toUpperCase();
-  const name = stateByCode.get(state)?.name || state;
   const [demographics, setDemographics] = useState<Demographics | null>(null);
   const [president, setPresident] = useState<HistoryResult[] | null>(null);
   const [house, setHouse] = useState<Record<string, HistoryResult[]>>({});
@@ -61,48 +66,50 @@ export function StateProfile({ code }: { code: string }) {
     return (typeof left === "string" ? left.localeCompare(String(right)) : left - (right as number)) * sort.direction;
   }), [rows, sort]);
 
+  const tableRef = useFlipList<HTMLDivElement>(`${sort.key}:${sort.direction}:${sorted.map((row) => row.code).join()}`);
+  const name = t(stateByCode.get(state)?.name || state);
   const profile = demographics?.states[state];
   const lastPresident = president?.at(-1);
 
   return (
     <section className="state-profile" aria-labelledby="state-profile-title">
       <div className="state-profile-head">
-        <div><p className="eyebrow">State profile</p><h2 id="state-profile-title">{name} at a glance</h2><ShareImageButton href={`/api/share/state/${state.toLowerCase()}`} /></div>
-        <div className="state-chips">
-          {profile?.population && <span><b>{new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(profile.population)}</b> residents</span>}
-          <span><b>{rows.length || "—"}</b> House {rows.length === 1 ? "seat" : "seats"}</span>
-          {lastPresident && <span><b className={lastPresident.m >= 0 ? "dem-text" : "rep-text"}>{signed(lastPresident.m)}</b> for president in 2024</span>}
-          {senateRace && <Link href={`/races/${raceSlug(senateRace)}`}><b>Senate race</b> {signed(senateRace.signedMargin)} →</Link>}
+        <div><p className="eyebrow">{t("State profile")}</p><h2 id="state-profile-title">{t("{state} at a glance", { state: name })}</h2><ShareImageButton href={`/api/share/state/${state.toLowerCase()}`} /></div>
+        <div className="state-chips mpb-stagger">
+          {profile?.population && <span><b>{new Intl.NumberFormat(intl, { notation: "compact", maximumFractionDigits: 1 }).format(profile.population)}</b> {t("residents")}</span>}
+          <span><b>{rows.length ? <CountUp value={rows.length} /> : "—"}</b> {rows.length === 1 ? t("House seat") : t("House seats")}</span>
+          {lastPresident && <span><b className={lastPresident.m >= 0 ? "dem-text" : "rep-text"}>{signed(lastPresident.m)}</b> {t("for president in 2024")}</span>}
+          {senateRace && <Link href={`/races/${raceSlug(senateRace)}`}><b>{t("Senate race")}</b> {signed(senateRace.signedMargin)} →</Link>}
         </div>
       </div>
 
       <div className="state-profile-grid">
         <article className="panel">
-          <div className="panel-head"><div><p className="eyebrow">Census profile</p><h2>{name} vs. the country</h2></div><span className="panel-tag">{demographics?.release || "ACS"}</span></div>
-          {demographics && profile ? <DemographicCompare geos={[{ key: state, label: name, profile }, { key: "US", label: "United States", profile: demographics.us }]} demographics={demographics} /> : <div className="chart-loading">Loading Census data…</div>}
+          <div className="panel-head"><div><p className="eyebrow">{t("Census profile")}</p><h2>{t("{state} vs. the country", { state: name })}</h2></div><span className="panel-tag">{demographics?.release || "ACS"}</span></div>
+          {demographics && profile ? <DemographicCompare geos={[{ key: state, label: name, profile }, { key: "US", label: t("United States"), profile: demographics.us }]} demographics={demographics} /> : <div className="chart-loading">{t("Loading Census data…")}</div>}
         </article>
         <article className="panel">
-          <div className="panel-head"><div><p className="eyebrow">Presidential results</p><h2>{name} since 1976</h2></div><span className="panel-tag">MIT Election Lab</span></div>
+          <div className="panel-head"><div><p className="eyebrow">{t("Presidential results")}</p><h2>{t("{state} since 1976", { state: name })}</h2></div><span className="panel-tag">MIT Election Lab</span></div>
           {president?.length ? <MarginHistoryChart
-            points={president.map((result) => ({ year: result.y, margin: result.m, winner: result.w, title: `${result.y} · President`, detail: `D ${result.dp}% · R ${result.rp}%` }))}
-            label="President"
-            ariaLabel={`Presidential margin in ${name}, 1976 to 2024`}
-          /> : <div className="chart-loading">Loading results…</div>}
-          <p className="chart-note">Two-party margin of the presidential vote in the state (Democratic share minus Republican share of all votes cast).</p>
+            points={president.map((result) => ({ year: result.y, margin: result.m, winner: result.w, title: `${result.y} · ${t("President")}`, detail: `D ${result.dp}% · R ${result.rp}%` }))}
+            label={t("President")}
+            ariaLabel={t("Presidential margin in {state}, 1976 to 2024", { state: name })}
+          /> : <div className="chart-loading">{t("Loading results…")}</div>}
+          <p className="chart-note">{t("Two-party margin of the presidential vote in the state (Democratic share minus Republican share of all votes cast).")}</p>
         </article>
       </div>
 
       {rows.length > 0 && <article className="panel state-districts">
-        <div className="panel-head"><div><p className="eyebrow">Districts</p><h2>Every {name} district, side by side</h2></div><span className="panel-tag">click a column to sort</span></div>
-        <div className="district-table" role="table">
+        <div className="panel-head"><div><p className="eyebrow">{t("Districts")}</p><h2>{t("Every {state} district, side by side", { state: name })}</h2></div><span className="panel-tag">{t("click a column to sort")}</span></div>
+        <div className="district-table mpb-sortable" role="table" ref={tableRef}>
           <div className="district-table-head" role="row">
-            {COLUMNS.map((column) => <button key={column.key} type="button" role="columnheader" aria-sort={sort.key === column.key ? (sort.direction === 1 ? "ascending" : "descending") : "none"} className={sort.key === column.key ? "active" : ""} onClick={() => setSort((current) => ({ key: column.key, direction: current.key === column.key ? (current.direction === 1 ? -1 : 1) : column.key === "code" ? 1 : -1 }))}>{column.label}{sort.key === column.key ? (sort.direction === 1 ? " ↑" : " ↓") : ""}</button>)}
+            {COLUMNS.map((column) => <button key={column.key} type="button" role="columnheader" aria-sort={sort.key === column.key ? (sort.direction === 1 ? "ascending" : "descending") : "none"} className={sort.key === column.key ? "active" : ""} onClick={() => setSort((current) => ({ key: column.key, direction: current.key === column.key ? (current.direction === 1 ? -1 : 1) : column.key === "code" ? 1 : -1 }))}>{t(column.label)}<i className={`mpb-sort${sort.key === column.key ? (sort.direction === 1 ? " up" : " down") : ""}`} aria-hidden="true">↑</i></button>)}
           </div>
           {sorted.map((row) => (
-            <Link key={row.code} role="row" href={`/races/${row.code.toLowerCase()}`}>
+            <Link key={row.code} role="row" data-flip={row.code} href={`/races/${row.code.toLowerCase()}`}>
               <strong>{row.code}</strong>
               <b className={row.race ? (row.race.signedMargin >= 0 ? "dem-text" : "rep-text") : ""}>{row.race ? signed(row.race.signedMargin) : "—"}</b>
-              <span className={row.last ? (row.last.w === "D" ? "dem-text" : row.last.w === "R" ? "rep-text" : "") : ""}>{row.last ? (row.last.u ? `${row.last.w} unopposed` : signed(row.last.m)) : "—"}</span>
+              <span className={row.last ? (row.last.w === "D" ? "dem-text" : row.last.w === "R" ? "rep-text" : "") : ""}>{row.last ? (row.last.u ? t("{party} unopposed", { party: row.last.w }) : signed(row.last.m)) : "—"}</span>
               <span>{row.income ? `$${Math.round(row.income / 1000)}k` : "—"}</span>
               <span>{row.bachelors ?? "—"}%</span>
               <span>{row.white ?? "—"}%</span>
@@ -111,7 +118,7 @@ export function StateProfile({ code }: { code: string }) {
             </Link>
           ))}
         </div>
-        <p className="chart-note">2024 House results from FiveThirtyEight; demographics from the {demographics?.release}; 2026 margins from the MP-26 model.</p>
+        <p className="chart-note">{t("2024 House results from FiveThirtyEight; demographics from the {release}; 2026 margins from the MP-26 model.", { release: demographics?.release ?? "" })}</p>
       </article>}
     </section>
   );

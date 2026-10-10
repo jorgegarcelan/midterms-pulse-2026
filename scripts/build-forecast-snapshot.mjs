@@ -24,15 +24,22 @@ function chamberSummary(payload) {
   };
 }
 
+// `mean_margin` is the expected |D − R|, not D − R; the mean vote shares give the signed margin (see src/lib/forecast.ts).
+function expectedMargin(race) {
+  const vote = race.projection.vote_mean;
+  if (vote?.us_dem !== undefined && vote.us_rep !== undefined) return Math.round((vote.us_dem - vote.us_rep) * 100) / 100;
+  return (race.projection.winner === "us_dem" ? 1 : -1) * Math.abs(race.projection.mean_margin);
+}
+
 function races(payload, chamber) {
   return payload.ridings.map((race) => ({
     code: chamber === "house" ? race.name_en.replace(/-(\d)$/, "-0$1").replace(/-AL$/, "-00") : race.province,
     state: race.province,
     name: race.name_en,
     chamber,
-    leader: race.projection.winner === "us_dem" ? "D" : "R",
-    margin: Math.abs(race.projection.mean_margin),
-    signedMargin: race.projection.winner === "us_dem" ? Math.abs(race.projection.mean_margin) : -Math.abs(race.projection.mean_margin),
+    leader: expectedMargin(race) >= 0 ? "D" : "R",
+    margin: Math.abs(expectedMargin(race)),
+    signedMargin: expectedMargin(race),
     winProbability: Math.round(race.projection.p_winner * 100),
     closeProbability: Math.round((race.projection.p_close_race || 0) * 100),
     rating: race.projection.rating?.label_en || "Unrated",

@@ -1,0 +1,21 @@
+// Spanish strings for the simplified site structure (model tabs, Latest, menu notes), keyed by the English source text.
+export const structure: Record<string, string> = {
+  "The model": "El modelo",
+  "Validation": "Validación",
+  "Sources": "Fuentes",
+  "The forecast, how it works, its validation and sources": "El pronóstico, cómo funciona, su validación y sus fuentes",
+  "Latest": "Última hora",
+  "LATEST": "ÚLTIMA HORA",
+  "Latest — Midterm Pulse 2026": "Última hora — Midterm Pulse 2026",
+  "Headlines, new polls, market swings and what moved": "Titulares, nuevas encuestas, movimientos de mercado y qué ha cambiado",
+  "Headlines, new polls and market swings as they happen, and how the forecast has moved day by day.": "Titulares, nuevas encuestas y movimientos de los mercados en el momento, y cómo se ha movido el pronóstico día a día.",
+  "How the forecast has moved": "Cómo se ha movido el pronóstico",
+  "Generic ballot, Senate and House polls": "Voto genérico y encuestas del Senado y la Cámara",
+  "Seven axes of the American vote, county by county": "Siete ejes del voto estadounidense, condado a condado",
+  "WHAT IF?": "¿Y SI…?",
+  "Test your own scenario": "Prueba tu propio escenario",
+  "Move the national environment, a polling miss, a region or a group of voters and watch both chambers re-simulate, in the Playground.": "Mueve el ambiente nacional, un error de las encuestas, una región o un grupo de votantes y mira cómo se vuelven a simular las dos cámaras, en el Playground.",
+  "Open the scenario simulator": "Abrir el simulador de escenarios",
+  "Experimental: the probability engine is backtested on 2018 and 2022, but read it as one signal, not an election call.": "Experimental: el motor de probabilidades está validado con 2018 y 2022, pero léelo como una señal, no como un resultado cantado.",
+  "Explore county by county": "Explora condado a condado",
+};

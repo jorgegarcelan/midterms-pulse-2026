@@ -1,6 +1,8 @@
 import dotsData from "@/data/map-dots.json";
 import { NATIONALIZATION } from "@/lib/mp26";
 import { parliamentLayout } from "@/lib/parliament";
+import type { Locale } from "@/i18n/config";
+import { translate, type Vars } from "@/i18n/translate";
 
 /*
   Canvas particle engine for the home story.
@@ -48,6 +50,8 @@ function colorBucket(margin: number) {
 }
 
 export class PulseEngine {
+  // Canvas labels follow the page language; set by the owning component.
+  locale: Locale = "en";
   private ctx: CanvasRenderingContext2D;
   private cssW = 0;
   private cssH = 0;
@@ -377,6 +381,10 @@ export class PulseEngine {
     }
   }
 
+  private tr(text: string, vars?: Vars) {
+    return translate(this.locale, text, vars);
+  }
+
   private paintGuides(frame: Frame, t1: number, t2: number, shift: number) {
     const { ctx } = this;
     const px = (value: number) => frame.ox + value * frame.s;
@@ -393,7 +401,7 @@ export class PulseEngine {
       ctx.setLineDash([]);
       ctx.fillStyle = "#9a9ea8";
       ctx.textAlign = "center";
-      ctx.fillText("218 FOR MAJORITY", px(W / 2), py(560 - 470 - 34));
+      ctx.fillText(this.tr("218 FOR MAJORITY"), px(W / 2), py(560 - 470 - 34));
     }
 
     if (t2 > .01) {
@@ -406,7 +414,7 @@ export class PulseEngine {
       ctx.beginPath(); ctx.moveTo(px(20), py(310)); ctx.lineTo(px(980), py(310)); ctx.stroke();
       ctx.fillStyle = "#8b8f99";
       ctx.textAlign = "left";
-      ctx.fillText("EVEN", px(22), py(302));
+      ctx.fillText(this.tr("EVEN"), px(22), py(302));
       ctx.globalAlpha = t2 * .18;
       ctx.setLineDash([2, 6]);
       for (const guide of [-20, -5, 5, 20]) { ctx.beginPath(); ctx.moveTo(px(20), py(ladderY(guide))); ctx.lineTo(px(980), py(ladderY(guide))); ctx.stroke(); }
@@ -414,9 +422,9 @@ export class PulseEngine {
       ctx.globalAlpha = t2 * .45;
       for (const guide of [-20, -5, 5, 20]) ctx.fillText(`${guide > 0 ? "D" : "R"}+${Math.abs(guide)}`, px(22), py(ladderY(guide)) - 6);
       ctx.textAlign = "right";
-      ctx.fillText("SAFER D ↑", px(980), py(40));
+      ctx.fillText(this.tr("SAFER D ↑"), px(980), py(40));
       ctx.textAlign = "left";
-      ctx.fillText("SAFER R ↓", px(22), py(592));
+      ctx.fillText(this.tr("SAFER R ↓"), px(22), py(592));
       ctx.globalAlpha = t2 * .8;
       ctx.setLineDash([3, 5]);
       ctx.beginPath(); ctx.moveTo(x, py(20)); ctx.lineTo(x, py(600)); ctx.stroke();
@@ -430,11 +438,10 @@ export class PulseEngine {
       const labelX = x + (ctx.textAlign === "right" ? -16 : 16);
       const lead = margin >= 0 ? "D" : "R";
       const leadColor = lead === "D" ? "#9fb8ff" : "#ff9eaa";
-      const party = lead === "D" ? "DEMOCRATS" : "REPUBLICANS";
-      ctx.fillStyle = "#fff";
-      ctx.fillText(`${this.codes[tipping]} · 218TH SEAT`, labelX, y - 30);
+            ctx.fillStyle = "#fff";
+      ctx.fillText(this.tr("{code} · 218TH SEAT", { code: this.codes[tipping] }), labelX, y - 30);
       ctx.fillStyle = leadColor;
-      ctx.fillText(`GIVES ${party} THE MAJORITY`, labelX, y - 15);
+      ctx.fillText(this.tr(lead === "D" ? "GIVES DEMOCRATS THE MAJORITY" : "GIVES REPUBLICANS THE MAJORITY"), labelX, y - 15);
 
       // The majority the tipping seat completes (the 218th seat is the median, so it is the 218th
       // from either end), and the spare seats beyond it that would all have to fall first.
@@ -447,7 +454,7 @@ export class PulseEngine {
       ctx.beginPath(); ctx.moveTo(rankX(from), py(30)); ctx.lineTo(rankX(from), py(24)); ctx.lineTo(rankX(to), py(24)); ctx.lineTo(rankX(to), py(30)); ctx.stroke();
       ctx.fillStyle = leadColor;
       ctx.textAlign = "center";
-      ctx.fillText(`218 SEATS = A ${lead === "D" ? "DEMOCRATIC" : "REPUBLICAN"} MAJORITY`, (rankX(from) + rankX(to)) / 2, py(16));
+      ctx.fillText(this.tr(lead === "D" ? "218 SEATS = A DEMOCRATIC MAJORITY" : "218 SEATS = A REPUBLICAN MAJORITY"), (rankX(from) + rankX(to)) / 2, py(16));
       const spare = leadSeats - (MAJORITY_RANK + 1);
       if (spare > 0) {
         const [start, end] = lead === "D" ? [MAJORITY_RANK + 1, leadSeats - 1] : [SEATS - leadSeats, MAJORITY_RANK - 1];
@@ -458,7 +465,7 @@ export class PulseEngine {
         const tick = lead === "D" ? -5 : 5;
         ctx.beginPath(); ctx.moveTo(rankX(start), bracketY + tick); ctx.lineTo(rankX(start), bracketY); ctx.lineTo(rankX(end), bracketY); ctx.lineTo(rankX(end), bracketY + tick); ctx.stroke();
         ctx.textAlign = "left";
-        ctx.fillText(`+${spare} TO SPARE`, Math.max(rankX(start), rankX(end)) + 8, bracketY + 4);
+        ctx.fillText(this.tr("+{spare} TO SPARE", { spare }), Math.max(rankX(start), rankX(end)) + 8, bracketY + 4);
       }
     }
     ctx.globalAlpha = 1;

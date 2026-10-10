@@ -1,11 +1,14 @@
 "use client";
 
+import "@/app/motion-b.css";
 import { useEffect, useMemo, useState } from "react";
 import { geoAlbersUsa, geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
 import Papa from "papaparse";
 import { useElectionContext } from "@/components/election-context";
 import { stateByCode, stateByName } from "@/data/geography";
+import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
+import { CountUp } from "@/components/motion/count-up";
 
 type Cycle = "2016" | "2020" | "2024";
 type Scope = "national" | "state" | "county";
@@ -45,8 +48,8 @@ function parseRows(text: string) {
   })).filter((row) => row.fips.length === 5 && row.county);
 }
 
-function formatCompact(value: number) {
-  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value);
+function formatCompact(value: number, locale: string) {
+  return new Intl.NumberFormat(locale, { notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
 
 function CountyTrend({ rows }: { rows: { cycle: Cycle; row: CountyRow }[] }) {
@@ -62,6 +65,8 @@ function CountyTrend({ rows }: { rows: { cycle: Cycle; row: CountyRow }[] }) {
 
 export function GeographyExplorer() {
   const electionContext = useElectionContext();
+  const t = useT();
+  const locale = useIntlLocale();
   const [data, setData] = useState<Record<Cycle, CountyRow[]> | null>(null);
   const [geography, setGeography] = useState<FeatureCollection<Geometry, CountyProperties> | null>(null);
   const [cycle, setCycle] = useState<Cycle>("2024");
@@ -137,44 +142,44 @@ export function GeographyExplorer() {
   return (
     <>
       <section className="explorer-toolbar panel">
-        <div className="explorer-title"><p className="eyebrow">RESULTS · 2016–2024</p><h1>Geographic results explorer</h1></div>
+        <div className="explorer-title"><p className="eyebrow">{t("RESULTS · 2016–2024")}</p><h2>{t("Explore county by county")}</h2></div>
         <div className="explorer-controls">
-          <div className="control-group"><span>Level</span><div className="segmented">{(["national", "state", "county"] as Scope[]).map((item) => <button className={scope === item ? "selected" : ""} key={item} onClick={() => changeScope(item)}>{item}</button>)}</div></div>
-          <label>Cycle<select value={cycle} onChange={(event) => { const next = event.target.value as Cycle; setCycle(next); electionContext.setContext({ cycle: next }); }}>{cycles.map((item) => <option key={item}>{item}</option>)}</select></label>
-          <label>Map<select value={metric} onChange={(event) => setMetric(event.target.value as MapMetric)}><option value="margin">Two-party margin</option><option value="shift">Shift from prior cycle</option></select></label>
-          {scope !== "national" && <label>State<select value={state} onChange={(event) => changeState(event.target.value)}>{states.map((item) => <option key={item}>{item}</option>)}</select></label>}
-          {scope === "county" && <label>County<input list="county-list" placeholder="Search county" onChange={(event) => chooseCounty(event.target.value)} /><datalist id="county-list">{countyOptions.map((item) => <option key={item} value={item} />)}</datalist></label>}
+          <div className="control-group"><span>{t("Level")}</span><div className="segmented">{(["national", "state", "county"] as Scope[]).map((item) => <button className={scope === item ? "selected" : ""} key={item} onClick={() => changeScope(item)}>{t(item)}</button>)}</div></div>
+          <label>{t("Cycle")}<select value={cycle} onChange={(event) => { const next = event.target.value as Cycle; setCycle(next); electionContext.setContext({ cycle: next }); }}>{cycles.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>{t("Map")}<select value={metric} onChange={(event) => setMetric(event.target.value as MapMetric)}><option value="margin">{t("Two-party margin")}</option><option value="shift">{t("Shift from prior cycle")}</option></select></label>
+          {scope !== "national" && <label>{t("State")}<select value={state} onChange={(event) => changeState(event.target.value)}>{states.map((item) => <option key={item} value={item}>{t(item)}</option>)}</select></label>}
+          {scope === "county" && <label>{t("County")}<input list="county-list" placeholder={t("Search county")} onChange={(event) => chooseCounty(event.target.value)} /><datalist id="county-list">{countyOptions.map((item) => <option key={item} value={item} />)}</datalist></label>}
         </div>
       </section>
 
-      {error ? <section className="panel data-error">{error}</section> : !data || !geography ? <section className="panel data-loading">Loading 3,000+ counties across three election cycles…</section> : <>
+      {error ? <section className="panel data-error">{t(error)}</section> : !data || !geography ? <section className="panel data-loading">{t("Loading 3,000+ counties across three election cycles…")}</section> : <>
         <section className="geo-kpis">
-          <article><span>Two-party margin</span><strong className={areaMargin >= 0 ? "dem-text" : "rep-text"}>{areaMargin >= 0 ? "D" : "R"}+{Math.abs(areaMargin).toFixed(1)}</strong><small>{scope === "national" ? "United States" : state} · {cycle}</small></article>
-          <article><span>Votes represented</span><strong>{formatCompact(totals.total)}</strong><small>{visibleRows.length.toLocaleString()} counties</small></article>
-          <article><span>Democratic share</span><strong className="dem-text">{demPct.toFixed(1)}%</strong><small>{formatCompact(totals.dem)} votes</small></article>
-          <article><span>Republican share</span><strong className="rep-text">{repPct.toFixed(1)}%</strong><small>{formatCompact(totals.rep)} votes</small></article>
+          <article><span>{t("Two-party margin")}</span><strong className={areaMargin >= 0 ? "dem-text" : "rep-text"}>{areaMargin >= 0 ? "D" : "R"}+<CountUp value={Math.abs(areaMargin)} decimals={1} duration={800} /></strong><small>{scope === "national" ? t("United States") : t(state)} · {cycle}</small></article>
+          <article><span>{t("Votes represented")}</span><strong>{formatCompact(totals.total, locale)}</strong><small>{t("{count} counties", { count: visibleRows.length.toLocaleString(locale) })}</small></article>
+          <article><span>{t("Democratic share")}</span><strong className="dem-text"><CountUp value={demPct} decimals={1} duration={800} />%</strong><small>{t("{count} votes", { count: formatCompact(totals.dem, locale) })}</small></article>
+          <article><span>{t("Republican share")}</span><strong className="rep-text"><CountUp value={repPct} decimals={1} duration={800} />%</strong><small>{t("{count} votes", { count: formatCompact(totals.rep, locale) })}</small></article>
         </section>
 
         <section className="geography-grid">
           <article className="panel county-map-panel">
-            <div className="panel-head"><div><p className="eyebrow">COUNTY MAP</p><h2>{metric === "margin" ? "Two-party margin" : "Republican shift"} · {cycle}</h2></div><span className="panel-tag">Click any county</span></div>
-            <div className="county-map-scroll"><svg className="county-map" viewBox="0 0 980 590" role="img" aria-label={`County map for the ${cycle} election`}>
-              {paths.map(({ feature, path, fips }) => { const row = lookup.get(fips); const inScope = scope === "national" || row?.state === state; const value = metric === "margin" ? ((row?.repShare || 0) - (row?.demShare || 0)) * 100 : (row?.shiftRep || 0); return <path key={fips} d={path} fill={row ? marginColor(value) : "#20252c"} opacity={inScope ? 1 : .18} stroke={selected?.fips === fips ? "#f1ede4" : "#0e1115"} strokeWidth={selected?.fips === fips ? 1.8 : .22} onClick={() => { if (row) { setSelectedFips(fips); setState(row.state); setScope("county"); electionContext.setContext({ stateCode: stateByName.get(row.state)?.code || "US", county: row.county }); } }}><title>{row ? `${row.county}, ${row.state}: ${value >= 0 ? "R" : "D"}+${Math.abs(value).toFixed(1)}` : feature.properties.NAME}</title></path>; })}
+            <div className="panel-head"><div><p className="eyebrow">{t("COUNTY MAP")}</p><h2>{metric === "margin" ? t("Two-party margin") : t("Republican shift")} · {cycle}</h2></div><span className="panel-tag">{t("Click any county")}</span></div>
+            <div className="county-map-scroll"><svg className={`county-map mpb-county-map${scope !== "national" ? " scoped" : ""}`} viewBox="0 0 980 590" role="img" aria-label={t("County map for the {cycle} election", { cycle })}>
+              {paths.map(({ feature, path, fips }) => { const row = lookup.get(fips); const inScope = scope === "national" || row?.state === state; const value = metric === "margin" ? ((row?.repShare || 0) - (row?.demShare || 0)) * 100 : (row?.shiftRep || 0); return <path key={fips} d={path} fill={row ? marginColor(value) : "#20252c"} opacity={inScope ? 1 : .18} stroke={selected?.fips === fips ? "#f1ede4" : "#0e1115"} strokeWidth={selected?.fips === fips ? 1.8 : .22} onClick={() => { if (row) { setSelectedFips(fips); setState(row.state); setScope("county"); electionContext.setContext({ stateCode: stateByName.get(row.state)?.code || "US", county: row.county }); } }}><title>{row ? `${row.county}, ${t(row.state)}: ${value >= 0 ? "R" : "D"}+${Math.abs(value).toFixed(1)}` : feature.properties.NAME}</title></path>; })}
             </svg></div>
-            <div className="map-legend"><span>Strong R</span><i className="legend-gradient" /><span>Strong D</span></div>
+            <div className="map-legend"><span>{t("Strong R")}</span><i className="legend-gradient" /><span>{t("Strong D")}</span></div>
           </article>
 
           <aside className="panel county-profile">
-            {selected && <><p className="eyebrow">COUNTY PROFILE</p><h2>{selected.county}</h2><span className="county-state">{selected.state} · FIPS {selected.fips}</span>
-              <div className="county-result"><div><span>Democratic</span><strong className="dem-text">{(selected.demShare * 100).toFixed(1)}%</strong></div><div><span>Republican</span><strong className="rep-text">{(selected.repShare * 100).toFixed(1)}%</strong></div></div>
+            {selected && <><p className="eyebrow">{t("COUNTY PROFILE")}</p><h2 className="mpb-swap" key={selected.fips}>{selected.county}</h2><span className="county-state">{t(selected.state)} · FIPS {selected.fips}</span>
+              <div className="county-result"><div><span>{t("Democratic")}</span><strong className="dem-text">{(selected.demShare * 100).toFixed(1)}%</strong></div><div><span>{t("Republican")}</span><strong className="rep-text">{(selected.repShare * 100).toFixed(1)}%</strong></div></div>
               <CountyTrend rows={selectedTrend} />
-              <dl className="county-facts"><div><dt>Population</dt><dd>{selected.population.toLocaleString()}</dd></div><div><dt>Median income</dt><dd>${selected.medianIncome.toLocaleString()}</dd></div><div><dt>Median age</dt><dd>{selected.medianAge.toFixed(1)}</dd></div><div><dt>Bachelor&apos;s degree</dt><dd>{selected.bachelorsRate.toFixed(1)}%</dd></div><div><dt>Poverty</dt><dd>{selected.povertyRate.toFixed(1)}%</dd></div><div><dt>Unemployment</dt><dd>{selected.unemploymentRate.toFixed(1)}%</dd></div></dl>
-              <p className="chart-note">Election returns: County by County / MIT Election Data and Science Lab. Demographics: Census ACS.</p>
+              <dl className="county-facts"><div><dt>{t("Population")}</dt><dd>{selected.population.toLocaleString(locale)}</dd></div><div><dt>{t("Median income")}</dt><dd>${selected.medianIncome.toLocaleString(locale)}</dd></div><div><dt>{t("Median age")}</dt><dd>{selected.medianAge.toFixed(1)}</dd></div><div><dt>{t("Bachelor's degree")}</dt><dd>{selected.bachelorsRate.toFixed(1)}%</dd></div><div><dt>{t("Poverty")}</dt><dd>{selected.povertyRate.toFixed(1)}%</dd></div><div><dt>{t("Unemployment")}</dt><dd>{selected.unemploymentRate.toFixed(1)}%</dd></div></dl>
+              <p className="chart-note">{t("Election returns: County by County / MIT Election Data and Science Lab. Demographics: Census ACS.")}</p>
             </>}
           </aside>
         </section>
 
-        <section className="panel movers-panel"><div className="panel-head"><div><p className="eyebrow">LARGEST MOVEMENT</p><h2>Counties shifting most since the prior cycle</h2></div><span className="panel-tag">{scope === "national" ? "All states" : state}</span></div><div className="movers-table"><div className="movers-head"><span>County</span><span>State</span><span>{cycle} margin</span><span>R shift</span><span>Total votes</span></div>{movers.map((row) => { const margin = (row.demShare - row.repShare) * 100; return <button key={row.fips} onClick={() => { setSelectedFips(row.fips); setState(row.state); setScope("county"); }}><strong>{row.county}</strong><span>{row.state}</span><span className={margin >= 0 ? "dem-text" : "rep-text"}>{margin >= 0 ? "D" : "R"}+{Math.abs(margin).toFixed(1)}</span><span className={row.shiftRep >= 0 ? "rep-text" : "dem-text"}>{row.shiftRep >= 0 ? "R" : "D"}+{Math.abs(row.shiftRep).toFixed(1)} pp</span><span>{row.totalVotes.toLocaleString()}</span></button>; })}</div></section>
+        <section className="panel movers-panel"><div className="panel-head"><div><p className="eyebrow">{t("LARGEST MOVEMENT")}</p><h2>{t("Counties shifting most since the prior cycle")}</h2></div><span className="panel-tag">{scope === "national" ? t("All states") : t(state)}</span></div><div className="movers-table"><div className="movers-head"><span>{t("County")}</span><span>{t("State")}</span><span>{t("{cycle} margin", { cycle })}</span><span>{t("R shift")}</span><span>{t("Total votes")}</span></div>{movers.map((row) => { const margin = (row.demShare - row.repShare) * 100; return <button key={row.fips} onClick={() => { setSelectedFips(row.fips); setState(row.state); setScope("county"); }}><strong>{row.county}</strong><span>{t(row.state)}</span><span className={margin >= 0 ? "dem-text" : "rep-text"}>{margin >= 0 ? "D" : "R"}+{Math.abs(margin).toFixed(1)}</span><span className={row.shiftRep >= 0 ? "rep-text" : "dem-text"}>{row.shiftRep >= 0 ? "R" : "D"}+{Math.abs(row.shiftRep).toFixed(1)} pp</span><span>{row.totalVotes.toLocaleString(locale)}</span></button>; })}</div></section>
       </>}
     </>
   );

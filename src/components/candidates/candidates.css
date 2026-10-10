@@ -1,0 +1,192 @@
+/* Candidate directory, profile and race-nominee widget. Party tones: dem / rep / ind / other. */
+
+.cand-shell { --cand-ind: #e0b456; --cand-other: #a99bff; }
+.cand-card.dem, .cand-hero.dem, .cand-opponents li.dem, .race-nominees li.dem, .cand-avatar.dem { --tone: var(--blue); --tone-soft: var(--blue-soft); }
+.cand-card.rep, .cand-hero.rep, .cand-opponents li.rep, .race-nominees li.rep, .cand-avatar.rep { --tone: var(--red); --tone-soft: var(--red-soft); }
+.cand-card.ind, .cand-hero.ind, .cand-opponents li.ind, .race-nominees li.ind, .cand-avatar.ind { --tone: #e0b456; --tone-soft: #f0d08e; }
+.cand-card.other, .cand-hero.other, .cand-opponents li.other, .race-nominees li.other, .cand-avatar.other { --tone: #a99bff; --tone-soft: #cbc2ff; }
+
+/* ---------- Avatar ---------- */
+.cand-avatar {
+  --size: 52px; position: relative; flex: 0 0 auto; display: grid; place-items: center; width: var(--size); height: var(--size); overflow: hidden;
+  border-radius: 50%; background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tone, #888) 38%, #14161d), #0d0f14);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tone, #888) 55%, transparent), 0 6px 18px -10px var(--tone, #000);
+}
+.cand-avatar.sm { --size: 36px; }
+.cand-avatar.lg { --size: 112px; border-radius: 22px; }
+.cand-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 18%; }
+.cand-avatar b { color: var(--tone-soft, #ddd); font: 600 calc(var(--size) * .36)/1 var(--font-sans); letter-spacing: -.02em; }
+
+.cand-party { display: inline-flex; align-items: center; gap: 6px; color: #a4a8b1; font-size: 12px; }
+.cand-party i { width: 8px; height: 8px; border-radius: 2px; background: var(--tone, #888); }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: 26px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.03); color: #c3c7cf; font-size: 12px; white-space: nowrap; }
+.chip.incumbent { border-color: rgba(62,207,142,.35); background: rgba(62,207,142,.08); color: #8ee6bd; }
+.chip.link:hover { border-color: var(--border-strong); color: #fff; }
+
+/* ---------- Directory ---------- */
+.cand-directory { display: grid; gap: 16px; }
+.cand-filters { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(140px, 1fr)); gap: 12px 14px; align-items: end; }
+.cand-filters label { display: grid; gap: 5px; color: #929aa3; font-size: 12px; }
+.cand-filters input[type="search"], .cand-filters select { min-height: 38px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: rgba(10,11,16,.8); color: var(--ink); font-size: 14px; }
+.cand-filters input[type="search"]:focus, .cand-filters select:focus { outline: 2px solid rgba(91,134,255,.5); outline-offset: 1px; }
+.cand-segment { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.02); justify-self: start; }
+.cand-segment button { min-height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: #9a9ea8; font-size: 12.5px; cursor: pointer; transition: background .2s, color .2s; }
+.cand-segment button:hover { color: #fff; }
+.cand-segment button[aria-pressed="true"] { background: rgba(255,255,255,.1); color: #fff; box-shadow: inset 0 0 0 1px var(--border-strong); }
+.cand-filter-row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.cand-toggle { display: flex !important; align-items: center; gap: 8px; color: #c3c7cf !important; font-size: 13px !important; cursor: pointer; }
+.cand-toggle input { width: 16px; height: 16px; accent-color: var(--blue); }
+.cand-view { margin-left: auto; }
+.cand-hint { margin: -4px 0 0; color: #6f7480; font-size: 12px; }
+
+.cand-grid.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+.cand-grid.list { display: grid; gap: 0; border-top: 1px solid var(--border); }
+
+.cand-card {
+  position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-areas: "avatar main" "race race" "status status" "odds cook";
+  gap: 10px 14px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--glass);
+  animation: cand-in .45s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i, 0) * 18ms);
+  transition: border-color .2s, transform .2s, background .2s;
+}
+.cand-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; border-radius: var(--radius) 0 0 var(--radius); background: var(--tone); opacity: .8; }
+.cand-card:hover { border-color: color-mix(in srgb, var(--tone) 45%, var(--border)); background: var(--glass-hover); transform: translateY(-2px); }
+.cand-card .cand-avatar { grid-area: avatar; }
+.cand-main { grid-area: main; display: grid; align-content: center; gap: 5px; min-width: 0; }
+.cand-name { color: #fff; font-size: 16.5px; font-weight: 600; letter-spacing: -.015em; line-height: 1.2; overflow-wrap: anywhere; }
+.cand-name::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.cand-name:focus-visible { outline: none; }
+.cand-card:has(.cand-name:focus-visible) { outline: 2px solid var(--blue); outline-offset: 2px; }
+.cand-race { grid-area: race; position: relative; z-index: 1; display: flex; align-items: baseline; gap: 8px; min-width: 0; padding: 8px 10px; border-radius: var(--radius-sm); background: rgba(255,255,255,.035); color: #dfe2e8; }
+.cand-race:hover { background: rgba(255,255,255,.07); }
+.cand-race strong { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.cand-race small { color: #8b8f99; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cand-status { grid-area: status; justify-self: start; color: #8b8f99; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.cand-status.incumbent { color: #8ee6bd; }
+.cand-odds { grid-area: odds; display: grid; gap: 5px; align-content: center; }
+.cand-odds b { color: #c3c7cf; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cand-odds b.fav { color: var(--tone-soft); }
+.cand-odds em { color: #8b8f99; font-size: 12px; font-style: normal; }
+.cand-bar { display: block; height: 4px; border-radius: 4px; background: rgba(255,255,255,.07); overflow: hidden; }
+.cand-bar i { display: block; height: 100%; background: var(--tone); border-radius: inherit; transition: width .5s cubic-bezier(.2,.7,.2,1); }
+.cand-cook { grid-area: cook; justify-self: end; align-self: center; display: grid; justify-items: end; gap: 2px; color: #dfe2e8; font-size: 13px; }
+.cand-cook small { color: #6f7480; font-family: var(--font-mono); font-size: 10.5px; }
+
+.cand-list-head, .cand-grid.list .cand-card { display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(170px, 1.2fr) 120px 140px 110px; grid-template-areas: none; align-items: center; gap: 14px; }
+.cand-list-head { padding: 10px 14px; color: #6f7480; font-family: var(--font-mono); font-size: 11px; border-bottom: 1px solid var(--border); }
+.cand-list-head span:last-child { text-align: right; }
+.cand-grid.list .cand-card { padding: 10px 14px; border: 0; border-bottom: 1px solid var(--line-soft); border-radius: 0; background: transparent; animation-name: cand-in-row; }
+.cand-grid.list .cand-card:hover { transform: none; background: rgba(255,255,255,.03); }
+.cand-grid.list .cand-card::before { border-radius: 0; inset: 6px auto 6px 0; }
+.cand-grid.list .cand-card > .cand-avatar { display: none; }
+.cand-grid.list .cand-main { grid-area: auto; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.cand-grid.list .cand-name { font-size: 14.5px; }
+.cand-grid.list .cand-race, .cand-grid.list .cand-status, .cand-grid.list .cand-odds, .cand-grid.list .cand-cook { grid-area: auto; }
+.cand-grid.list .cand-race { background: transparent; padding: 0; }
+.cand-grid.list .cand-cook { display: flex; gap: 6px; }
+.cand-grid.list .cand-cook small { display: none; }
+
+.cand-card.skeleton { min-height: 170px; animation: cand-pulse 1.4s ease-in-out infinite; }
+.cand-card.skeleton::before { display: none; }
+.cand-empty { display: grid; justify-items: center; gap: 12px; padding: 40px 0; }
+.cand-empty button, .cand-more { min-height: 38px; padding: 0 18px; border: 1px solid var(--border-strong); border-radius: 999px; background: rgba(255,255,255,.04); color: #fff; font-size: 13px; cursor: pointer; }
+.cand-more { justify-self: center; }
+.cand-more:hover, .cand-empty button:hover { background: rgba(255,255,255,.09); }
+.cand-source { margin: 4px 0 0; color: #6f7480; font-size: 11.5px; line-height: 1.5; }
+
+@keyframes cand-in { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes cand-in-row { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+@keyframes cand-pulse { 0%, 100% { opacity: .45; } 50% { opacity: .8; } }
+
+/* ---------- Profile ---------- */
+.cand-crumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; color: #6f7480; font-size: 13px; }
+.cand-crumbs a { color: #9a9ea8; }
+.cand-crumbs a:hover { color: #fff; }
+.cand-hero { display: flex; align-items: center; gap: 28px; margin-bottom: 24px; padding-bottom: 26px; border-bottom: 1px solid var(--border); animation: cand-in .5s cubic-bezier(.2,.7,.2,1) both; }
+.cand-hero .eyebrow { margin: 0 0 8px; }
+.cand-hero h1 { margin: 0; font-size: clamp(34px, 4.6vw, 58px); line-height: 1.02; background: linear-gradient(180deg, #fff 35%, rgba(237,237,239,.62)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cand-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.cand-chips .cand-party.chip { color: #fff; border-color: color-mix(in srgb, var(--tone) 55%, transparent); background: color-mix(in srgb, var(--tone) 14%, transparent); }
+.cand-sub { margin: 12px 0 0; color: #9a9ea8; font-size: 14.5px; }
+
+.cand-profile-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.cand-side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-width: 0; }
+.cand-profile-grid .panel { border: 1px solid var(--border); border-radius: var(--radius); background: var(--glass); animation: cand-in .5s cubic-bezier(.2,.7,.2,1) both; }
+.cand-profile-grid h2 { margin: 0; font-size: 18px; }
+.cand-profile-grid h3 { margin: 22px 0 10px; color: #c3c7cf; font-size: 13px; font-weight: 600; }
+.cand-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.cand-kpis > div, .cand-money > div { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(255,255,255,.02); }
+.cand-kpis small, .cand-money small, .cand-raters small { color: #7c818c; font-family: var(--font-mono); font-size: 11px; }
+.cand-kpis strong, .cand-money strong { color: #fff; font-size: 30px; font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.cand-kpis strong.dem, .cand-raters b.dem { color: var(--blue-soft); }
+.cand-kpis strong.rep, .cand-raters b.rep { color: var(--red-soft); }
+.cand-kpis span { color: #8b8f99; font-size: 12px; }
+.cand-raters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.cand-raters a { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: #dfe2e8; }
+.cand-raters a:hover { border-color: var(--border-strong); }
+.cand-raters b { font-size: 14px; font-weight: 600; }
+.cand-note { margin: 12px 0 0; color: #8b8f99; font-size: 13px; line-height: 1.5; }
+.cand-opponents, .race-nominees ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cand-opponents li, .race-nominees li { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(255,255,255,.02); }
+.cand-opponents li > a { color: #fff; font-weight: 560; }
+.cand-opponents li > a:hover, .race-nominees li a:hover { text-decoration: underline; }
+.cand-opponents li .cand-party { margin-left: auto; }
+.cand-money { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 8px; margin-top: 16px; }
+.cand-money strong { font-size: 22px; white-space: nowrap; }
+.cand-profile-grid .panel-head { flex-wrap: wrap; gap: 8px 16px; }
+.skeleton-block { min-height: 82px; border-radius: var(--radius-sm); background: rgba(255,255,255,.04); animation: cand-pulse 1.4s ease-in-out infinite; }
+.cand-links ul { display: grid; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+.cand-links a { color: var(--blue-soft); font-size: 14px; }
+.cand-links a:hover { color: #fff; }
+.cand-links .source-note { margin-top: 16px; color: #6f7480; font-size: 11.5px; line-height: 1.5; }
+
+/* ---------- Race nominees widget ---------- */
+.race-nominees { display: grid; gap: 10px; }
+.race-nominees-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; }
+.race-nominees-head h3 { margin: 0; font-size: 14px; }
+.race-nominees-head small { color: #6f7480; font-size: 11px; }
+.race-nominees li > span:not(.chip):not(.cand-avatar) { display: grid; gap: 2px; min-width: 0; }
+.race-nominees li a { color: #fff; font-weight: 560; }
+.race-nominees li .chip { margin-left: auto; }
+.race-nominees li.skeleton { min-height: 54px; animation: cand-pulse 1.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cand-card, .cand-hero, .cand-profile-grid .panel { animation: none; }
+  .cand-card:hover { transform: none; }
+}
+
+@media (max-width: 1000px) {
+  .cand-filters { grid-template-columns: 1fr 1fr; }
+  .cand-search { grid-column: 1 / -1; }
+  .cand-profile-grid { grid-template-columns: 1fr; }
+  .cand-list-head { display: none !important; }
+  .cand-grid.list .cand-card { grid-template-columns: 1fr auto; gap: 6px 12px; }
+  .cand-grid.list .cand-race { grid-column: 1 / -1; order: 3; }
+  .cand-grid.list .cand-status { order: 4; }
+  .cand-grid.list .cand-odds { display: none; }
+}
+
+@media (max-width: 560px) {
+  .cand-filters { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cand-filter-row > .cand-segment:not(.cand-view) { width: 100%; border-radius: 14px; }
+  .cand-filter-row > .cand-segment:not(.cand-view) button { border-radius: 10px; }
+  .cand-segment button { flex: 1 1 auto; padding: 0 8px; }
+  .cand-view { margin-left: 0; }
+  .cand-grid.cards { grid-template-columns: 1fr; }
+  .cand-hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .cand-avatar.lg { --size: 88px; }
+  .cand-kpis { grid-template-columns: 1fr; }
+  .cand-raters { grid-template-columns: 1fr 1fr 1fr; }
+  .cand-money strong { font-size: 18px; }
+  .cand-kpis strong { font-size: 26px; }
+  .cand-opponents li { flex-wrap: wrap; }
+}
+
+/* Map filter */
+.cand-map { margin: 6px 0 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(13,16,20,.6); }
+.cand-map summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 12px 16px; cursor: pointer; list-style: none; }
+.cand-map summary::-webkit-details-marker { display: none; }
+.cand-map summary span { font-weight: 600; font-size: 14px; }
+.cand-map summary span::before { content: "▸ "; color: #8e97a0; }
+.cand-map[open] summary span::before { content: "▾ "; }
+.cand-map summary small { color: #8e97a0; font-size: 12px; }
+.cand-map .state-geo-map { max-width: 640px; margin: 0 auto; padding: 0 16px 16px; }

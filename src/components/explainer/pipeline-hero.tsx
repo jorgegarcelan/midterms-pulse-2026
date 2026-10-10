@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/locale-provider";
+
 type Node = { id: string; x: number; y: number; kicker: string; value: string; target: string; tone?: "dem" | "rep" | "live" };
 const W = 190;
 const H = 70;
@@ -18,22 +20,23 @@ type PipelineHeroProps = { polls: string; races: string; ballot: string; movemen
 
 // The whole model on one line: data packets flow from the two sources to the two chamber outputs.
 export function PipelineHero({ polls, races, ballot, movement, house, senate, onJump }: PipelineHeroProps) {
+  const t = useT();
   const nodes: Node[] = [
-    { id: "polls", x: 20, y: 60, kicker: "Poll index", value: polls, target: "inputs", tone: "live" },
-    { id: "bench", x: 20, y: 250, kicker: "Race forecasts", value: races, target: "inputs", tone: "live" },
-    { id: "weight", x: 275, y: 60, kicker: "Weighted ballot", value: ballot, target: "weights" },
-    { id: "move", x: 530, y: 60, kicker: "Movement", value: movement, target: "movement" },
-    { id: "races", x: 530, y: 250, kicker: "Race odds", value: "Φ(margin / 10)", target: "races" },
-    { id: "sim", x: 785, y: 155, kicker: "Monte Carlo", value: "50,000 runs", target: "simulate" },
-    { id: "house", x: 1030, y: 60, kicker: "House", value: house, target: "outputs", tone: "dem" },
-    { id: "senate", x: 1030, y: 250, kicker: "Senate", value: senate, target: "outputs", tone: "dem" },
+    { id: "polls", x: 20, y: 60, kicker: t("Poll index"), value: polls, target: "inputs", tone: "live" },
+    { id: "bench", x: 20, y: 250, kicker: t("Race forecasts"), value: races, target: "inputs", tone: "live" },
+    { id: "weight", x: 275, y: 60, kicker: t("Weighted ballot"), value: ballot, target: "weights" },
+    { id: "move", x: 530, y: 60, kicker: t("Movement"), value: movement, target: "movement" },
+    { id: "races", x: 530, y: 250, kicker: t("Race odds"), value: "Φ(margin / 10)", target: "races" },
+    { id: "sim", x: 785, y: 155, kicker: t("Monte Carlo"), value: t("50,000 runs"), target: "simulate" },
+    { id: "house", x: 1030, y: 60, kicker: t("House"), value: house, target: "outputs", tone: "dem" },
+    { id: "senate", x: 1030, y: 250, kicker: t("Senate"), value: senate, target: "outputs", tone: "dem" },
   ];
   const byId = new Map(nodes.map((node) => [node.id, node]));
   const edges: [string, string][] = [["polls", "weight"], ["weight", "move"], ["move", "races"], ["bench", "races"], ["races", "sim"], ["sim", "house"], ["sim", "senate"]];
 
   return (
     <div className="pipeline-hero">
-      <svg viewBox="0 0 1240 350" role="img" aria-label="MP-26 pipeline: poll index and race forecasts flow through weighting, movement and race odds into 50,000 simulations that produce House and Senate control odds">
+      <svg viewBox="0 0 1240 350" role="img" aria-label={t("MP-26 pipeline: poll index and race forecasts flow through weighting, movement and race odds into 50,000 simulations that produce House and Senate control odds")}>
         <defs>
           <linearGradient id="pipe-stroke" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1240" y2="0"><stop offset="0" stopColor="#5b86ff" stopOpacity=".2" /><stop offset=".5" stopColor="#a78bfa" stopOpacity=".55" /><stop offset="1" stopColor="#ff5a6e" stopOpacity=".25" /></linearGradient>
         </defs>

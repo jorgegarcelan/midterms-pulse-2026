@@ -230,7 +230,7 @@ function mapCard(model: ModelResult, size: ImageSize, { swing = 0 }: ShareOption
   return {
     filename: `midterm-pulse-house-map${swing ? `-swing-${swing > 0 ? "d" : "r"}${Math.abs(swing)}` : ""}-${fileDate(model.runDate)}.png`,
     element: frame({
-      size, runDate: model.runDate, path: "/districts",
+      size, runDate: model.runDate, path: "/races",
       children: [
         <div key="l" style={{ display: "flex", flexDirection: "column", width: 330 * u, flexShrink: 0, justifyContent: "space-between" }}>
           <div style={{ display: "flex", flexDirection: "column" }}>

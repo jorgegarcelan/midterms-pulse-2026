@@ -6,6 +6,8 @@ import { SignalChart } from "@/components/charts/signal-chart";
 import { stateByCode } from "@/data/geography";
 import type { ForecastRace } from "@/lib/forecast";
 import { pollWeight } from "@/lib/mp26";
+import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
+import { CountUp } from "@/components/motion/count-up";
 
 const signed = (value: number) => `${value >= 0 ? "D" : "R"}+${Math.abs(value).toFixed(1)}`;
 const DAY = 86_400_000;
@@ -35,17 +37,19 @@ function weightedTrend(polls: RaceSignalsFeed["polls"]) {
 
 // Polls and prediction-market prices over time for one race.
 export function RaceSignals({ race, houseMajority }: { race: ForecastRace; houseMajority?: number }) {
+  const t = useT();
+  const intl = useIntlLocale();
   const [feed, setFeed] = useState<RaceSignalsFeed | null>(null);
   const [failed, setFailed] = useState(false);
-  const stateName = stateByCode.get(race.state)?.name || race.state;
+  const stateName = t(stateByCode.get(race.state)?.name || race.state);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`/api/race-signals?chamber=${race.chamber}&state=${race.state}`, { signal: controller.signal })
+    fetch(`/api/race-signals?chamber=${race.chamber}&state=${race.state}&code=${race.code}`, { signal: controller.signal })
       .then((response) => { if (!response.ok) throw new Error("signals"); return response.json() as Promise<RaceSignalsFeed>; })
       .then(setFeed).catch((error) => { if (error.name !== "AbortError") setFailed(true); });
     return () => controller.abort();
-  }, [race.chamber, race.state]);
+  }, [race.chamber, race.code, race.state]);
 
   const trend = useMemo(() => weightedTrend(feed?.polls || []), [feed]);
   const national = feed?.pollScope === "national";
@@ -64,12 +68,12 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
     <div className="race-signals">
       <article className="panel">
         <div className="panel-head">
-          <div><p className="eyebrow">{national ? "National polls" : `Polls in ${stateName}`}</p><h2>{national ? "Generic ballot over time" : "Senate polling over time"}</h2></div>
-          <span className="panel-tag">{feed ? `${feed.polls.length} polls` : "…"}</span>
+          <div><p className="eyebrow">{national ? t("National polls") : race.chamber === "house" ? t("Polls in {district}", { district: race.code }) : t("Polls in {state}", { state: stateName })}</p><h2>{national ? t("Generic ballot over time") : race.chamber === "house" ? t("District polling over time") : t("Senate polling over time")}</h2></div>
+          <span className="panel-tag">{feed ? t("{count} polls", { count: feed.polls.length }) : "…"}</span>
         </div>
-        {failed ? <p className="table-empty">Polling data could not be loaded.</p>
-          : !feed ? <div className="chart-loading">Loading polls…</div>
-            : feed.polls.length === 0 ? <p className="table-empty">No public two-party polls of this race in the Vote-Scope index yet.</p>
+        {failed ? <p className="table-empty">{t("Polling data could not be loaded.")}</p>
+          : !feed ? <div className="chart-loading">{t("Loading polls…")}</div>
+            : feed.polls.length === 0 ? <p className="table-empty">{t("No public two-party polls of this race in the Vote-Scope index yet.")}</p>
               : <>
                 <SignalChart
                   dots={pollDots}
@@ -77,30 +81,31 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                   domain={[-limit, limit]}
                   ticks={[-limit, -limit / 2, 0, limit / 2, limit]}
                   baseline={0}
-                  format={(value) => value === 0 ? "EVEN" : `${value >= 0 ? "D" : "R"}+${Number.isInteger(value) ? Math.abs(value) : Math.abs(value).toFixed(1)}`}
-                  reference={national ? undefined : { value: race.signedMargin, label: `2026 model ${signed(race.signedMargin)}` }}
-                  ariaLabel={`${national ? "Generic ballot" : `${stateName} Senate`} polls over time`}
+                  format={(value) => value === 0 ? t("EVEN") : `${value >= 0 ? "D" : "R"}+${Number.isInteger(value) ? Math.abs(value) : Math.abs(value).toFixed(1)}`}
+                  reference={national ? undefined : { value: race.signedMargin, label: t("2026 model {margin}", { margin: signed(race.signedMargin) }) }}
+                  ariaLabel={national ? t("Generic ballot polls over time") : race.chamber === "house" ? t("{district} polls over time", { district: race.code }) : t("{state} Senate polls over time", { state: stateName })}
+                  legend={{ dots: t("Polls"), line: t("Weighted average") }}
                 />
-                <ul className="latest-polls">
-                  {latest.map((poll) => <li key={poll.id}><a href={poll.url} target="_blank" rel="noreferrer"><span>{poll.pollster}<small>{poll.date} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString("en-US")}` : ""}</small></span><b className={poll.dem >= poll.rep ? "dem-text" : "rep-text"}>{signed(poll.dem - poll.rep)}</b></a></li>)}
+                <ul className="latest-polls mpb-stagger">
+                  {latest.map((poll, index) => <li key={poll.id} style={{ "--i": index } as React.CSSProperties}><a href={poll.url} target="_blank" rel="noreferrer"><span>{poll.pollster}<small>{poll.date} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString(intl)}` : ""}</small></span><b className={poll.dem >= poll.rep ? "dem-text" : "rep-text"}>{signed(poll.dem - poll.rep)}</b></a></li>)}
                 </ul>
               </>}
-        <p className="chart-note">{national ? "The Vote-Scope index has no district-level polls; the national generic ballot is shown instead. " : ""}Dots are individual polls (D minus R); the line applies the model&apos;s weighting (30-day half-life, sample size, likely voters) to the polls released by each date.</p>
+        <p className="chart-note">{national ? `${t("No public polls of this district yet; the national generic ballot is shown instead.")} ` : ""}{t("Dots are individual polls (D minus R); the line applies the model's weighting (30-day half-life, sample size, likely voters) to the polls released by each date.")}</p>
       </article>
 
       <article className="panel">
         <div className="panel-head">
-          <div><p className="eyebrow">Prediction market</p><h2>{feed?.marketScope === "national" ? "House control, priced by traders" : `${stateName} Senate, priced by traders`}</h2></div>
+          <div><p className="eyebrow">{t("Prediction market")}</p><h2>{feed?.marketScope === "national" ? t("House control, priced by traders") : t("{state} Senate, priced by traders", { state: stateName })}</h2></div>
           {market && <a className="panel-tag" href={market.url} target="_blank" rel="noreferrer">Polymarket ↗</a>}
         </div>
-        {failed ? <p className="table-empty">Market data could not be loaded.</p>
-          : !feed ? <div className="chart-loading">Loading market…</div>
-            : !market ? <p className="table-empty">No Polymarket winner market is listed for this race.</p>
+        {failed ? <p className="table-empty">{t("Market data could not be loaded.")}</p>
+          : !feed ? <div className="chart-loading">{t("Loading market…")}</div>
+            : !market ? <p className="table-empty">{t("No Polymarket winner market is listed for this race.")}</p>
               : <>
                 <div className="market-now">
-                  <strong className={market.side === "D" ? "dem-text" : "rep-text"}>{(market.probability * 100).toFixed(1)}%</strong>
-                  <span>{market.label}{feed.marketScope === "national" ? " the House" : ""} · now</span>
-                  {marketReference !== undefined && <em>Model {Math.round(marketReference)}%</em>}
+                  <strong className={market.side === "D" ? "dem-text" : "rep-text"}><CountUp value={market.probability * 100} decimals={1} />%</strong>
+                  <span>{t(`${market.label}${feed.marketScope === "national" ? " the House" : ""} · now`)}</span>
+                  {marketReference !== undefined && <em>{t("Model {value}%", { value: Math.round(marketReference) })}</em>}
                 </div>
                 <SignalChart
                   tone="market"
@@ -109,11 +114,12 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                   ticks={[0, 25, 50, 75, 100]}
                   baseline={0}
                   format={(value) => `${Math.round(value)}%`}
-                  reference={marketReference !== undefined ? { value: marketReference, label: `Model ${Math.round(marketReference)}%` } : undefined}
-                  ariaLabel={`${market.title}: ${market.label} probability over time`}
+                  reference={marketReference !== undefined ? { value: marketReference, label: t("Model {value}%", { value: Math.round(marketReference) }) } : undefined}
+                  ariaLabel={t("{title}: {label} probability over time", { title: market.title, label: t(market.label) })}
+                  legend={{ line: t("Price") }}
                 />
               </>}
-        <p className="chart-note">{feed?.marketScope === "national" ? "Polymarket lists no market for this district; the national House-control market is shown. " : ""}Daily closing prices from Polymarket. A price is a traded belief, not a poll or a forecast.{market?.side === "R" ? " A strong third candidate is running, so the Republican side is tracked." : ""}</p>
+        <p className="chart-note">{feed?.marketScope === "national" ? `${t("Polymarket lists no market for this district; the national House-control market is shown.")} ` : ""}{t("Daily closing prices from Polymarket. A price is a traded belief, not a poll or a forecast.")}{market?.side === "R" ? ` ${t("A strong third candidate is running, so the Republican side is tracked.")}` : ""}</p>
       </article>
     </div>
   );

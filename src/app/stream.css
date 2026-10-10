@@ -1,0 +1,68 @@
+/* Stream mode: a fixed 1920×1080 canvas scaled to the window */
+.stream-root { position: fixed; inset: 0; z-index: 100; overflow: hidden; background: #07080c; }
+.stream-root.transparent { background: transparent; }
+html:has(.stream-root.transparent), body:has(.stream-root.transparent) { background: transparent !important; }
+.stream-stage { position: absolute; left: 50%; top: 50%; display: grid; grid-template-rows: auto 1fr auto; padding: 56px 80px 44px; transform-origin: center; color: var(--ink); background: radial-gradient(120% 90% at 50% 0%, rgba(77,142,247,.12), transparent 60%), #0a0c11; }
+.stream-root.transparent .stream-stage { background: none; }
+.stream-top, .stream-foot { display: flex; justify-content: space-between; align-items: center; }
+.stream-brand { display: inline-flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
+.stream-brand svg { width: 44px; height: 44px; }
+.stream-brand em { font-style: normal; color: var(--blue-soft); }
+.stream-brand small { font-family: var(--font-mono, monospace); font-size: 18px; color: #7e8790; }
+.stream-stamp, .stream-foot { font-family: var(--font-mono, monospace); font-size: 20px; color: #7e8790; }
+.stream-content { min-height: 0; display: grid; align-items: center; }
+.stream-loading { font-size: 40px; color: #7e8790; text-align: center; }
+.stream-kicker { margin: 0; font-family: var(--font-mono, monospace); font-size: 24px; letter-spacing: .14em; text-transform: uppercase; color: #8e97a0; }
+
+.stream-control { display: grid; grid-template-columns: 1fr 1fr; gap: 56px 80px; }
+.stream-chamber { display: grid; gap: 26px; padding: 40px 44px; border: 1px solid rgba(255,255,255,.1); border-radius: 28px; background: rgba(16,20,26,.78); }
+.stream-odds { display: grid; gap: 6px; }
+.stream-odds strong { font-size: 168px; line-height: .9; letter-spacing: -.05em; }
+.stream-chamber.dem .stream-odds strong { color: var(--blue-soft); }
+.stream-chamber.rep .stream-odds strong { color: var(--red-soft); }
+.stream-odds span { font-size: 30px; color: #b9c0ca; }
+.stream-seat-bar { position: relative; display: flex; height: 34px; border-radius: 10px; overflow: hidden; background: #1d222a; }
+.stream-seat-bar i.dem, .stream-race-bar i.dem { background: var(--blue, #4d8ef7); }
+.stream-seat-bar i.rep, .stream-race-bar i.rep { background: var(--red, #d65a5a); margin-left: auto; }
+.stream-seat-bar b { position: absolute; top: -6px; bottom: -6px; width: 3px; background: #fff; transform: translateX(-50%); }
+.stream-seat-labels { display: flex; justify-content: space-between; margin-top: 12px; font-size: 30px; font-weight: 600; }
+.stream-seat-labels span:nth-child(2) { font-weight: 400; color: #8e97a0; font-size: 22px; align-self: center; }
+.stream-interval { margin: 10px 0 0; font-size: 20px; color: #7e8790; }
+.stream-strip { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.stream-strip > div { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 32px; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: rgba(16,20,26,.78); }
+.stream-strip span { font-size: 24px; color: #8e97a0; }
+.stream-strip strong { font-size: 52px; letter-spacing: -.03em; }
+
+.stream-race { display: grid; gap: 34px; }
+.stream-race-head h1 { margin: 8px 0 0; font-size: 132px; letter-spacing: -.045em; line-height: 1; }
+.stream-race-call { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.stream-race-call > div, .stream-ratings > div { display: grid; gap: 8px; padding: 28px 36px; border: 1px solid rgba(255,255,255,.1); border-radius: 24px; background: rgba(16,20,26,.78); }
+.stream-race-call span, .stream-ratings span { font-size: 24px; color: #8e97a0; }
+.stream-race-call strong { font-size: 120px; letter-spacing: -.05em; line-height: 1; }
+.stream-race-bar { position: relative; display: flex; height: 40px; border-radius: 12px; overflow: hidden; }
+.stream-race-bar b { position: absolute; left: 50%; top: -6px; bottom: -6px; width: 3px; background: #fff; }
+.stream-race-votes { display: flex; justify-content: space-between; margin-top: -18px; font-size: 30px; font-weight: 600; }
+.stream-race-votes span:nth-child(2) { font-weight: 400; font-size: 22px; color: #8e97a0; align-self: center; }
+.stream-ratings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.stream-ratings strong { font-size: 44px; letter-spacing: -.02em; }
+.toss-text { color: #e5d7a8; }
+
+/* The Senate builder keeps its own layout; give it room and a larger base size on the canvas. */
+.stream-senate { zoom: .9; }
+.stream-senate .share-image { display: none; }
+.stream-senate .senate-builder { border: 0; background: none; padding: 0; }
+.stream-senate .senate-head p:not(.eyebrow), .stream-senate .chart-note { display: none; }
+
+/* Scene catalogue */
+.stream-howto { display: flex; flex-wrap: wrap; gap: 10px 26px; margin: -14px 0 24px; padding-left: 18px; color: #a5abb5; font-size: 14px; }
+.stream-scenes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.stream-scene { display: grid; gap: 12px; align-content: start; }
+.stream-scene h2 { margin: 0; font-size: 20px; }
+.stream-scene p { margin: 0; color: #a5abb5; font-size: 14px; line-height: 1.5; }
+.stream-scene code { padding: 8px 10px; border-radius: 8px; background: #0f1215; color: #c7cdd3; font-size: 12px; overflow-wrap: anywhere; }
+.stream-picker { display: grid; gap: 6px; color: #929aa3; font-size: 12px; }
+.stream-picker select { min-height: 36px; padding: 0 10px; border: 1px solid #3a4147; border-radius: 8px; background: #0f1113; color: var(--ink); }
+.stream-scene-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.stream-scene-actions a, .stream-scene-actions button { min-height: 34px; display: inline-flex; align-items: center; padding: 0 12px; border: 1px solid #3a3f44; border-radius: 8px; background: transparent; color: #c7cdd3; font-size: 13px; cursor: pointer; text-decoration: none; }
+.stream-scene-actions a:hover, .stream-scene-actions button:hover { border-color: #66717d; color: var(--ink); }
+@media (max-width: 960px) { .stream-scenes { grid-template-columns: 1fr; } }

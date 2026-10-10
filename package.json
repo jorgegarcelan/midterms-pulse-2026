@@ -12,9 +12,13 @@
     "data:dots": "node scripts/build-map-dots.mjs",
     "data:history": "node scripts/build-election-history.mjs",
     "data:demographics": "node scripts/build-demographics.mjs",
+    "data:ratings": "node scripts/build-expert-ratings.mjs",
+    "data:backtest": "npx tsx scripts/backtest.ts",
+    "data:candidates": "node scripts/build-candidates.mjs",
     "brand:icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "d3-geo": "^3.1.1",
     "next": "16.3.5",
     "papaparse": "^5.5.3",
