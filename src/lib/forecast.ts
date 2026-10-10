@@ -1,4 +1,5 @@
 import snapshot from "@/data/forecast-snapshot.json";
+import { fetchVoteScope } from "@/lib/vote-scope";
 
 export type ForecastRace = {
   code: string;
@@ -119,12 +120,7 @@ export function normalizeForecast(house: SourcePayload, senate: SourcePayload): 
 
 export async function fetchForecast(): Promise<ForecastFeed> {
   try {
-    const [houseResponse, senateResponse] = await Promise.all([
-      fetch("https://vote-scope.com/web_data/us-house/latest.json", { next: { revalidate: 900 } }),
-      fetch("https://vote-scope.com/web_data/us-senate/latest.json", { next: { revalidate: 900 } }),
-    ]);
-    if (!houseResponse.ok || !senateResponse.ok) throw new Error("Forecast source unavailable");
-    const [house, senate] = await Promise.all([houseResponse.json() as Promise<SourcePayload>, senateResponse.json() as Promise<SourcePayload>]);
+    const [house, senate] = await Promise.all([fetchVoteScope<SourcePayload>("us-house/latest.json"), fetchVoteScope<SourcePayload>("us-senate/latest.json")]);
     return normalizeForecast(house, senate);
   } catch {
     return cachedForecast();

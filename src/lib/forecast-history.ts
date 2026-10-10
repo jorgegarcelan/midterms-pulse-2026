@@ -1,4 +1,5 @@
 import type { ExpertBook } from "@/lib/expert-ratings";
+import { fetchVoteScope } from "@/lib/vote-scope";
 
 // Daily runs written by .github/workflows/archive-forecast.yml to the forecast-archive branch.
 const ARCHIVE = process.env.FORECAST_ARCHIVE_URL || "https://raw.githubusercontent.com/jorgegarcelan/midterms-pulse-2026/forecast-archive";
@@ -35,10 +36,8 @@ type BenchmarkRun = { run_date: string; seats: { us_dem: number } };
 // The benchmark's own House seat history (last ~50 runs), shown while our archive is still short.
 export async function fetchBenchmarkHouseHistory() {
   try {
-    const response = await fetch("https://vote-scope.com/web_data/us-house/latest.json", { next: { revalidate: 3600 } });
-    if (!response.ok) return [];
     // Mean Democratic seats per run; the payload's headline seats_projected is a different statistic.
-    const payload = await response.json() as { previous_runs?: BenchmarkRun[] };
+    const payload = await fetchVoteScope<{ previous_runs?: BenchmarkRun[] }>("us-house/latest.json", 3600);
     const runs = (payload.previous_runs || []).map((run) => ({ date: run.run_date, seats: Math.round(run.seats.us_dem * 10) / 10 }));
     return [...new Map(runs.map((run) => [run.date, run])).values()].sort((a, b) => a.date.localeCompare(b.date));
   } catch {

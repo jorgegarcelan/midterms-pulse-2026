@@ -820,3 +820,6 @@ a.expert-cell:hover { background: #1d2125; }
 .model-tabs a:hover { color: var(--ink); background: rgba(255,255,255,.05); }
 .model-tabs a.active { background: #f1ede4; color: #0b0d0f; }
 @media (max-width: 720px) { .model-tabs { border-radius: 16px; padding: 10px; } .model-tabs-title { width: 100%; } }
+.stale-banner { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 7px 16px; border-bottom: 1px solid rgba(242,196,109,.3); background: rgba(242,196,109,.1); color: #f2d9a6; font-size: 12.5px; text-align: center; }
+.stale-banner i, .update-pill.stale > i, .footer-dot.stale { background: #f2c46d !important; box-shadow: 0 0 10px rgba(242,196,109,.7) !important; }
+.update-pill.stale { color: #f2d9a6; }

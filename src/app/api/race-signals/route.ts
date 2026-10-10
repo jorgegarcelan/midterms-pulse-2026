@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fetchVoteScope } from "@/lib/vote-scope";
 import { stateByCode } from "@/data/geography";
 import { isTwoPartyTopline } from "@/lib/mp26";
 import { isGenericBallotPoll, pollDistrict, pollPopulation, type IndexPoll } from "@/lib/poll-index";
@@ -10,9 +11,9 @@ export type RaceSignals = { chamber: "house" | "senate"; pollScope: "race" | "na
 
 // Senate: the state's polls. House: the district's own polls when the index has any, else the national generic ballot.
 async function polls(chamber: "house" | "senate", state: string, code: string): Promise<{ scope: "race" | "national"; list: RacePoll[] }> {
-  const response = await fetch(`https://vote-scope.com/web_data/us-${chamber}/polls/index.json`, { next: { revalidate: 900 } });
-  if (!response.ok) return { scope: chamber === "senate" ? "race" : "national", list: [] };
-  const usable = (await response.json() as { polls: IndexPoll[] }).polls.filter((poll) => isTwoPartyTopline(poll.topline.us_dem, poll.topline.us_rep));
+  const index = await fetchVoteScope<{ polls: IndexPoll[] }>(`us-${chamber}/polls/index.json`).catch(() => null);
+  if (!index) return { scope: chamber === "senate" ? "race" : "national", list: [] };
+  const usable = index.polls.filter((poll) => isTwoPartyTopline(poll.topline.us_dem, poll.topline.us_rep));
   const toRow = (poll: IndexPoll): RacePoll => ({ id: poll.poll_id, pollster: poll.firm_name, date: poll.field_end, dem: poll.topline.us_dem!, rep: poll.topline.us_rep!, sample: poll.sample_size || 0, population: pollPopulation(poll.population), url: poll.source_url });
   if (chamber === "senate") return { scope: "race", list: usable.filter((poll) => poll.geography?.province === state).slice(0, 400).map(toRow) };
   const district = usable.filter((poll) => pollDistrict(poll) === code);

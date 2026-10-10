@@ -14,6 +14,7 @@
     "data:demographics": "node scripts/build-demographics.mjs",
     "data:ratings": "node scripts/build-expert-ratings.mjs",
     "data:backtest": "npx tsx scripts/backtest.ts",
+    "data:mirror": "bash scripts/mirror-vote-scope.sh",
     "data:candidates": "node scripts/build-candidates.mjs",
     "brand:icons": "node scripts/build-icons.mjs"
   },

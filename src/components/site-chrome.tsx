@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { StaleBanner } from "@/components/data-status";
 import { SiteHeader } from "@/components/site-header";
 import { stripLocale } from "@/i18n/config";
 
@@ -8,5 +9,5 @@ import { stripLocale } from "@/i18n/config";
 export function SiteChrome() {
   const path = stripLocale(usePathname());
   if (path.startsWith("/stream/")) return null;
-  return <SiteHeader />;
+  return <><SiteHeader /><StaleBanner /></>;
 }
