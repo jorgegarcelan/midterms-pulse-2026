@@ -69,7 +69,7 @@ export function ModelExplainer() {
     const controller = new AbortController();
     const get = <T,>(url: string) => fetch(url, { signal: controller.signal }).then((response) => response.json() as Promise<T>);
     get<ModelFeed>("/api/model").then(setModel).catch(() => undefined);
-    get<PollFeed>("/api/polls/live?limit=240").then(setPolls).catch(() => undefined);
+    get<PollFeed>("/api/polls/live?limit=240&kind=generic").then(setPolls).catch(() => undefined);
     get<ForecastFeed>("/api/forecast").then(setForecast).catch(() => undefined);
     return () => controller.abort();
   }, []);

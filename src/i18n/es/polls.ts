@@ -50,4 +50,5 @@ export const polls: Record<string, string> = {
   "Add poll": "Añadir encuesta",
   "Check the pollster, race and vote shares.": "Revisa la encuestadora, la carrera y los porcentajes de voto.",
   "Poll added to this device.": "Encuesta añadida a este dispositivo.",
+  "The national generic ballot, Senate races and House districts: every public poll in the index, with pollster, sample and field dates.": "El voto genérico nacional, las carreras al Senado y los distritos de la Cámara: todas las encuestas públicas del índice, con encuestadora, muestra y fechas de campo.",
 };

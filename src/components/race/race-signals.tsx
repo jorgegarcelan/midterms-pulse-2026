@@ -45,11 +45,11 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`/api/race-signals?chamber=${race.chamber}&state=${race.state}`, { signal: controller.signal })
+    fetch(`/api/race-signals?chamber=${race.chamber}&state=${race.state}&code=${race.code}`, { signal: controller.signal })
       .then((response) => { if (!response.ok) throw new Error("signals"); return response.json() as Promise<RaceSignalsFeed>; })
       .then(setFeed).catch((error) => { if (error.name !== "AbortError") setFailed(true); });
     return () => controller.abort();
-  }, [race.chamber, race.state]);
+  }, [race.chamber, race.code, race.state]);
 
   const trend = useMemo(() => weightedTrend(feed?.polls || []), [feed]);
   const national = feed?.pollScope === "national";
@@ -68,7 +68,7 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
     <div className="race-signals">
       <article className="panel">
         <div className="panel-head">
-          <div><p className="eyebrow">{national ? t("National polls") : t("Polls in {state}", { state: stateName })}</p><h2>{national ? t("Generic ballot over time") : t("Senate polling over time")}</h2></div>
+          <div><p className="eyebrow">{national ? t("National polls") : race.chamber === "house" ? t("Polls in {district}", { district: race.code }) : t("Polls in {state}", { state: stateName })}</p><h2>{national ? t("Generic ballot over time") : race.chamber === "house" ? t("District polling over time") : t("Senate polling over time")}</h2></div>
           <span className="panel-tag">{feed ? t("{count} polls", { count: feed.polls.length }) : "…"}</span>
         </div>
         {failed ? <p className="table-empty">{t("Polling data could not be loaded.")}</p>
@@ -83,14 +83,14 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                   baseline={0}
                   format={(value) => value === 0 ? t("EVEN") : `${value >= 0 ? "D" : "R"}+${Number.isInteger(value) ? Math.abs(value) : Math.abs(value).toFixed(1)}`}
                   reference={national ? undefined : { value: race.signedMargin, label: t("2026 model {margin}", { margin: signed(race.signedMargin) }) }}
-                  ariaLabel={national ? t("Generic ballot polls over time") : t("{state} Senate polls over time", { state: stateName })}
+                  ariaLabel={national ? t("Generic ballot polls over time") : race.chamber === "house" ? t("{district} polls over time", { district: race.code }) : t("{state} Senate polls over time", { state: stateName })}
                   legend={{ dots: t("Polls"), line: t("Weighted average") }}
                 />
                 <ul className="latest-polls mpb-stagger">
                   {latest.map((poll, index) => <li key={poll.id} style={{ "--i": index } as React.CSSProperties}><a href={poll.url} target="_blank" rel="noreferrer"><span>{poll.pollster}<small>{poll.date} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString(intl)}` : ""}</small></span><b className={poll.dem >= poll.rep ? "dem-text" : "rep-text"}>{signed(poll.dem - poll.rep)}</b></a></li>)}
                 </ul>
               </>}
-        <p className="chart-note">{national ? `${t("The Vote-Scope index has no district-level polls; the national generic ballot is shown instead.")} ` : ""}{t("Dots are individual polls (D minus R); the line applies the model's weighting (30-day half-life, sample size, likely voters) to the polls released by each date.")}</p>
+        <p className="chart-note">{national ? `${t("No public polls of this district yet; the national generic ballot is shown instead.")} ` : ""}{t("Dots are individual polls (D minus R); the line applies the model's weighting (30-day half-life, sample size, likely voters) to the polls released by each date.")}</p>
       </article>
 
       <article className="panel">

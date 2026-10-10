@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { stateByCode } from "@/data/geography";
 import { fetchForecast } from "@/lib/forecast";
 import { isTwoPartyTopline } from "@/lib/mp26";
+import { pollDistrict, type IndexPoll } from "@/lib/poll-index";
 import { fetchWinnerMarket, HOUSE_CONTROL_SLUG, SENATE_CONTROL_SLUG, senateWinnerSlug, type WinnerMarket } from "@/lib/polymarket";
 import { isElectionHeadline, mentions, ruleTriage } from "@/lib/triage-rules";
 
@@ -66,27 +67,27 @@ async function news(): Promise<WireItem[]> {
     }));
 }
 
-type SourcePoll = { poll_id: string; firm_name: string; release_date?: string; field_end: string; sample_size: number; population: string; source_url: string; topline: { us_dem?: number; us_rep?: number }; geography?: { province?: string } };
 
 async function polls(): Promise<WireItem[]> {
   const load = async (chamber: "house" | "senate") => {
     const response = await fetch(`https://vote-scope.com/web_data/us-${chamber}/polls/index.json`, { next: { revalidate: 900 } });
-    return response.ok ? (await response.json() as { polls: SourcePoll[] }).polls : [];
+    return response.ok ? (await response.json() as { polls: IndexPoll[] }).polls : [];
   };
   const [house, senate] = await Promise.all([load("house"), load("senate")]);
-  const item = (poll: SourcePoll, chamber: "house" | "senate"): WireItem => {
+  const item = (poll: IndexPoll, chamber: "house" | "senate"): WireItem => {
     const margin = poll.topline.us_dem! - poll.topline.us_rep!;
     const state = poll.geography?.province;
-    const race = chamber === "senate" && state ? `${stateByCode.get(state)?.name || state} Senate` : "Generic ballot";
+    const district = pollDistrict(poll);
+    const race = chamber === "senate" && state ? `${stateByCode.get(state)?.name || state} Senate` : district ?? "Generic ballot";
     const date = poll.release_date || poll.field_end;
     return {
       id: `poll-${poll.poll_id}`, type: "poll", time: `${date}T16:00:00.000Z`, dateOnly: true,
       title: `${poll.firm_name}: ${race}`, meta: `${poll.population?.toUpperCase() || "—"}${poll.sample_size ? ` · n=${poll.sample_size.toLocaleString("en-US")}` : ""} · fielded to ${poll.field_end}`,
       source: "Vote-Scope poll index", url: poll.source_url, value: signed(margin), tone: margin >= 0 ? "dem" : "rep", topic: "polling",
-      states: chamber === "senate" && state ? [state] : [], districts: [],
+      states: state ? [state] : [], districts: district ? [district] : [],
     };
   };
-  const clean = (list: SourcePoll[]) => list.filter((poll) => isTwoPartyTopline(poll.topline.us_dem, poll.topline.us_rep)).sort((a, b) => (b.release_date || b.field_end).localeCompare(a.release_date || a.field_end));
+  const clean = (list: IndexPoll[]) => list.filter((poll) => isTwoPartyTopline(poll.topline.us_dem, poll.topline.us_rep)).sort((a, b) => (b.release_date || b.field_end).localeCompare(a.release_date || a.field_end));
   return [...clean(senate).slice(0, 36).map((poll) => item(poll, "senate")), ...clean(house).slice(0, 14).map((poll) => item(poll, "house"))];
 }
 

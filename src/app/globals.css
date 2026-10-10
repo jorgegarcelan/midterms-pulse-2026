@@ -810,3 +810,4 @@ a.expert-cell:hover { background: #1d2125; }
 .lang-switch { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 1px solid #3a3f44; border-radius: 999px; color: #8e97a0; font-size: 11px; letter-spacing: .06em; text-decoration: none; }
 .lang-switch b { color: var(--ink); font-weight: 600; }
 .lang-switch:hover { border-color: #66717d; color: var(--ink); }
+.polls-workbench.polls-solo { display: block; margin-top: 14px; }

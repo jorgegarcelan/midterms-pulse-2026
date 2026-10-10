@@ -35,3 +35,9 @@ Race profiles and the race directory now show the Cook Political Report, Inside 
 ## Backtest
 
 The probability engine (this `RACE_SD`, the national error and the chamber simulation) is replayed on 2018 and 2022 in [BACKTEST.md](BACKTEST.md): all four chamber results fall inside the 80% interval, race-level Brier 0.032 vs 0.030 for FiveThirtyEight's own odds on the same inputs, and the engine is somewhat cautious at race level.
+
+## Generic-ballot fix (10 October 2026)
+
+The Vote-Scope House poll index holds two kinds of poll: national generic-ballot polls (no geography) and district polls (`geography.riding_id`). Every earlier version averaged both as the "generic ballot". District polls come from competitive seats, so they pulled the national figure toward the middle: on 10 October the mixed average was D+4.2 and the generic-ballot-only average D+6.9 (651 national polls, 348 district polls excluded).
+
+Race odds were not affected that day: national movement is measured against the same index at the benchmark's run date, and with a same-day benchmark it is ~0 either way. The published generic ballot, its trend and any movement against an older benchmark were affected. `src/lib/poll-index.ts` now classifies polls; the model and the generic-ballot trend use national polls only, district polls appear on their race pages, and Senate polls on theirs.

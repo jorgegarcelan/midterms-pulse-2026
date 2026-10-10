@@ -160,4 +160,8 @@ export const races: Record<string, string> = {
   "sorted by margin": "ordenadas por margen",
   "No districts match these filters.": "Ningún distrito coincide con estos filtros.",
   "See all {count} races →": "Ver las {count} carreras →",
+  "Polls in {district}": "Encuestas en {district}",
+  "District polling over time": "Encuestas del distrito a lo largo del tiempo",
+  "{district} polls over time": "Encuestas de {district} a lo largo del tiempo",
+  "No public polls of this district yet; the national generic ballot is shown instead.": "Aún no hay encuestas públicas de este distrito; se muestra el voto genérico nacional.",
 };
