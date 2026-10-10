@@ -811,3 +811,4 @@ a.expert-cell:hover { background: #1d2125; }
 .lang-switch b { color: var(--ink); font-weight: 600; }
 .lang-switch:hover { border-color: #66717d; color: var(--ink); }
 .polls-workbench.polls-solo { display: block; margin-top: 14px; }
+.state-tile[data-clickable="true"] { cursor: pointer; }

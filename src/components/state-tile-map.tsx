@@ -17,7 +17,7 @@ function strength(value: number) {
 
 // Tiles sweep in diagonally when the map scrolls into view; hovering or focusing a state lifts it,
 // dims the rest, shows its margin and drops a marker on the colour legend.
-export function StateTileMap({ values, label }: { values: Record<string, number>; label: string }) {
+export function StateTileMap({ values, label, onSelect, note }: { values: Record<string, number>; label: string; onSelect?: (code: string) => void; note?: (code: string) => string | undefined }) {
   const t = useT();
   const [ref, inView] = useInView<HTMLDivElement>();
   const [active, setActive] = useState<string | null>(null);
@@ -37,7 +37,11 @@ export function StateTileMap({ values, label }: { values: Record<string, number>
                 key={state.code}
                 style={{ gridColumn: state.col + 1, gridRow: state.row + 1, background: marginColor(margin), "--d": state.col + state.row } as React.CSSProperties}
                 data-empty={margin === undefined ? "true" : undefined}
-                tabIndex={margin === undefined ? undefined : 0}
+                tabIndex={margin === undefined && !onSelect ? undefined : 0}
+                role={onSelect ? "link" : undefined}
+                data-clickable={onSelect ? "true" : undefined}
+                onClick={onSelect ? () => onSelect(state.code) : undefined}
+                onKeyDown={onSelect ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(state.code); } } : undefined}
                 aria-label={`${t(state.name)}: ${lead(margin)}`}
                 onPointerEnter={() => setActive(state.code)}
                 onFocus={() => setActive(state.code)}
@@ -51,7 +55,7 @@ export function StateTileMap({ values, label }: { values: Record<string, number>
           y={tile.row / ROWS * 100}
           title={t(tile.name)}
           rows={[{ label: t("Margin"), value: lead(value), tone: value === undefined ? "muted" : value >= 0 ? "dem" : "rep" }]}
-          note={value === undefined ? t("No current benchmark") : t(strength(value))}
+          note={(note && tile ? note(tile.code) : undefined) ?? (value === undefined ? t("No current benchmark") : t(strength(value)))}
         />}
       </div>
       <div className="map-legend"><span>{t("Strong R")}</span><i className="legend-gradient mpa-legend">{value !== undefined && <b style={{ left: `${(Math.max(-LEGEND_RANGE, Math.min(LEGEND_RANGE, value)) + LEGEND_RANGE) / (LEGEND_RANGE * 2) * 100}%` }} />}</i><span>{t("Strong D")}</span></div>
