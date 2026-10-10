@@ -18,9 +18,8 @@ export const NAV_GROUPS: Group[] = [
     { href: "/validation", label: "Model validation", note: "How MP-26 would have done in 2018 and 2022" },
   ] },
   { key: "races", label: "Races", items: [
-    { href: "/races", label: "Race directory", note: "All 470 House and Senate races" },
+    { href: "/races", label: "Races: map and list", note: "All 470 House and Senate races" },
     { href: "/states", label: "States", note: "Each state's Senate race and House districts" },
-    { href: "/districts", label: "District map", note: "435 districts, zoom into any state" },
     { href: "/candidates", label: "Candidates", note: "Every 2026 nominee" },
   ] },
   { key: "understand", label: "Understand", items: [

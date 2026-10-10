@@ -175,7 +175,7 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
             </h1>
             <p className="hero-deck">{t("Every dot is a slice of one of the 435 House districts, coloured by today's forecast. Hover the map, then scroll.")}</p>
             <div className="hero-actions">
-              <Magnetic><Link className="primary-action" href="/districts" transitionTypes={["nav-forward"]}>{t("Explore 435 districts")}</Link></Magnetic>
+              <Magnetic><Link className="primary-action" href="/races?view=map" transitionTypes={["nav-forward"]}>{t("Explore 435 districts")}</Link></Magnetic>
               <Magnetic><Link className="secondary-action" href="/model" transitionTypes={["nav-forward"]}>{t("Inspect the model")} <span>→</span></Link></Magnetic>
             </div>
           </div>

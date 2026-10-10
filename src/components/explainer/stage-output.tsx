@@ -99,7 +99,7 @@ export function StageOutput({ model, tippingCode }: { model: OutputModel; tippin
       <pre className="api-code" aria-label={t("Example API response")}><code>{visible}<i className="caret" /></code></pre>
       <div className="consumers">
         <span>{t("Consumed by")}</span>
-        <Link href="/">{t("Home story")}</Link><Link href="/#senate">{t("Senate builder")}</Link><Link href="/districts">{t("District map")}</Link><Link href="/races">{t("Race profiles")}</Link><Link href="/model">{t("Model page")}</Link>
+        <Link href="/">{t("Home story")}</Link><Link href="/#senate">{t("Senate builder")}</Link><Link href="/races?view=map">{t("District map")}</Link><Link href="/races">{t("Race profiles")}</Link><Link href="/model">{t("Model page")}</Link>
       </div>
     </div>
   );
