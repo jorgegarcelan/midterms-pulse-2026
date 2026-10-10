@@ -1,5 +1,6 @@
 import Link from "@/components/i18n/link";
 import { SiteFooter } from "@/components/site-footer";
+import { ModelTabs } from "@/components/model/model-tabs";
 import { isLocale } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
 
@@ -16,6 +17,7 @@ export default async function MethodologyPage({ params }: PageProps<"/[lang]/met
   const t = getT(isLocale(lang) ? lang : "es");
   return (
     <main className="page-main"><div className="content-shell">
+      <ModelTabs />
       <section className="page-intro"><div><p className="eyebrow">{t("METHODOLOGY")}</p><h1>{t("Data and model methodology")}</h1><p>{t("Sources, transformations, current coefficients and the validation gates for MP-26.")}</p></div></section>
       <section className="methodology-layout">
         <article className="panel pipeline-panel"><p className="eyebrow">{t("MODEL PIPELINE")}</p><h2>{t("From raw observation to published probability")}</h2><div className="pipeline-list">{pipeline.map(([index, title, text]) => <div key={index}><span>{index}</span><h3>{t(title)}</h3><p>{t(text)}</p></div>)}</div></article>

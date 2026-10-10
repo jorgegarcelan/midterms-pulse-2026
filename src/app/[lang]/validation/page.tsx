@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/link";
 import { SiteFooter } from "@/components/site-footer";
+import { ModelTabs } from "@/components/model/model-tabs";
 import backtest from "@/data/backtest.json";
 import { intlLocale, isLocale, type Locale } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
@@ -57,6 +58,7 @@ export default async function ValidationPage({ params }: PageProps<"/[lang]/vali
   const current = backtest.sweep.find((item) => item.sd === backtest.engine.raceSd)!;
 
   return <main className="page-main"><div className="content-shell val-shell">
+    <ModelTabs />
     <section className="page-intro"><div>
       <p className="eyebrow">{t("MODEL VALIDATION · 2018 AND 2022")}</p>
       <h1>{t("Would MP-26 have got it right?")}</h1>

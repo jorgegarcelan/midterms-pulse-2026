@@ -1,6 +1,8 @@
-import { GeographyExplorer } from "@/components/geography-explorer";
-import { SiteFooter } from "@/components/site-footer";
+import { redirect } from "next/navigation";
+import { isLocale, localePath } from "@/i18n/config";
 
-export default function ExplorePage() {
-  return <main className="page-main"><div className="content-shell explorer-shell"><GeographyExplorer /><SiteFooter /></div></main>;
+// The county explorer is now the last part of the geography page.
+export default async function ExplorePage({ params }: PageProps<"/[lang]/explore">) {
+  const { lang } = await params;
+  redirect(localePath(isLocale(lang) ? lang : "es", "/geography#explore"));
 }

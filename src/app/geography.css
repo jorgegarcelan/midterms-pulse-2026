@@ -1,7 +1,7 @@
 /* The geography of the vote */
 .geo-loading { min-height: 50vh; display: grid; place-items: center; color: #8e97a0; }
 .geo-story { position: relative; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(340px, .9fr); gap: 36px; align-items: start; }
-.geo-stage { position: sticky; top: 140px; }
+.geo-stage { position: sticky; top: 84px; }
 .geo-stage-inner { position: relative; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: radial-gradient(120% 90% at 40% 0%, rgba(77,127,225,.08), transparent 60%), #0d1014; }
 .county-map { position: relative; }
 .county-map canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
@@ -127,3 +127,4 @@
   .geo-present-button { right: 12px; bottom: 12px; }
 }
 .axis-row, .belt-table button, .regional-dot, .geo-toggle button, .belt-chips button, .regional-lens button { font-family: inherit; }
+.geo-explore { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); scroll-margin-top: 70px; } .geo-explore .explorer-title h2 { margin: 6px 0 0; font-size: clamp(30px, 3.4vw, 44px); letter-spacing: -.03em; }

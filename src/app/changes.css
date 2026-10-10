@@ -61,3 +61,4 @@
   .changes-chart .mpa-changes-dot { transform: none; }
   .changes-chart .mpa-changes-end { opacity: 1; }
 }
+.changes-intro { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line); } .changes-intro h2 { margin: 6px 0 12px; font-size: clamp(30px, 3.4vw, 44px); letter-spacing: -.03em; }

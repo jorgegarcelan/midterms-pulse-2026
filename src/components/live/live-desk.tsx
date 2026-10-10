@@ -8,8 +8,6 @@ import { ChartTooltip } from "@/components/motion/chart-tooltip";
 import { useChartScrub } from "@/components/motion/chart-scrub";
 import { useTweenedValues } from "@/components/motion/chart-tween";
 import { OdometerCountdown } from "@/components/motion/odometer-countdown";
-import { SignalTriage } from "@/components/live/signal-triage";
-import { XWatchlist } from "@/components/live/x-watchlist";
 import { stateByCode } from "@/data/geography";
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 import type { Vars } from "@/i18n/translate";
@@ -79,7 +77,7 @@ function dayLabel(iso: string, now: number, t: T, locale: string) {
 }
 
 // The election desk as it moves: headlines, new polls and market swings in one wire, refreshed every minute.
-export function LiveDesk({ showTriage = false }: { showTriage?: boolean }) {
+export function LiveDesk() {
   const t = useT();
   const locale = useIntlLocale();
   const [feed, setFeed] = useState<LiveFeed | null>(null);
@@ -136,7 +134,7 @@ export function LiveDesk({ showTriage = false }: { showTriage?: boolean }) {
     <div className="live-desk">
       <section className="live-head">
         <div>
-          <p className="eyebrow">{t("Live desk")}</p>
+          <p className="eyebrow">{t("LATEST")}</p>
           <h1>{t("What's moving now")}</h1>
           <p>{t("Headlines from {count} newsrooms, every new public poll and every prediction-market swing, in one wire that refreshes itself.", { count: new Set((feed?.wire || []).filter((item) => item.type === "news").map((item) => item.source)).size || t("eight") })}</p>
         </div>
@@ -208,17 +206,6 @@ export function LiveDesk({ showTriage = false }: { showTriage?: boolean }) {
               ))}
           </article>
 
-          <article className="panel pulse-card">
-            <div className="panel-head"><div><p className="eyebrow">{t("Benchmark pulse")}</p><h2>{t("House, last {count} runs", { count: pulse.length || "—" })}</h2></div><span className="panel-tag">Vote-Scope</span></div>
-            {pulse.length > 1 ? <>
-              <div className="pulse-now"><strong><CountUp value={Math.round(pulse.at(-1)!.demSeats)} /></strong><span>{t("mean Democratic seats · 218 for majority")}</span></div>
-              <Sparkline values={pulse.map((run) => run.demSeats)} width={320} height={80} reference={218} stretch scrub={{ dates: pulse.map((run) => run.date), title: t("Mean D seats"), format: (value) => value.toFixed(1), label: t("Mean Democratic House seats, by benchmark run") }} />
-              <div className="pulse-axis"><span>{pulse[0].date}</span><span>{pulse.at(-1)!.date}</span></div>
-            </> : <div className="wire-skeleton small"><i /><i /></div>}
-          </article>
-
-          <XWatchlist />
-          {showTriage && <SignalTriage />}
         </aside>
       </section>
     </div>

@@ -10,12 +10,10 @@ type Group = { key: string; label: string; items: Item[] };
 
 export const NAV_GROUPS: Group[] = [
   { key: "forecast", label: "Forecast", items: [
-    { href: "/model", label: "Model", note: "Seat distributions and the swing test" },
-    { href: "/changes", label: "What changed", note: "How the forecast moved, day by day" },
-    { href: "/polls", label: "Polls", note: "Generic ballot and battleground polls" },
+    { href: "/model", label: "The model", note: "The forecast, how it works, its validation and sources" },
+    { href: "/changes", label: "Latest", note: "Headlines, new polls, market swings and what moved" },
+    { href: "/polls", label: "Polls", note: "Generic ballot, Senate and House polls" },
     { href: "/markets", label: "Markets", note: "Prediction markets against the model" },
-    { href: "/how-it-works", label: "How it works", note: "The pipeline, step by step" },
-    { href: "/validation", label: "Model validation", note: "How MP-26 would have done in 2018 and 2022" },
   ] },
   { key: "races", label: "Races", items: [
     { href: "/races", label: "Races: map and list", note: "All 470 House and Senate races" },
@@ -23,17 +21,13 @@ export const NAV_GROUPS: Group[] = [
     { href: "/candidates", label: "Candidates", note: "Every 2026 nominee" },
   ] },
   { key: "understand", label: "Understand", items: [
-    { href: "/geography", label: "Geography", note: "Seven axes of the American vote" },
+    { href: "/geography", label: "Geography", note: "Seven axes of the American vote, county by county" },
     { href: "/history", label: "History", note: "Seat changes and past cycles" },
-    { href: "/explore", label: "County explorer", note: "3,100 counties, 2016–2024" },
     { href: "/glossary", label: "Glossary", note: "Every term, in plain words" },
-    { href: "/methodology", label: "Methodology", note: "Sources and limitations" },
     { href: "/about", label: "About", note: "Who builds Midterm Pulse" },
   ] },
   { key: "tools", label: "Tools", items: [
     { href: "/playground", label: "Playground", note: "Scenarios, map builder and data lab" },
-    { href: "/workspace", label: "Workspace", note: "Compare states and test scenarios" },
-    { href: "/live", label: "Live desk", note: "Headlines, new polls and market moves" },
     { href: "/stream", label: "Stream mode", note: "Full-screen scenes for OBS" },
   ] },
 ];
@@ -82,7 +76,8 @@ export function MainNav({ pathname }: { pathname: string }) {
     if (key) { if (open !== key) hoverOpened.current = stamp; setOpen(key); }
     else closeTimer.current = window.setTimeout(() => setOpen(null), 160);
   };
-  const activeGroup = NAV_GROUPS.find((group) => group.items.some((item) => isActivePath(item.href, pathname)))?.key;
+  const modelTab = ["/how-it-works", "/validation", "/methodology"].includes(pathname);
+  const activeGroup = modelTab ? "forecast" : NAV_GROUPS.find((group) => group.items.some((item) => isActivePath(item.href, pathname)))?.key;
   const ink = <i className="nav-ink" style={{ viewTransitionName: "nav-ink" }} aria-hidden="true" />;
   const nightActive = isActivePath("/election-night", pathname);
 

@@ -1,7 +1,7 @@
 /* Election night guide */
 .night-timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .night-slot { display: grid; grid-template-columns: 150px 1fr; gap: 24px; padding: 22px 24px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(145deg, rgba(24,29,37,.98), rgba(16,20,25,.98)); }
-.night-time { display: grid; align-content: start; gap: 6px; position: sticky; top: 130px; align-self: start; }
+.night-time { display: grid; align-content: start; gap: 6px; position: sticky; top: 80px; align-self: start; }
 .night-time strong { font-family: var(--font-mono, monospace); font-size: 40px; letter-spacing: -.04em; color: var(--ink); }
 .night-time span { color: #7e8790; font-size: 12px; }
 .night-body { display: grid; gap: 14px; min-width: 0; }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ModelExplainer } from "@/components/explainer/model-explainer";
 import { SiteFooter } from "@/components/site-footer";
+import { ModelTabs } from "@/components/model/model-tabs";
 import { isLocale } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
 
@@ -14,5 +15,5 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/how-it-wor
 }
 
 export default function HowItWorksPage() {
-  return <main className="page-main"><div className="content-shell explainer-shell"><ModelExplainer /><SiteFooter /></div></main>;
+  return <main className="page-main"><div className="content-shell explainer-shell"><ModelTabs /><ModelExplainer /><SiteFooter /></div></main>;
 }

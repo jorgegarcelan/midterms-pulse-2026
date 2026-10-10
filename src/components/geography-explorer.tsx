@@ -142,7 +142,7 @@ export function GeographyExplorer() {
   return (
     <>
       <section className="explorer-toolbar panel">
-        <div className="explorer-title"><p className="eyebrow">{t("RESULTS · 2016–2024")}</p><h1>{t("Geographic results explorer")}</h1></div>
+        <div className="explorer-title"><p className="eyebrow">{t("RESULTS · 2016–2024")}</p><h2>{t("Explore county by county")}</h2></div>
         <div className="explorer-controls">
           <div className="control-group"><span>{t("Level")}</span><div className="segmented">{(["national", "state", "county"] as Scope[]).map((item) => <button className={scope === item ? "selected" : ""} key={item} onClick={() => changeScope(item)}>{t(item)}</button>)}</div></div>
           <label>{t("Cycle")}<select value={cycle} onChange={(event) => { const next = event.target.value as Cycle; setCycle(next); electionContext.setContext({ cycle: next }); }}>{cycles.map((item) => <option key={item}>{item}</option>)}</select></label>

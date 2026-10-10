@@ -1,6 +1,8 @@
-import { InteractiveWorkspace } from "@/components/interactive-workspace";
-import { SiteFooter } from "@/components/site-footer";
+import { redirect } from "next/navigation";
+import { isLocale, localePath } from "@/i18n/config";
 
-export default function WorkspacePage() {
-  return <main className="page-main"><div className="content-shell workspace-shell"><InteractiveWorkspace /><SiteFooter /></div></main>;
+// The old analysis workspace is retired: state pages and the Playground cover what it did.
+export default async function WorkspacePage({ params }: PageProps<"/[lang]/workspace">) {
+  const { lang } = await params;
+  redirect(localePath(isLocale(lang) ? lang : "es", "/states"));
 }

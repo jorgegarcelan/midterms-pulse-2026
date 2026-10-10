@@ -1,7 +1,8 @@
-import { LiveDesk } from "@/components/live/live-desk";
-import { SiteFooter } from "@/components/site-footer";
+import { redirect } from "next/navigation";
+import { isLocale, localePath } from "@/i18n/config";
 
-export default function LivePage() {
-  // The Jev triage pilot only shows with a key; its rule-based fallback is not worth a panel on its own.
-  return <main className="page-main"><div className="content-shell"><LiveDesk showTriage={Boolean(process.env.TYPESAFE_API_KEY)} /><SiteFooter /></div></main>;
+// The live wire is now part of "Latest" (/changes).
+export default async function LivePage({ params }: PageProps<"/[lang]/live">) {
+  const { lang } = await params;
+  redirect(localePath(isLocale(lang) ? lang : "es", "/changes"));
 }

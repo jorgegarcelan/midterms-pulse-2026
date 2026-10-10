@@ -1,11 +1,8 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "@/components/i18n/link";
 import type { ModelResult } from "@/lib/model";
-import { NATIONALIZATION } from "@/lib/mp26";
-import { simulateHouse } from "@/lib/chamber-sim";
-import { simulateSenate } from "@/lib/senate-sim";
 import { CountUp } from "@/components/motion/count-up";
 import { ChartTooltip } from "@/components/motion/chart-tooltip";
 import { useChartScrub } from "@/components/motion/chart-scrub";
@@ -24,14 +21,9 @@ function translateNumbers(t: T, text: string) {
   return t(key, vars);
 }
 
-// Both chambers are bottom-up, so a swing is re-simulated race by race with the model's own engine.
-// The House uses 10,000 runs to stay interactive; at zero swing the published 50,000-run numbers show.
-function runScenario(model: ModelResult, swing: number) {
-  if (swing === 0) return { houseSeats: model.house.demSeats, houseProbability: model.house.demMajority, senateSeats: model.senate.demSeats, senateProbability: model.senate.demMajority, houseDistribution: model.house.distribution, senateDistribution: model.senate.distribution };
-  const shift = swing * NATIONALIZATION;
-  const house = simulateHouse(model.races, { shift, runs: 10_000 });
-  const senate = simulateSenate(model.races.filter((race) => race.chamber === "senate"), {}, { shift });
-  return { houseSeats: house.median, houseProbability: Math.round(house.controlD * 100), senateSeats: senate.median, senateProbability: Math.round(senate.controlD * 100), houseDistribution: house.distribution, senateDistribution: senate.distribution };
+// The published run as chart inputs. What-if swings live in the Playground's scenario simulator.
+function published(model: ModelResult) {
+  return { houseSeats: model.house.demSeats, houseProbability: model.house.demMajority, senateSeats: model.senate.demSeats, senateProbability: model.senate.demMajority, houseDistribution: model.house.distribution, senateDistribution: model.senate.distribution };
 }
 
 // The seat axis is fixed around the published distribution with room to slide, so a swing visibly
@@ -87,25 +79,20 @@ function Distribution({ data, baseline, threshold, total, pad, median, shifted, 
   </>;
 }
 
-const signedSeats = (value: number) => `${value > 0 ? "+" : value < 0 ? "−" : "±"}${Math.abs(value)}`;
 
 export function ModelDashboard() {
   const t = useT();
   const [model, setModel] = useState<ModelResult | null>(null);
-  const [swing, setSwing] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/model", { signal: controller.signal }).then((response) => response.json() as Promise<ModelResult>).then(setModel).catch(() => undefined);
     return () => controller.abort();
   }, []);
-  const deferredSwing = useDeferredValue(swing);
-  const scenario = useMemo(() => model ? runScenario(model, deferredSwing) : null, [model, deferredSwing]);
+  const scenario = useMemo(() => model ? published(model) : null, [model]);
 
   if (!model || !scenario) return <section className="panel model-loading">{t("Running 50,000 deterministic simulations…")}</section>;
 
-  const shifted = deferredSwing !== 0;
-  const houseDelta = scenario.houseSeats - model.house.demSeats;
-  const senateDelta = scenario.senateSeats - model.senate.demSeats;
+  const shifted = false;
 
   return <>
     <section className="page-intro model-intro">
@@ -115,15 +102,10 @@ export function ModelDashboard() {
     <section className="model-control-grid">
       <article className="model-control-card dem-card"><p className="eyebrow">{t("HOUSE CONTROL")}</p><strong><CountUp value={scenario.houseProbability} />%</strong><span>{t("Democratic majority")}</span><div><b>D <CountUp value={scenario.houseSeats} /></b><i>218</i><b><CountUp value={435 - scenario.houseSeats} /> R</b></div><small>{t("80% interval: {low}–{high} D seats", { low: model.house.interval80[0], high: model.house.interval80[1] })}</small></article>
       <article className="model-control-card senate-model-card"><p className="eyebrow">{t("SENATE CONTROL")}</p><strong><CountUp value={scenario.senateProbability} />%</strong><span>{t("Democratic majority")}</span><div><b>D <CountUp value={scenario.senateSeats} /></b><i>51</i><b><CountUp value={100 - scenario.senateSeats} /> R</b></div><small>{t("80% interval: {low}–{high} D seats", { low: model.senate.interval80[0], high: model.senate.interval80[1] })}</small></article>
-      <article className="panel model-scenario mpa-scenario" data-pending={swing !== deferredSwing ? "true" : undefined}>
-        <div><p className="eyebrow">{t("SENSITIVITY TEST")}</p><h2 key={swing}>{swing === 0 ? t("Current baseline") : t("{shift} national shift", { shift: `${swing > 0 ? "D" : "R"}+${Math.abs(swing)}` })}</h2><p>{t("Apply a uniform polling movement without overwriting the stored forecast.")}</p></div>
-        <div className="mpa-swing" style={{ "--pos": `${(swing + 5) * 10}%`, "--from": swing >= 0 ? "50%" : `${(swing + 5) * 10}%`, "--to": swing >= 0 ? `${(swing + 5) * 10}%` : "50%" } as React.CSSProperties} data-side={swing > 0 ? "D" : swing < 0 ? "R" : undefined}>
-          <i aria-hidden="true" />
-          <input aria-label={t("National polling shift")} aria-valuetext={swing === 0 ? t("Current baseline") : `${swing > 0 ? "D" : "R"}+${Math.abs(swing)}`} type="range" min="-5" max="5" step="0.5" value={swing} onChange={(event) => setSwing(Number(event.target.value))} />
-        </div>
-        <p className="mpa-scenario-delta" aria-live="polite">{shifted ? t("vs. published forecast: House {house} D seats · Senate {senate}", { house: signedSeats(houseDelta), senate: signedSeats(senateDelta) }) : t("Drag the slider: the distributions below re-simulate live.")}</p>
-        <div><span>R+5</span><button type="button" onClick={() => setSwing(0)} disabled={swing === 0}>{t("Reset")}</button><span>D+5</span></div>
-      </article>
+      <Link className="panel model-scenario model-playground-link" href="/playground">
+        <div><p className="eyebrow">{t("WHAT IF?")}</p><h2>{t("Test your own scenario")}</h2><p>{t("Move the national environment, a polling miss, a region or a group of voters and watch both chambers re-simulate, in the Playground.")}</p></div>
+        <span className="secondary-action">{t("Open the scenario simulator")} <span>→</span></span>
+      </Link>
     </section>
     <section className="model-chart-grid">
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("HOUSE DISTRIBUTION")}</p><h2>{t("Democratic seats")}</h2></div><span className="panel-tag">{shifted ? t("10K draws · scenario") : t("50K draws")}</span></div><Distribution data={scenario.houseDistribution} baseline={model.house.distribution} threshold={218} total={435} pad={24} median={scenario.houseSeats} shifted={shifted} step={2} /></article>
@@ -131,7 +113,7 @@ export function ModelDashboard() {
     </section>
     <section className="model-method-grid">
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("CURRENT INPUTS")}</p><h2>{t("What moved the model")}</h2></div><span className="panel-tag">{t("auditable")}</span></div><div className="model-input-list">{model.inputs.map((input) => <div key={input.label}><span>{t(input.label)}</span><strong>{translateNumbers(t, input.value)}</strong><small>{translateNumbers(t, input.source)}</small></div>)}</div></article>
-      <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("ASSUMPTIONS")}</p><h2>{t("What {version} assumes", { version: model.version.replace("MP-26 ", "") })}</h2></div></div><ol className="assumption-list">{model.assumptions.map((item) => <li key={item}>{translateNumbers(t, item)}</li>)}</ol><p className="model-warning">{t("This version is not yet historically calibrated and should be read as a structured sensitivity model, not an election call.")}</p><div className="model-actions"><Link href="/how-it-works">{t("How the model works")} →</Link><Link href="/races?view=map">{t("Open district map")} →</Link><Link href="/methodology">{t("Read methodology")} →</Link></div></article>
+      <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("ASSUMPTIONS")}</p><h2>{t("What {version} assumes", { version: model.version.replace("MP-26 ", "") })}</h2></div></div><ol className="assumption-list">{model.assumptions.map((item) => <li key={item}>{translateNumbers(t, item)}</li>)}</ol><p className="model-warning">{t("Experimental: the probability engine is backtested on 2018 and 2022, but read it as one signal, not an election call.")}</p><div className="model-actions"><Link href="/how-it-works">{t("How the model works")} →</Link><Link href="/validation">{t("Model validation")} →</Link><Link href="/methodology">{t("Read methodology")} →</Link></div></article>
     </section>
   </>;
 }

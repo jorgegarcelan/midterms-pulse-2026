@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ModelDashboard } from "@/components/model-dashboard";
 import { SiteFooter } from "@/components/site-footer";
+import { ModelTabs } from "@/components/model/model-tabs";
 import { isLocale } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
 
@@ -11,5 +12,5 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/model">): 
 }
 
 export default function ModelPage() {
-  return <main className="page-main"><div className="content-shell model-shell"><ModelDashboard /><SiteFooter /></div></main>;
+  return <main className="page-main"><div className="content-shell model-shell"><ModelTabs /><ModelDashboard /><SiteFooter /></div></main>;
 }

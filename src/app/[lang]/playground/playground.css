@@ -69,7 +69,7 @@
 /* ---------- Scenario simulator ---------- */
 
 .pg-scenario { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: var(--pg-gap); align-items: start; }
-.pg-controls { position: sticky; top: 120px; display: grid; gap: 16px; max-height: calc(100vh - 136px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.pg-controls { position: sticky; top: 74px; display: grid; gap: 16px; max-height: calc(100vh - 90px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .pg-controls-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
 .pg-controls-head h2 { margin: 4px 0 0; font-size: 22px; }
 .pg-controls-head .eyebrow { margin: 0; }

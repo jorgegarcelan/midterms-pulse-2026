@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GeographyStory } from "@/components/geography/geography-story";
+import { GeographyExplorer } from "@/components/geography-explorer";
 import { SiteFooter } from "@/components/site-footer";
 import { isLocale } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
@@ -20,6 +21,10 @@ export default async function GeographyPage({ params }: PageProps<"/[lang]/geogr
       <p>{t("Seven axes to understand how the United States votes: city and countryside, degrees, race, money, the belts, the regions and the swing. Scroll, hover the charts, or press Present to walk through it on stream.")}</p>
     </div></section>
     <GeographyStory />
+    {/* Free exploration after the guided story: any county, any cycle, any state. */}
+    <section id="explore" className="geo-explore">
+      <GeographyExplorer />
+    </section>
     <SiteFooter />
   </div></main>;
 }

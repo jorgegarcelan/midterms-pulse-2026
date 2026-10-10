@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/link";
 import { SiteFooter } from "@/components/site-footer";
+import { LiveDesk } from "@/components/live/live-desk";
 import { ChangesLineChart } from "@/components/changes/changes-line-chart";
 import { CountUp } from "@/components/motion/count-up";
 import { stateByCode } from "@/data/geography";
@@ -23,7 +24,7 @@ const demP = (race: ForecastRace) => (race.leader === "D" ? race.winProbability 
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/changes">): Promise<Metadata> {
   const t = getT(localeOf((await params).lang));
-  return { title: t("What changed — Midterm Pulse 2026"), description: t("How the forecast has moved: chamber odds over time, the races that moved most and the handicappers' rating changes.") };
+  return { title: t("Latest — Midterm Pulse 2026"), description: t("Headlines, new polls and market swings as they happen, and how the forecast has moved day by day.") };
 }
 
 export default async function ChangesPage({ params, searchParams }: PageProps<"/[lang]/changes">) {
@@ -63,9 +64,11 @@ export default async function ChangesPage({ params, searchParams }: PageProps<"/
   const senateChange = base ? today.senate.p - base.senate.p : 0;
 
   return <main className="page-main"><div className="content-shell changes-shell">
-    <section className="page-intro"><div>
+    {/* "Latest": the live wire first, then how the forecast itself has moved. */}
+    <LiveDesk />
+    <section className="page-intro changes-intro"><div>
       <p className="eyebrow">{t("FORECAST HISTORY")}</p>
-      <h1>{t("What changed")}</h1>
+      <h2>{t("How the forecast has moved")}</h2>
       <p>{base
         ? t("The forecast today against {date}: chamber odds, the races that moved most, races that changed favourite and the handicappers' rating changes.", { date: dateLabel(base.date) })
         : t("The archive started on {date}. From tomorrow this page compares each day's forecast with earlier runs; until then it shows today's numbers and the benchmark's own House history.", { date: dateLabel(runs[0].date) })}</p>
