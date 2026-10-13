@@ -56,18 +56,18 @@
    "version": "MP-26 v0.4",
    "ballot": 6.9,
    "house": {
-    "p": 98,
-    "seats": 242,
-    "low": 226,
-    "high": 261
+    "p": 97,
+    "seats": 240,
+    "low": 224,
+    "high": 259
    },
    "senate": {
-    "p": 62,
+    "p": 63,
     "seats": 51,
     "low": 48,
     "high": 55
    }
   }
  ],
- "updated": "2026-10-13T00:52:25.454Z"
+ "updated": "2026-10-13T22:57:19.951Z"
 }
