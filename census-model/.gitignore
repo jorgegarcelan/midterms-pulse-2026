@@ -2,3 +2,4 @@
 __pycache__/
 data/gazetteer/*.zip
 output/run.log
+data/raw/
