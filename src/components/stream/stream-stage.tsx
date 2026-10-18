@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { BrandMark } from "@/components/brand-mark";
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 import type { ModelResult } from "@/lib/model";
+import { SITE_HOST } from "@/lib/site";
 
 export const STAGE = { width: 1920, height: 1080 };
 const REFRESH_MS = 5 * 60_000;
@@ -46,7 +47,7 @@ export function StreamStage({ transparent = false, model, children }: { transpar
         {model && <span className="stream-stamp">{model.version} · {t("updated {date}", { date: updated })}</span>}
       </header>
       <div className="stream-content">{children}</div>
-      <footer className="stream-foot"><span>midterm-pulse-2026.vercel.app</span><span>{t("Experimental model · not a prediction of certainty")}</span></footer>
+      <footer className="stream-foot"><span>{SITE_HOST}</span><span>{t("Experimental model · not a prediction of certainty")}</span></footer>
     </div>
   </div>;
 }

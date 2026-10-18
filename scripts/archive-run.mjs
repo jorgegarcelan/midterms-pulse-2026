@@ -11,7 +11,7 @@ import { fetchExpertRatings } from "./build-expert-ratings.mjs";
   Writes <archive-dir>/runs/YYYY-MM-DD.json (one compact record per race) and keeps
   <archive-dir>/index.json as the list of runs with their chamber-level numbers.
 */
-const [archiveDir = "archive", modelUrl = "https://midterm-pulse-2026.vercel.app/api/model"] = process.argv.slice(2);
+const [archiveDir = "archive", modelUrl = "https://www.us-elections.dev/api/model"] = process.argv.slice(2);
 
 const response = await fetch(modelUrl, { headers: { "user-agent": "midterm-pulse-2026 archive" } });
 if (!response.ok) throw new Error(`Model ${response.status}`);

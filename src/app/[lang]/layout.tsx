@@ -9,6 +9,7 @@ import { MotionDirector } from "@/components/motion/motion-director";
 import { SiteChrome } from "@/components/site-chrome";
 import { isLocale, LOCALES } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
+import { SITE_URL } from "@/lib/site";
 import "../globals.css";
 import "../theme.css";
 import "../motion.css";
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
   const { lang } = await params;
   const t = getT(isLocale(lang) ? lang : "es");
   return {
-    metadataBase: new URL("https://midterm-pulse-2026.vercel.app"),
+    metadataBase: new URL(SITE_URL),
     title: t("Midterm Pulse 2026 — U.S. Election Forecast"),
     description: t("A transparent, data-driven forecast for the 2026 U.S. House and Senate elections."),
     alternates: { languages: { es: "/", en: "/en" } },

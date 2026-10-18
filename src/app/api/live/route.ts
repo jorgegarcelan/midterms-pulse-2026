@@ -7,6 +7,9 @@ import { pollDistrict, type IndexPoll } from "@/lib/poll-index";
 import { fetchWinnerMarket, HOUSE_CONTROL_SLUG, SENATE_CONTROL_SLUG, senateWinnerSlug, type WinnerMarket } from "@/lib/polymarket";
 import { isElectionHeadline, mentions, ruleTriage } from "@/lib/triage-rules";
 
+// Two minutes at the edge: every request otherwise fans out to ~45 feeds and markets.
+export const revalidate = 120;
+
 export type WireItem = {
   id: string; type: "poll" | "news" | "market"; time: string; dateOnly?: boolean;
   title: string; meta: string; source: string; url: string; value?: string; tone?: "dem" | "rep";

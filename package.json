@@ -16,6 +16,7 @@
     "data:backtest": "npx tsx scripts/backtest.ts",
     "data:mirror": "bash scripts/mirror-vote-scope.sh",
     "data:candidates": "node scripts/build-candidates.mjs",
+    "night:rehearse": "node scripts/rehearse-night.mjs",
     "brand:icons": "node scripts/build-icons.mjs"
   },
   "dependencies": {
@@ -25,6 +26,7 @@
     "papaparse": "^5.5.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "redis": "^6.3.0",
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {

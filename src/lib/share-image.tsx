@@ -12,6 +12,7 @@ import { MODEL_VERSION, NATIONALIZATION } from "@/lib/mp26";
 import { parliamentLayout } from "@/lib/parliament";
 import { parseRaceSlug, raceName } from "@/lib/races";
 import { simulateSenate, type SenatePick } from "@/lib/senate-sim";
+import { SITE_HOST } from "@/lib/site";
 
 /*
   Share images: branded, dated PNG cards rendered on the server from the published model run, so a
@@ -25,7 +26,7 @@ export const DOWNLOAD_SIZE: ImageSize = { width: 1600, height: 900 };
 export type ShareOptions = { swing?: number; picks?: Record<string, SenatePick> };
 export type ShareCard = { element: React.ReactElement; filename: string };
 
-const SITE = "midterm-pulse-2026.vercel.app";
+const SITE = SITE_HOST;
 const CREDIT = "jorgegarcelan.com · @jgarcelan";
 const C = {
   bg: "#06070b", ink: "#ededef", muted: "#8b8f99", dim: "#5d626d", line: "rgba(255,255,255,.1)",

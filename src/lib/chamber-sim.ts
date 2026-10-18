@@ -11,9 +11,9 @@ export type ChamberOutlook = {
 };
 
 // Normal draws by table lookup: 8,192 equal-probability quantiles, fast enough for 435 races × 50,000 runs.
-const TABLE_SIZE = 8192;
+export const TABLE_SIZE = 8192;
 let normalTable: Float64Array | null = null;
-function quantiles() {
+export function quantiles() {
   normalTable ??= Float64Array.from({ length: TABLE_SIZE }, (_, index) => inverseNormal((index + .5) / TABLE_SIZE));
   return normalTable;
 }

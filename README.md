@@ -77,7 +77,7 @@ The watchlist uses X's public embed script and saves account choices in local br
 
 ## Deploy to Vercel
 
-The production preview is at [midterm-pulse-2026.vercel.app](https://midterm-pulse-2026.vercel.app). Import this repository into Vercel; Next.js is detected automatically. Add `OPENAI_API_KEY`, `TYPESAFE_API_KEY` and `FEC_API_KEY` in the project settings for reliable live services. Every page remains functional without these variables, with explicit fallbacks.
+The site is live at [us-elections.dev](https://www.us-elections.dev). Import this repository into Vercel; Next.js is detected automatically. Add `OPENAI_API_KEY`, `TYPESAFE_API_KEY` and `FEC_API_KEY` in the project settings for reliable live services. Every page remains functional without these variables, with explicit fallbacks.
 
 ## Repository map
 
