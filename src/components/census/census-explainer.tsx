@@ -6,12 +6,15 @@ import { useT } from "@/components/i18n/locale-provider";
 import { useInView } from "@/components/explainer/use-in-view";
 import { ScrambleText } from "@/components/motion/scramble-text";
 import { BacktestChart, DisagreementScatter, FeatureBars, RedrawBars, SeatHistogram, SwingBars, useNumber, type ScatterPoint } from "@/components/census/census-charts";
+import { DistrictCard, PlayModel, Twins, VariableScatter } from "@/components/census/census-explore";
+import { CensusMap, DivergingLegend, divergingFill } from "@/components/census/census-map";
 import type { CensusModel } from "@/lib/census-model";
-import { raceSlug } from "@/lib/races";
 import type { ModelResult } from "@/lib/model";
 
 export const SECTIONS = [
   { id: "sees", label: "What it sees" },
+  { id: "twins", label: "Twin districts" },
+  { id: "play", label: "Play the model" },
   { id: "track", label: "Track record" },
   { id: "2026", label: "2026" },
   { id: "polls", label: "Census vs polls" },
@@ -82,21 +85,28 @@ function usePollModel() {
   return model;
 }
 
-function Disagreements({ data }: { data: CensusModel }) {
+type PollState = ModelResult | null | "error";
+
+const AGREE_D = "color-mix(in srgb, #5b86ff 46%, #2b2f3a)";
+const AGREE_R = "color-mix(in srgb, #ff5a6e 46%, #2b2f3a)";
+const SPLIT = "#fbbf24";
+
+function Disagreements({ data, model, polls, selected, onSelect }: { data: CensusModel; model: PollState; polls: Map<string, number> | null; selected: string; onSelect: (code: string) => void }) {
   const t = useT();
   const n = useNumber();
-  const model = usePollModel();
-  const points = useMemo<ScatterPoint[]>(() => {
-    if (!model || model === "error") return [];
-    const polls = new Map(model.races.filter((race) => race.chamber === "house").map((race) => [race.code, race.signedMargin]));
-    return data.races.flatMap((race) => polls.has(race.code) ? [{ code: race.code, census: race.margin, polls: polls.get(race.code)! }] : []);
-  }, [data.races, model]);
+  const census = useMemo(() => new Map(data.races.map((race) => [race.code, race.margin])), [data.races]);
+  const points = useMemo<ScatterPoint[]>(() => polls ? data.races.flatMap((race) => polls.has(race.code) ? [{ code: race.code, census: race.margin, polls: polls.get(race.code)! }] : []) : [], [data.races, polls]);
   const split = (censusD: boolean) => points.filter((point) => (point.census >= 0) === censusD && (point.polls >= 0) !== censusD)
     .sort((a, b) => Math.abs(b.census - b.polls) - Math.abs(a.census - a.polls)).slice(0, 6);
 
   if (model === null) return <p className="cz-wait">{t("Loading the poll-based forecast…")}</p>;
-  if (model === "error" || !points.length) return <p className="cz-wait">{t("The poll-based forecast is not available right now, so the comparison cannot be drawn.")}</p>;
+  if (model === "error" || !polls || !points.length) return <p className="cz-wait">{t("The poll-based forecast is not available right now, so the comparison cannot be drawn.")}</p>;
   const agree = points.filter((point) => (point.census >= 0) === (point.polls >= 0)).length;
+  const fill = (code: string) => {
+    const a = census.get(code), b = polls.get(code);
+    if (a === undefined || b === undefined) return "#15171e";
+    return (a >= 0) !== (b >= 0) ? SPLIT : a >= 0 ? AGREE_D : AGREE_R;
+  };
 
   return (
     <div className="cz-polls">
@@ -104,6 +114,18 @@ function Disagreements({ data }: { data: CensusModel }) {
         <div><b>{n.percent(agree / points.length)}</b><span>{t("of districts: both models pick the same party")}</span></div>
         <div><b>{model.house.demSeats}</b><span>{t("Democratic seats in the poll-based forecast (MP-26), against {census} from the census", { census: data.house.median })}</span></div>
         <div><b>{n.percent(model.house.demMajority / 100)}</b><span>{t("chance of a Democratic majority with polls, against {census} with the census", { census: n.percent(data.house.pMajority) })}</span></div>
+      </div>
+      <div className="cz-map-grid">
+        <div className="cz-map-panel">
+          <div className="cz-legend" aria-hidden="true">
+            <span><i style={{ background: AGREE_D }} />{t("Both say Democratic")}</span>
+            <span><i style={{ background: AGREE_R }} />{t("Both say Republican")}</span>
+            <span><i style={{ background: SPLIT }} />{t("They disagree")}</span>
+          </div>
+          <CensusMap lines="2026" fill={fill} selected={selected} onSelect={onSelect} label={t("Where census and polls agree, by district")}
+            tip={(code) => <><span>{t("Census: {margin}", { margin: n.margin(census.get(code) ?? 0) })}</span>{polls.has(code) && <span>{t("Polls (MP-26): {margin}", { margin: n.margin(polls.get(code)!) })}</span>}</>} />
+        </div>
+        <DistrictCard model={data} code={selected} polls={polls} />
       </div>
       <div className="cz-polls-grid">
         <DisagreementScatter points={points} />
@@ -115,8 +137,8 @@ function Disagreements({ data }: { data: CensusModel }) {
                 <thead><tr><th>{t("District")}</th><th>{t("Census")}</th><th>{t("Polls")}</th></tr></thead>
                 <tbody>
                   {split(censusD).map((point) => (
-                    <tr key={point.code}>
-                      <td><Link href={`/races/${raceSlug({ code: point.code, chamber: "house" })}`}>{point.code}</Link></td>
+                    <tr key={point.code} className={point.code === selected ? "on" : ""}>
+                      <td><button type="button" onClick={() => onSelect(point.code)}>{point.code}</button></td>
                       <td className={point.census >= 0 ? "blue" : "red"}>{n.margin(point.census)}</td>
                       <td className={point.polls >= 0 ? "blue" : "red"}>{n.margin(point.polls)}</td>
                     </tr>
@@ -125,7 +147,7 @@ function Disagreements({ data }: { data: CensusModel }) {
               </table>
             </section>
           ))}
-          <p className="cz-aside">{t("Where they part ways is where the district votes differently from what its demographics predict: a well-known incumbent, a candidate's local roots, or a community that has moved away from how similar places vote.")}</p>
+          <p className="cz-aside">{t("Where they part ways is where the district votes differently from what its demographics predict: a well-known incumbent, a candidate's local roots, or a community that has moved away from how similar places vote. Pick one to see its profile.")}</p>
         </div>
       </div>
     </div>
@@ -140,6 +162,11 @@ export function CensusExplainer({ data }: { data: CensusModel }) {
   const references = data.backtest.filter((year) => year.brier538 !== null);
   const redrawCensus = data.redraw.reduce((sum, row) => sum + row.census, 0);
   const redrawPres = data.redraw.reduce((sum, row) => sum + row.withPres, 0);
+  const pollModel = usePollModel();
+  const polls = useMemo(() => pollModel && pollModel !== "error" ? new Map(pollModel.races.filter((race) => race.chamber === "house").map((race) => [race.code, race.signedMargin])) : null, [pollModel]);
+  const [selected, setSelected] = useState("TX-09");
+  const forecast = useMemo(() => new Map(data.races.map((race) => [race.code, race])), [data.races]);
+  const results = useMemo(() => new Map(data.results2024.map(([code, predicted, actual]) => [code, { predicted, actual }])), [data.results2024]);
 
   return (
     <div className="cz" data-motion>
@@ -148,8 +175,17 @@ export function CensusExplainer({ data }: { data: CensusModel }) {
       <SectionHead id="sees" n="01" kicker="What it sees" title="Twenty-two numbers per district" deck="For every district the model reads the American Community Survey: education, race and origin, age, marriage, income, home values, how people get to work, how dense the place is. It learns from 2012–2024 House results how those numbers map to votes, and then predicts each district from its profile alone." />
       <FeatureBars features={data.features} />
       <p className="cz-lede">{t("The single strongest signal is the share of white adults without a college degree: the more of them, the more Republican the district. Marriage comes next, then how many people ride public transit, a stand-in for how urban a place is. Income on its own barely matters once those are known.")}</p>
+      <h3 className="cz-subhead">{t("See it for yourself")}</h3>
+      <p className="cz-lede tight">{t("Pick a variable: every dot is a district, placed by that census number and by how it voted for the House in 2024.")}</p>
+      <VariableScatter model={data} />
 
-      <SectionHead id="track" n="02" kicker="Track record" title="Tested on five elections it had never seen" deck="Each election from 2016 to 2024 was predicted using only the cycles before it. Given the real national vote, the census alone calls about 94% of seats. Fully blind, guessing the national mood from history too, it still lands near the result in most years." />
+      <SectionHead id="twins" n="02" kicker="Twin districts" title="Same people, same vote?" deck="The model's bet is that places with the same census profile vote alike, wherever they are. These pairs of districts, in different states and regions, have almost identical profiles." />
+      <Twins model={data} />
+
+      <SectionHead id="play" n="03" kicker="Play the model" title="Build a district" deck="Move the sliders and the census tells you how your imaginary district would vote. Start from a real one, then change it: more graduates, fewer married couples, a denser city, another region." />
+      <PlayModel toy={data.toy} fullRmse={data.headline.rmse} national2024={data.national.popularVote2024} />
+
+      <SectionHead id="track" n="04" kicker="Track record" title="Tested on five elections it had never seen" deck="Each election from 2016 to 2024 was predicted using only the cycles before it. Given the real national vote, the census alone calls about 94% of seats. Fully blind, guessing the national mood from history too, it still lands near the result in most years." />
       <BacktestChart years={data.backtest} />
       <div className="cz-table-wrap">
         <table className="cz-table">
@@ -171,8 +207,20 @@ export function CensusExplainer({ data }: { data: CensusModel }) {
         <p className="eyebrow">{t("What 2018 taught it")}</p>
         <p>{t("The first version measured the national mood as the average margin across contested districts. In 2018 Democrats ran candidates almost everywhere, including deep-red seats, and that average said D+{contested} while the country voted D+{popular}. Switching to the national popular vote fixed most of the miss; the rest is suburbs that swung further than their earlier profile suggested.", { contested: n.fixed(data.lesson2018.meanContested), popular: n.fixed(data.lesson2018.popularVote) })}</p>
       </div>
+      <h3 className="cz-subhead">{t("Where it missed in 2024")}</h3>
+      <p className="cz-lede tight">{t("The 2024 House result minus what the census predicted, trained only on 2012–2022. Blue districts voted more Democratic than their profile said; red ones, more Republican.")}</p>
+      <div className="cz-map-panel wide">
+        <DivergingLegend left={t("more Republican than predicted")} right={t("more Democratic than predicted")} cap={20} unit={t(" pts")} missing={t("No two-party race")} />
+        <CensusMap lines="2024" label={t("2024 House result minus the census prediction, by district")}
+          fill={(code) => { const r = results.get(code); return r && r.actual !== null ? divergingFill(r.actual - r.predicted, 20) : "#15171e"; }}
+          tip={(code) => { const r = results.get(code); return r ? <>
+            <span>{t("Census predicted {margin}", { margin: n.margin(r.predicted) })}</span>
+            <span>{r.actual === null ? t("No two-party race") : t("Result {margin}", { margin: n.margin(r.actual) })}</span>
+          </> : null; }} />
+      </div>
+      <p className="cz-lede">{t("The misses were not random. Diverse districts around New York, New Jersey, Florida and Texas voted clearly more Republican than their profile suggested, the 2024 shift among Hispanic, Asian and immigrant voters that earlier cycles could not teach the model. Much of the Pacific Northwest and the upper Midwest stayed more Democratic than expected.")}</p>
 
-      <SectionHead id="2026" n="03" kicker="2026" title="The census forecast for November 3" deck="Without polls, the national mood comes from history alone: start from the 2024 House popular vote and apply the average midterm swing against the president's party. That swing has ranged from a small gain to a 17-point loss, so the uncertainty is wide on purpose." />
+      <SectionHead id="2026" n="05" kicker="2026" title="The census forecast for November 3" deck="Without polls, the national mood comes from history alone: start from the 2024 House popular vote and apply the average midterm swing against the president's party. That swing has ranged from a small gain to a 17-point loss, so the uncertainty is wide on purpose." />
       <div className="cz-2026">
         <SeatHistogram distribution={data.house.distribution} median={data.house.median} p10={data.house.p10} p90={data.house.p90} />
         <div className="cz-2026-side">
@@ -184,15 +232,28 @@ export function CensusExplainer({ data }: { data: CensusModel }) {
           <SwingBars swings={data.national.swings} />
         </div>
       </div>
+      <h3 className="cz-subhead">{t("District by district, on the November maps")}</h3>
+      <div className="cz-map-grid">
+        <div className="cz-map-panel">
+          <DivergingLegend left={t("Republican")} right={t("Democratic")} cap={30} unit={t(" pts")} />
+          <CensusMap lines="2026" selected={selected} onSelect={setSelected} label={t("Census forecast margin by district, November 2026 maps")}
+            fill={(code) => divergingFill(forecast.get(code)?.margin, 30)}
+            tip={(code) => { const race = forecast.get(code); return race ? <>
+              <span>{t("Census: {margin}", { margin: n.margin(race.margin) })}</span>
+              <span>{t("{p} chance of a Democratic win", { p: n.percent(race.pD) })}</span>
+            </> : null; }} />
+        </div>
+        <DistrictCard model={data} code={selected} polls={polls} />
+      </div>
 
-      <SectionHead id="polls" n="04" kicker="Census vs polls" title="Where demographics and polls part ways" deck="The same districts scored by the census model and by MP-26, this site's poll-based forecast. Most land in the same corner. The ones that don't are the interesting ones." />
-      <Disagreements data={data} />
+      <SectionHead id="polls" n="06" kicker="Census vs polls" title="Where demographics and polls part ways" deck="The same districts scored by the census model and by MP-26, this site's poll-based forecast. Most land in the same corner. The ones that don't are the interesting ones." />
+      <Disagreements data={data} model={pollModel} polls={polls} selected={selected} onSelect={setSelected} />
 
-      <SectionHead id="blind-spot" n="05" kicker="The blind spot" title="A census model cannot see a gerrymander" deck="Nine states vote on new maps this year. Map-drawers work from past election returns, precisely to exploit what demographics miss, such as Hispanic South Texas voting Republican. To the census the new lines barely matter; add 2024 presidential results by district and the redraws appear." />
+      <SectionHead id="blind-spot" n="07" kicker="The blind spot" title="A census model cannot see a gerrymander" deck="Nine states vote on new maps this year. Map-drawers work from past election returns, precisely to exploit what demographics miss, such as Hispanic South Texas voting Republican. To the census the new lines barely matter; add 2024 presidential results by district and the redraws appear." />
       <RedrawBars rows={data.redraw} />
       <p className="cz-lede">{t("Net effect of the new maps: {census} expected Democratic seats with the census alone, {pres} once presidential results are added.", { census: `${redrawCensus >= 0 ? "+" : "−"}${n.fixed(Math.abs(redrawCensus))}`, pres: `${redrawPres >= 0 ? "+" : "−"}${n.fixed(Math.abs(redrawPres))}` })} <Link href="/gerrymandering">{t("How gerrymandering works →")}</Link></p>
 
-      <SectionHead id="clues" n="06" kicker="Extra clues" title="What past votes and incumbents would add" deck="The same model, given extra information it deliberately does without. Each clue helps, but less than you might expect: most of what decides a House seat is already written in who lives there." />
+      <SectionHead id="clues" n="08" kicker="Extra clues" title="What past votes and incumbents would add" deck="The same model, given extra information it deliberately does without. Each clue helps, but less than you might expect: most of what decides a House seat is already written in who lives there." />
       <div className="cz-table-wrap">
         <table className="cz-table cz-bench">
           <thead><tr><th>{t("Information used")}</th><th>{t("Brier score (lower is better)")}</th><th>{t("Seats called")}</th><th>{t("2026 Democratic seats")}</th><th>{t("Democratic majority")}</th></tr></thead>
@@ -212,7 +273,7 @@ export function CensusExplainer({ data }: { data: CensusModel }) {
         fte: references.map((year) => n.fixed(year.brier538 ?? 0, 3)).join(" / "),
       })}</p>
 
-      <SectionHead id="method" n="07" kicker="How it works" title="The fine print" deck="What the model does, where the data comes from, and where it is weaker than it looks." />
+      <SectionHead id="method" n="09" kicker="How it works" title="The fine print" deck="What the model does, where the data comes from, and where it is weaker than it looks." />
       <div className="cz-method">
         <article>
           <h3>{t("The model")}</h3>

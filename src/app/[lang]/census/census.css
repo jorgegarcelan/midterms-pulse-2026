@@ -197,3 +197,133 @@
   .cz-head > * { opacity: 1; transform: none; transition: none; }
   .cz :is(.cz-toc a, .cz-features li, .cz-hero-card, .cz-deck, .cz-hero-stats), .cz-hero h1 { animation: none; }
 }
+
+/* ---------- Maps ---------- */
+
+.cz-subhead { max-width: 780px; margin: 64px auto 0; font-size: clamp(20px, 2.4vw, 26px); font-weight: 600; letter-spacing: -.03em; text-align: center; }
+.cz-lede.tight { margin-top: 10px; margin-bottom: 22px; }
+.cz-map-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); gap: 22px; align-items: start; margin-top: 22px; }
+.cz-map-panel { padding: 20px; border: 1px solid var(--border); border-radius: 24px; background: var(--glass); box-shadow: var(--shadow); }
+.cz-map-panel.wide { max-width: 1040px; margin: 0 auto; }
+.cz-map { position: relative; overflow: hidden; border-radius: 14px; }
+.cz-map svg { display: block; width: 100%; height: auto; }
+.cz-map path[data-code] { stroke: #0b0c12; stroke-width: .35; cursor: pointer; outline: none; transition: fill .4s ease, opacity .3s ease; }
+.cz-map path[data-code]:focus-visible { stroke: #fff; stroke-width: 1; }
+.cz-map path.outside { opacity: .18; }
+.cz-map-state { fill: none; stroke: rgba(255,255,255,.42); stroke-width: .7; pointer-events: none; }
+.cz-map-hover { fill: none; stroke: #fff; stroke-width: 1.4; pointer-events: none; }
+.cz-map-selected { fill: none; stroke: #fbbf24; stroke-width: 1.8; pointer-events: none; }
+.cz-map-loading { display: grid; place-items: center; min-height: 320px; color: var(--cz-faint); font-size: 13px; }
+.cz-map-hint { position: absolute; left: 10px; bottom: 6px; margin: 0; color: var(--cz-faint); font-size: 11.5px; pointer-events: none; }
+.cz-map-back { position: absolute; left: 10px; top: 10px; padding: 6px 11px; border: 1px solid var(--border-strong); border-radius: 999px; background: rgba(10,11,16,.85); color: #e7e9ee; font-size: 12.5px; cursor: pointer; }
+.cz-map-state-name { position: absolute; right: 12px; top: 10px; margin: 0; color: #fff; font-size: 15px; font-weight: 600; pointer-events: none; }
+.cz-map-tip { position: absolute; left: 0; top: 0; z-index: 3; display: grid; gap: 2px; min-width: 170px; padding: 9px 11px; border: 1px solid var(--border-strong); border-radius: 12px; background: rgba(10,11,16,.94); box-shadow: var(--shadow); font-size: 12.5px; opacity: 0; pointer-events: none; transition: opacity .12s ease; }
+.cz-map-tip.show { opacity: 1; }
+.cz-map-tip b { color: #fff; font: 600 13px var(--font-mono); }
+.cz-map-tip span { color: #b7bbc4; }
+.cz-map-legend { display: grid; grid-template-columns: auto minmax(80px, 220px) auto auto; gap: 10px; align-items: center; margin-bottom: 12px; color: #b7bbc4; font-size: 12px; }
+.cz-map-legend i { height: 9px; border-radius: 5px; }
+.cz-map-legend small { color: var(--cz-faint); font: 500 11px var(--font-mono); }
+
+/* ---------- District card ---------- */
+
+.cz-card { position: sticky; top: 86px; display: grid; gap: 14px; padding: 20px; border: 1px solid var(--border); border-radius: 24px; background: var(--glass); box-shadow: var(--shadow); }
+.cz-card header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: end; }
+.cz-card header .eyebrow { margin: 0; }
+.cz-card h3 { margin: 4px 0 0; font: 650 30px var(--font-sans); letter-spacing: -.04em; }
+.cz-card-margins { display: flex; gap: 16px; }
+.cz-card-margins div { display: grid; gap: 1px; text-align: right; }
+.cz-card-margins span { color: var(--cz-faint); font: 500 10.5px var(--font-mono); letter-spacing: .05em; text-transform: uppercase; }
+.cz-card-margins b { font: 650 18px var(--font-mono); }
+.cz-card-profile { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cz-card-profile li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; font-size: 12.5px; color: #c9ccd3; }
+.cz-card-profile b { color: #fff; font: 600 12.5px var(--font-mono); text-align: right; }
+.cz-card-profile small { grid-column: 1 / -1; color: var(--cz-faint); font-size: 11px; }
+.cz-card-track { position: relative; grid-column: 1 / -1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.07); }
+.cz-card-track i, .cz-card-legend i { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%, -50%); }
+.cz-card-track .avg, .cz-card-legend .avg { width: 2px; height: 12px; border-radius: 1px; background: rgba(255,255,255,.55); }
+.cz-card-track .dot, .cz-card-legend .dot { background: #fbbf24; box-shadow: 0 0 0 2px #0b0c12; }
+.cz-card-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0; color: var(--cz-faint); font-size: 11.5px; }
+.cz-card-legend i { position: relative; top: auto; transform: none; display: inline-block; margin-right: -8px; vertical-align: middle; }
+.cz-card-legend a { margin-left: auto; color: #c4b5fd; }
+.cz-card-push { padding-top: 12px; border-top: 1px solid var(--border); }
+.cz-card-push .eyebrow { margin: 0 0 8px; }
+
+/* ---------- Contribution bars (play + card) ---------- */
+
+.cz-push { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.cz-push li { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(70px, 1fr) 54px; gap: 10px; align-items: center; color: #c9ccd3; font-size: 12.5px; }
+.cz-push b { font: 600 12px var(--font-mono); text-align: right; }
+.cz-push-track { position: relative; height: 9px; }
+.cz-push-track::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(255,255,255,.25); }
+.cz-push-track i { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+.cz-push-track i.d { background: var(--blue); }
+.cz-push-track i.r { background: var(--red); }
+
+/* ---------- Play the model ---------- */
+
+.cz-play { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px; padding: 26px; border: 1px solid var(--border); border-radius: 24px; background: var(--glass); box-shadow: var(--shadow); }
+.cz-play-controls { display: grid; gap: 14px; align-content: start; }
+.cz-play-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--cz-faint); font-size: 12.5px; }
+.cz-play-presets button, .cz-pills button { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.02); color: #c9ccd3; font: 500 12px var(--font-mono); cursor: pointer; }
+.cz-play-presets button.on, .cz-pills button.on { border-color: rgba(251,191,36,.6); background: rgba(251,191,36,.1); color: #fff; }
+.cz-slider { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; color: #c9ccd3; font-size: 13px; }
+.cz-slider b { color: #fff; font: 600 12.5px var(--font-mono); }
+.cz-slider input, .cz-slider select { grid-column: 1 / -1; width: 100%; accent-color: #fbbf24; }
+.cz-slider select { padding: 7px 9px; border: 1px solid var(--border-strong); border-radius: 10px; background: #12141b; color: #e7e9ee; font-size: 13px; }
+.cz-slider.national { padding-top: 12px; border-top: 1px solid var(--border); }
+.cz-play-result { position: sticky; top: 86px; display: grid; gap: 10px; align-content: start; }
+.cz-play-result .eyebrow { margin: 0; }
+.cz-play-result > b { font-size: clamp(54px, 7vw, 86px); font-weight: 650; line-height: .95; letter-spacing: -.05em; }
+.cz-play-result > span { color: #e7e9ee; font-size: 16px; font-weight: 600; }
+.cz-play-real, .cz-play-base { margin: 0; color: #9a9ea8; font-size: 13px; line-height: 1.5; }
+
+/* ---------- Variable → vote ---------- */
+
+.cz-vscatter { max-width: 980px; margin: 0 auto; padding: 22px; border: 1px solid var(--border); border-radius: 24px; background: var(--glass); box-shadow: var(--shadow); }
+.cz-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.cz-pills button { font-family: var(--font-sans); font-size: 12.5px; }
+.cz-vscatter-frame { position: relative; }
+.cz-dot.d { fill: var(--blue); }
+.cz-dot.r { fill: var(--red); }
+.cz-fit { stroke: #fbbf24; stroke-width: 2; stroke-linecap: round; }
+
+/* ---------- Twins ---------- */
+
+.cz-twins { display: grid; gap: 34px; }
+.cz-twins h3 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+.cz-twins .cz-aside { margin-top: 6px; }
+.cz-twin-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 14px; }
+.cz-twin { padding: 16px; border: 1px solid var(--border); border-radius: 18px; background: var(--glass); box-shadow: var(--shadow); }
+.cz-twin-head { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.cz-twin-head div { display: grid; gap: 1px; }
+.cz-twin-head div:last-child { text-align: right; }
+.cz-twin-head span { color: var(--cz-faint); font-size: 11.5px; }
+.cz-twin-head h4 { margin: 0; color: #fff; font: 650 20px var(--font-mono); }
+.cz-twin-head b { font: 650 16px var(--font-mono); }
+.cz-twin table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.cz-twin th { padding: 5px 0; color: #9a9ea8; font-weight: 400; text-align: left; }
+.cz-twin td { padding: 5px 0 5px 8px; color: #e7e9ee; font-family: var(--font-mono); text-align: right; }
+.cz-twin tr + tr :is(th, td) { border-top: 1px solid var(--border); }
+.cz-split-lists td button { padding: 0; border: 0; background: none; color: #fff; font: inherit; text-decoration: underline; text-decoration-color: rgba(255,255,255,.3); text-underline-offset: 3px; cursor: pointer; }
+.cz-split-lists tr.on td { background: rgba(251,191,36,.08); }
+
+@media (max-width: 1000px) {
+  .cz-map-grid, .cz-play { grid-template-columns: 1fr; }
+  .cz-card, .cz-play-result { position: static; }
+}
+@media (max-width: 760px) {
+  .cz-map-panel, .cz-play, .cz-vscatter { padding: 14px; }
+  .cz-map-legend { grid-template-columns: auto 1fr auto; }
+  .cz-map-legend small { display: none; }
+}
+.cz-mood { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+.cz-mood button { padding: 4px 9px; border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.02); color: #c9ccd3; font: 500 11.5px var(--font-mono); cursor: pointer; }
+.cz-mood button.on { border-color: rgba(251,191,36,.6); background: rgba(251,191,36,.1); color: #fff; }
+.cz-twin td { white-space: nowrap; }
+.cz-map-legend { grid-template-columns: auto minmax(80px, 220px) auto auto auto; }
+.cz-map-missing { display: inline-flex; align-items: center; gap: 6px; color: var(--cz-faint); }
+.cz-map-missing i { width: 12px; height: 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 2px; background: #15171e; }
+@media (max-width: 760px) {
+  .cz-map-hint { position: static; margin-top: 8px; }
+}

@@ -42,6 +42,7 @@ census-model/.venv/bin/python census-model/train_backtest.py census_pres
 census-model/.venv/bin/python census-model/incumbency.py               # phase 5: incumbents on the ballot
 census-model/.venv/bin/python census-model/train_backtest.py census_pres_inc   # also census_inc
 census-model/.venv/bin/python census-model/compare.py
+census-model/.venv/bin/python census-model/build_geometry_2026.py    # public/data/congressional-districts-2026.geojson
 census-model/.venv/bin/python census-model/export_web.py             # src/data/census-model.json for /census
 ```
 
