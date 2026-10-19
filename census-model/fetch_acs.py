@@ -72,9 +72,9 @@ def api_key():
     sys.exit("CENSUS_API_KEY not found in the environment or .env.local")
 
 
-def fetch(year, codes, key):
+def fetch(year, codes, key, geography=("congressional district:*", "state:*")):
     url = f"https://api.census.gov/data/{year}/acs/acs5"
-    params = {"get": ",".join(codes), "for": "congressional district:*", "in": "state:*", "key": key}
+    params = {"get": ",".join(codes), "for": geography[0], "in": geography[1], "key": key}
     for attempt in range(4):
         response = requests.get(url, params=params, timeout=60)
         if response.ok:
@@ -86,12 +86,13 @@ def fetch(year, codes, key):
     raise RuntimeError(f"{year}: Census API kept failing")
 
 
-def fetch_year(year, key):
+def fetch_year(year, key, geography=("congressional district:*", "state:*")):
+    """Every VARIABLES count for one geography; congressional districts unless told otherwise."""
     codes = sorted({code for cells in VARIABLES.values() for code in cells})
     frames = []
     for start in range(0, len(codes), 45):  # the API takes at most 50 variables per call
-        frame = fetch(year, codes[start:start + 45], key)
-        frames.append(frame.set_index(["state", "congressional district"]))
+        frame = fetch(year, codes[start:start + 45], key, geography)
+        frames.append(frame.set_index([c for c in frame.columns if c not in codes]))
     raw = pd.concat(frames, axis=1).apply(pd.to_numeric, errors="coerce")
     raw[raw < -100000] = pd.NA  # Census sentinels for suppressed / not applicable values
     out = pd.DataFrame({name: raw[cells].sum(axis=1, min_count=len(cells)) for name, cells in VARIABLES.items()})

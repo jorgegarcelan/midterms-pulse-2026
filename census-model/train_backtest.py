@@ -27,6 +27,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBRegressor
 
+from build_dataset import STATE_DIVISION, features
+from redistrict import REDRAWN_2026, official_2024
 from structural import TwoStage
 
 warnings.filterwarnings("ignore")
@@ -36,7 +38,9 @@ OUT = ROOT / "output"
 
 PRESIDENT = {2000: "D", 2002: "R", 2004: "R", 2006: "R", 2008: "R", 2010: "D", 2012: "D", 2014: "D", 2016: "D",
              2018: "R", 2020: "R", 2022: "D", 2024: "D", 2026: "R"}  # party in the White House on election day
-REDRAWN_2026 = {"TX", "FL", "OH", "NC", "MO", "TN", "LA", "AL", "CA", "UT"}
+# Extra spread for redrawn districts: rebuilding ACS profiles from block groups moved the blend's
+# predicted margin by 1.6 points on average when tested on the 2024 lines (see redistrict.py).
+REAGGREGATION_SD = 1.6
 HALF_LIFE = 4  # years: recent cycles weigh more, the education realignment keeps moving
 SEED = 2026
 BACKTEST_YEARS = [2016, 2018, 2020, 2022, 2024]
@@ -209,33 +213,72 @@ def importance(fitted, columns):
     return frame.reindex(frame["ridge_coef_per_sd"].abs().sort_values(ascending=False).index)
 
 
+def frame_2026(data):
+    """The 435 districts of November 2026: official ACS for unchanged lines, rebuilt profiles for redrawn states."""
+    raw_2024 = pd.read_csv(ROOT / "data" / "acs" / "acs5_2024_cd.csv", dtype={"state": str, "cd": str})
+    unchanged_states = sorted({c[:2] for c in data.loc[data["year"] == 2024, "code"]} - set(REDRAWN_2026))
+    unchanged = official_2024(unchanged_states)
+    redrawn = pd.read_csv(ROOT / "data" / "acs" / "acs5_2024_cd2026.csv").set_index("code")
+    raw = pd.concat([unchanged[redrawn.columns.drop("acs_year")], redrawn.drop(columns="acs_year")])
+    assert len(raw) == 435 and len(raw_2024) >= 435
+    frame = features(raw)
+    frame.insert(0, "code", frame.index)
+    frame.insert(1, "year", 2026)
+    frame.insert(2, "state", frame["code"].str[:2])
+    frame.insert(3, "division", frame["state"].map(STATE_DIVISION))
+    frame["redrawn"] = frame["state"].isin(REDRAWN_2026)
+    last = data[data["year"] == 2024].set_index("code")
+    frame["won2024"] = np.where(frame["redrawn"], None, frame["code"].map(last["winner"]))
+    frame["margin2024"] = np.where(frame["redrawn"], np.nan, frame["code"].map(last["margin"]))
+    return frame.sort_values("code").reset_index(drop=True)
+
+
+def seat_outlook(seats, p_d):
+    return {"demMedian": int(np.median(seats)), "p10": int(np.percentile(seats, 10)), "p90": int(np.percentile(seats, 90)),
+            "demMajority": round(float((seats >= 218).mean()), 3), "expectedDem": round(float(p_d.sum()), 1)}
+
+
 def forecast_2026(data, national, folds, main, summary):
     train = data[data["contested"] == 1]
-    test = data[data["year"] == 2024].copy()
-    test["year"] = 2026
+    test = frame_2026(data)
     predictions, fitted, columns = fit_predict(train, test)
     structural = predictions[main]
     mu, sd_nat = blind_national(national, 2026)
-    sd_loc = rmse(folds[2024][1], folds[2024][2][main])
+    sd_known = rmse(folds[2024][1], folds[2024][2][main])  # next cycle on the same lines
+    sd_new = float(np.hypot(rmse(folds[2022][1], folds[2022][2][main]), REAGGREGATION_SD))  # 2022: every map was new
+    sd_loc = np.where(test["redrawn"], sd_new, sd_known)
     p_d = win_probability(structural, mu, sd_nat, sd_loc)
     seats = simulate(structural, mu, sd_nat, sd_loc)
+
+    # Same model on the 2024 lines, to isolate what the new maps change.
+    old = data[data["year"] == 2024].assign(year=2026)
+    old_structural = fit_predict(train, old)[0][main]
+    old_p = win_probability(old_structural, mu, sd_nat, sd_known)
+    old_seats = simulate(old_structural, mu, sd_nat, sd_known)
+    by_state = pd.DataFrame({"state": test["state"], "new": p_d}).groupby("state")["new"].sum().to_frame() \
+        .join(pd.DataFrame({"state": old["state"].to_numpy(), "old": old_p}).groupby("state")["old"].sum())
+    redraw_effect = {state: {"expectedDemNew": round(float(row["new"]), 1), "expectedDemOld": round(float(row["old"]), 1)}
+                     for state, row in by_state.loc[sorted(REDRAWN_2026)].iterrows()}
+
     races = [{
-        "code": code, "structural": round(float(s), 1), "margin": round(float(s + mu), 1), "pD": round(float(p), 3),
+        "code": row["code"], "structural": round(float(s), 1), "margin": round(float(s + mu), 1), "pD": round(float(p), 3),
         **{name: round(float(values[i]), 1) for name, values in predictions.items()},
-        "won2024": won, "margin2024": None if np.isnan(m) else round(float(m), 1), "redrawn": code[:2] in REDRAWN_2026,
-    } for i, (code, s, p, won, m) in enumerate(zip(test["code"], structural, p_d, test["winner"], test["margin"]))]
+        "redrawn": bool(row["redrawn"]), "won2024": row["won2024"],
+        "margin2024": None if pd.isna(row["margin2024"]) else round(float(row["margin2024"]), 1),
+    } for i, (row, s, p) in enumerate(zip(test.to_dict(orient="records"), structural, p_d))]
     histogram = np.bincount(seats, minlength=436)
     output = {
-        "model": "census-only House model, phase 2", "lines": "119th Congress (2024 maps)",
-        "acs": "ACS 2024 5-year", "trainedOn": sorted(int(y) for y in train["year"].unique()), "mainModel": main,
+        "model": "census-only House model, phase 3", "lines": "November 2026 maps (Census 120th Congress block file)",
+        "acs": "ACS 2024 5-year; redrawn districts rebuilt from tracts and 2020 blocks",
+        "trainedOn": sorted(int(y) for y in train["year"].unique()), "mainModel": main,
         "national": {"mean": round(float(mu), 2), "sd": round(float(sd_nat), 2),
                      "basis": "2024 House popular vote + mean midterm swing against the president's party, 2002–2022",
                      "popularVote2024": float(national[2024]),
                      "swings": {int(k): round(float(v), 2) for k, v in midterm_swings(national, 2026).items()}},
-        "localSd": round(sd_loc, 2),
-        "house": {"demMedian": int(np.median(seats)), "p10": int(np.percentile(seats, 10)), "p90": int(np.percentile(seats, 90)),
-                  "demMajority": round(float((seats >= 218).mean()), 3), "expectedDem": round(float(p_d.sum()), 1),
-                  "distribution": {int(k): int(v) for k, v in enumerate(histogram) if v}},
+        "localSd": {"unchangedLines": round(sd_known, 2), "redrawn": round(sd_new, 2)},
+        "house": {**seat_outlook(seats, p_d), "distribution": {int(k): int(v) for k, v in enumerate(histogram) if v}},
+        "house2024Lines": seat_outlook(old_seats, old_p),
+        "redrawEffect": redraw_effect,
         "backtest": summary.round(4).reset_index().to_dict(orient="records"),
         "redrawnStates": sorted(REDRAWN_2026), "races": races,
     }
@@ -275,7 +318,7 @@ def main():
 
     result = forecast_2026(data, national, folds, main_model, summary)
     house = {k: v for k, v in result["house"].items() if k != "distribution"}
-    print(json.dumps({"national": result["national"], "localSd": result["localSd"], "house": house}, indent=1))
+    print(json.dumps({k: result[k] for k in ("national", "localSd", "house2024Lines", "redrawEffect")} | {"house": house}, indent=1))
 
 
 if __name__ == "__main__":
