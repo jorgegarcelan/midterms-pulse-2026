@@ -11,10 +11,11 @@ The margin of a district in a given year is split in two:
   (isolates the census skill); "blind" uses what was known beforehand: the previous election's
   popular vote moved by the mean midterm swing against the president's party since 2002.
 
-Feature sets: "census" (default) uses the ACS profile only; "census_pres" adds the district's
-last presidential lean on the same lines (pres_by_cd.py) and writes to output/census_pres/.
+Feature sets: "census" (default) uses the ACS profile only. Suffixes add features, and results
+go to output/<feature set>/: "_pres" the district's last presidential lean on the same lines
+(pres_by_cd.py), "_inc" which party has an incumbent on the ballot (incumbency.py).
 
-Usage: census-model/.venv/bin/python census-model/train_backtest.py [census|census_pres]
+Usage: census-model/.venv/bin/python census-model/train_backtest.py [census|census_pres|census_inc|census_pres_inc]
 """
 import sys
 import json
@@ -236,6 +237,8 @@ def frame_2026(data):
     frame["margin2024"] = np.where(frame["redrawn"], np.nan, frame["code"].map(last["margin"]))
     if "pres_lean" in FEATURES:
         frame["pres_lean"] = frame["code"].map(pres_lean().query("year == 2026 and lines == 120").set_index("code")["pres_lean"])
+    if "incumbent" in FEATURES:
+        frame["incumbent"] = frame["code"].map(incumbency().query("year == 2026").set_index("code")["incumbent"]).fillna(0)
     return frame.sort_values("code").reset_index(drop=True)
 
 
@@ -260,6 +263,8 @@ def forecast_2026(data, national, folds, main, summary):
     old = data[data["year"] == 2024].assign(year=2026)
     if "pres_lean" in FEATURES:  # same presidential election (2024) as the new lines, so only the map differs
         old["pres_lean"] = old["code"].map(pres_lean().query("year == 2026 and lines == 119").set_index("code")["pres_lean"])
+    if "incumbent" in FEATURES:
+        old["incumbent"] = old["code"].map(incumbents_on_2024_lines()).fillna(0)
     old_structural = fit_predict(train, old)[0][main]
     old_p = win_probability(old_structural, mu, sd_nat, sd_known)
     old_seats = simulate(old_structural, mu, sd_nat, sd_known)
@@ -300,16 +305,37 @@ def pres_lean():
     return pd.read_csv(ROOT / "data" / "pres-lean.csv")
 
 
+def incumbency():
+    return pd.read_csv(ROOT / "data" / "incumbency.csv")
+
+
+def incumbents_on_2024_lines():
+    """For the 2024-lines comparison: +1/−1 when the district's 2024 winner is an incumbent running in 2026."""
+    candidates = json.loads((PROJECT / "public/data/candidates-2026.json").read_text())["candidates"]
+    running = {c["name"].lower() for c in candidates if c["chamber"] == "house" and c["incumbent"]}
+    out = {}
+    for file in (PROJECT / "public/data/history/house").glob("*.json"):
+        for code, results in json.loads(file.read_text())["districts"].items():
+            last = next((r for r in results if r["y"] == 2024), None)
+            if last and last.get("n", "").lower() in running:
+                out[code] = {"D": 1, "R": -1}.get(last["w"], 0)
+    return pd.Series(out, dtype=float)
+
+
 def load(feature_set="census"):
     """Dataset with the margin relative to the national popular vote; also sets FEATURES and OUT."""
     global OUT
     OUT = ROOT / "output" if feature_set == "census" else ROOT / "output" / feature_set
     OUT.mkdir(parents=True, exist_ok=True)
     data = pd.read_csv(ROOT / "data" / "dataset.csv")
-    if feature_set == "census_pres":
+    parts = set(feature_set.split("_"))
+    if "pres" in parts:
         lean = pres_lean().query("not (year == 2026 and lines == 119)")
         data = data.merge(lean[["year", "code", "pres_lean"]], on=["year", "code"], how="left")
         assert data["pres_lean"].notna().all()
+    if "inc" in parts:
+        data = data.merge(incumbency()[["year", "code", "incumbent"]], on=["year", "code"], how="left")
+        data["incumbent"] = data["incumbent"].fillna(0)
     FEATURES[:] = [c for c in data.columns if c not in {"code", "year", "state", "division", "winner", "contested", "margin"}]
     data["relative"] = data["margin"] - data["year"].map(national_history())
     return data

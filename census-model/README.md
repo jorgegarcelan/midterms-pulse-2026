@@ -1,4 +1,4 @@
-# Census-only House model (phases 1–4)
+# Census-only House model (phases 1–5)
 
 A House forecast that never looks at polls or markets: every district's margin comes from its
 American Community Survey profile, and the national level comes from election history alone.
@@ -6,6 +6,13 @@ American Community Survey profile, and the national level comes from election hi
 ```
 margin(district, year) = national(year) + structural(ACS profile, Census division)
 ```
+
+**The main model is the census-only one** (`train_backtest.py`, outputs in `output/`). When it
+predicts a district it sees nothing but that district's census profile and the national level;
+it is trained on past House results to learn how demographics map to votes. The other feature
+sets (phases 4–5: `census_pres`, `census_inc`, `census_pres_inc`, outputs in `output/<set>/`)
+add the district's presidential lean and incumbency. They are kept only as benchmarks, to
+measure how much those extra clues add over the census alone; they are not the forecast.
 
 - **national**: the two-party House popular vote (`national.py`). For a midterm it is predicted as
   the previous popular vote moved by the mean swing against the president's party, 2002–2022
@@ -32,6 +39,8 @@ census-model/.venv/bin/python census-model/train_backtest.py
 census-model/.venv/bin/python census-model/phase2_experiments.py   # optional: structural variants
 census-model/.venv/bin/python census-model/pres_by_cd.py                 # phase 4: presidential lean by district
 census-model/.venv/bin/python census-model/train_backtest.py census_pres
+census-model/.venv/bin/python census-model/incumbency.py               # phase 5: incumbents on the ballot
+census-model/.venv/bin/python census-model/train_backtest.py census_pres_inc   # also census_inc
 census-model/.venv/bin/python census-model/compare.py
 ```
 
@@ -85,7 +94,7 @@ drawn with past vote returns, exploiting exactly what demographics do not explai
 South Texas voting Republican, for instance), and the trees lose their memory of how a district
 voted once its lines are new. A census-only model cannot see a gerrymander.
 
-## Census + presidential lean (phase 4)
+## Benchmark: census + presidential lean (phase 4)
 
 `train_backtest.py census_pres` adds one feature: the district's last presidential result on the
 same lines, relative to the national result (2008 pres for the 2012 House, …, 2024 pres for
@@ -109,11 +118,39 @@ popular vote the model undercounts Democratic seats by ~7 on average (16 in 2020
 so its chamber odds lean Republican. 538 and MP-26 remain clearly better per race (Brier
 0.027–0.032 in 2018 and 2022 against 0.047–0.051).
 
+## Benchmark: incumbency and the seat bias (phase 5)
+
+The presidential-lean model missed 107 seats in the backtest; 40 of them were Democratic
+incumbents who held seats the model gave to Republicans, against 4 the other way. `incumbency.py`
+marks who defends each seat (+1 Democratic incumbent on the ballot, −1 Republican, 0 open or
+member-vs-member), matching 538's politician_id against winners of the two previous years, so
+members who moved district after a redraw still count. 2026 comes from the project's candidate list.
+
+| Feature set (model chosen) | Brier | RMSE | Seat calls | Seat bias | 2026 D median (80%) | P(D majority) | Redraw effect |
+|---|---|---|---|---|---|---|---|
+| census (blend) | 0.049 | 9.6 | 93.6% | −2.0 | 239 (200–283) | 75% | +1.6 |
+| census_inc (blend) | 0.041 | 9.1 | 95.2% | −6.2 | 233 (204–277) | 74% | +0.2 |
+| census_pres (blend) | 0.039 | 8.1 | 95.0% | −7.0 | 235 (199–279) | 73% | −3.5 |
+| census_pres_inc (ridge) | **0.034** | 8.2 | **95.7%** | −4.0 | 229 (200–278) | 67% | −2.7 |
+
+Incumbency removes the systematic part: Democratic-incumbent misses fall from 40 to 4 and total
+misses from 107 to 91. What is left is not a fixed bias. Across all contested races the mean
+residual is about zero every year; the error sits in the close races, and its sign changes
+by cycle (with incumbency: −5.7 points in 2016, +2.9 in 2018, −3.4 in 2020, +3.3 in 2022, +1.6
+in 2024, mean −0.3). It is a shared "battleground" error, so the seat totals swing by 10–18
+seats in either direction (2018 −18, 2020 +13, 2022 −12). The simulation still treats local
+errors as independent; a shared error for competitive seats would widen the chamber odds.
+
+Best per-race benchmark is census_pres_inc (Brier 0.049 and 0.039 in 2018 and 2022, against
+538's 0.027 and 0.032). Its redraw effect is less reliable than the others': on the 2024 lines
+incumbents are matched by name between the history files and the 2026 candidate list (271 of
+~360 match), so some old-line seats count as open.
+
 ## Known limits
 
 - The redraw effect is invisible to census data alone (see above); the presidential lean recovers
   part of it.
-- The target is the House result, so incumbency and candidate quality sit in the residual.
+- Candidate quality and money sit in the residual (incumbency only in the `_inc` feature sets).
 - Trees recognise districts they have seen before: error on unseen states (~18–20 pts) is much
   higher than on the next cycle of known districts (~8–12 pts).
 - The national prior is wide on purpose: since 2002 the swing against the president's party has

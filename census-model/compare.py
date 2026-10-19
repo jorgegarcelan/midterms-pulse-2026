@@ -1,6 +1,6 @@
 """
-Census only vs census + presidential lean: backtest and 2026 side by side, for the model each
-feature set selects. Run train_backtest.py in both modes first.
+Feature sets side by side (census only, + presidential lean, + incumbency): backtest and 2026,
+for the model each feature set selects. Run train_backtest.py in each mode first.
 
 Usage: census-model/.venv/bin/python census-model/compare.py
 """
@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
-MODES = {"census": ROOT / "output", "census_pres": ROOT / "output" / "census_pres"}
+MODES = {"census": ROOT / "output", **{mode: ROOT / "output" / mode for mode in ["census_inc", "census_pres", "census_pres_inc"]}}
 
 
 def main():
