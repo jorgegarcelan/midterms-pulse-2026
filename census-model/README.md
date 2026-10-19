@@ -42,7 +42,11 @@ census-model/.venv/bin/python census-model/train_backtest.py census_pres
 census-model/.venv/bin/python census-model/incumbency.py               # phase 5: incumbents on the ballot
 census-model/.venv/bin/python census-model/train_backtest.py census_pres_inc   # also census_inc
 census-model/.venv/bin/python census-model/compare.py
+census-model/.venv/bin/python census-model/export_web.py             # src/data/census-model.json for /census
 ```
+
+The web page `/census` (`src/app/[lang]/census`, `src/components/census`) reads only
+`src/data/census-model.json`; rerun `export_web.py` after retraining to update it.
 
 District areas come from the Census Gazetteer files in `data/gazetteer/` (113th–119th Congress).
 
