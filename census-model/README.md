@@ -1,4 +1,4 @@
-# Census-only House model (phase 3)
+# Census-only House model (phases 1–4)
 
 A House forecast that never looks at polls or markets: every district's margin comes from its
 American Community Survey profile, and the national level comes from election history alone.
@@ -30,6 +30,9 @@ census-model/.venv/bin/python census-model/build_dataset.py
 census-model/.venv/bin/python census-model/redistrict.py build-2026   # 2026 maps of the redrawn states
 census-model/.venv/bin/python census-model/train_backtest.py
 census-model/.venv/bin/python census-model/phase2_experiments.py   # optional: structural variants
+census-model/.venv/bin/python census-model/pres_by_cd.py                 # phase 4: presidential lean by district
+census-model/.venv/bin/python census-model/train_backtest.py census_pres
+census-model/.venv/bin/python census-model/compare.py
 ```
 
 District areas come from the Census Gazetteer files in `data/gazetteer/` (113th–119th Congress).
@@ -76,15 +79,40 @@ Checks of the method:
   on average; that is added to the local spread of redrawn districts, on top of the 2022 error
   (the last cycle where every map was new).
 
-**What it shows:** the census model barely moves when the maps change (+1.3 expected Democratic
+**What it shows:** the census model barely moves when the maps change (+1.6 expected Democratic
 seats across the nine states, against press estimates of up to ~10 net Republican). Maps are
 drawn with past vote returns, exploiting exactly what demographics do not explain (Hispanic
 South Texas voting Republican, for instance), and the trees lose their memory of how a district
 voted once its lines are new. A census-only model cannot see a gerrymander.
 
+## Census + presidential lean (phase 4)
+
+`train_backtest.py census_pres` adds one feature: the district's last presidential result on the
+same lines, relative to the national result (2008 pres for the 2012 House, …, 2024 pres for
+2026), from The Downballot's presidential-by-district sheets (`pres_by_cd.py`). No polls or
+markets are involved, but the model is no longer census-only. Missing source data (California
+2008, Florida 2012 on the 2016 lines) is filled from the census profile and flagged.
+
+| | Census only | Census + pres |
+|---|---|---|
+| Brier, mean 2016–2024 (blind) | 0.049 | 0.039 |
+| District error (RMSE, pts) | 9.6 | 8.1 |
+| Seat calls with the real popular vote | 93.6% | 95.0% |
+| Seat total bias with the real popular vote | −2.0 | −7.0 |
+| 2026: D median / P(D majority) | 239 / 75% | 235 / 73% |
+| 2026: effect of the new maps (expected D seats) | +1.6 | −3.5 |
+
+Every race gets sharper, and the new maps finally show (TX −2.4, FL −1.7, LA −1.0, TN −0.9,
+AL −0.8, CA +2.9, UT +0.9), smaller than the press ceilings (net R+9) because a D+5
+environment puts several of the new Republican seats back in play. The catch: with the real
+popular vote the model undercounts Democratic seats by ~7 on average (16 in 2020, 10 in 2022),
+so its chamber odds lean Republican. 538 and MP-26 remain clearly better per race (Brier
+0.027–0.032 in 2018 and 2022 against 0.047–0.051).
+
 ## Known limits
 
-- The redraw effect is invisible to census data (see above).
+- The redraw effect is invisible to census data alone (see above); the presidential lean recovers
+  part of it.
 - The target is the House result, so incumbency and candidate quality sit in the residual.
 - Trees recognise districts they have seen before: error on unseen states (~18–20 pts) is much
   higher than on the next cycle of known districts (~8–12 pts).

@@ -11,8 +11,12 @@ The margin of a district in a given year is split in two:
   (isolates the census skill); "blind" uses what was known beforehand: the previous election's
   popular vote moved by the mean midterm swing against the president's party since 2002.
 
-Usage: census-model/.venv/bin/python census-model/train_backtest.py
+Feature sets: "census" (default) uses the ACS profile only; "census_pres" adds the district's
+last presidential lean on the same lines (pres_by_cd.py) and writes to output/census_pres/.
+
+Usage: census-model/.venv/bin/python census-model/train_backtest.py [census|census_pres]
 """
+import sys
 import json
 import warnings
 from math import erf, sqrt
@@ -230,6 +234,8 @@ def frame_2026(data):
     last = data[data["year"] == 2024].set_index("code")
     frame["won2024"] = np.where(frame["redrawn"], None, frame["code"].map(last["winner"]))
     frame["margin2024"] = np.where(frame["redrawn"], np.nan, frame["code"].map(last["margin"]))
+    if "pres_lean" in FEATURES:
+        frame["pres_lean"] = frame["code"].map(pres_lean().query("year == 2026 and lines == 120").set_index("code")["pres_lean"])
     return frame.sort_values("code").reset_index(drop=True)
 
 
@@ -252,6 +258,8 @@ def forecast_2026(data, national, folds, main, summary):
 
     # Same model on the 2024 lines, to isolate what the new maps change.
     old = data[data["year"] == 2024].assign(year=2026)
+    if "pres_lean" in FEATURES:  # same presidential election (2024) as the new lines, so only the map differs
+        old["pres_lean"] = old["code"].map(pres_lean().query("year == 2026 and lines == 119").set_index("code")["pres_lean"])
     old_structural = fit_predict(train, old)[0][main]
     old_p = win_probability(old_structural, mu, sd_nat, sd_known)
     old_seats = simulate(old_structural, mu, sd_nat, sd_known)
@@ -288,17 +296,27 @@ def forecast_2026(data, national, folds, main, summary):
     return output
 
 
-def load():
-    """Dataset with the margin relative to the national popular vote; also sets FEATURES."""
-    OUT.mkdir(exist_ok=True)
+def pres_lean():
+    return pd.read_csv(ROOT / "data" / "pres-lean.csv")
+
+
+def load(feature_set="census"):
+    """Dataset with the margin relative to the national popular vote; also sets FEATURES and OUT."""
+    global OUT
+    OUT = ROOT / "output" if feature_set == "census" else ROOT / "output" / feature_set
+    OUT.mkdir(parents=True, exist_ok=True)
     data = pd.read_csv(ROOT / "data" / "dataset.csv")
+    if feature_set == "census_pres":
+        lean = pres_lean().query("not (year == 2026 and lines == 119)")
+        data = data.merge(lean[["year", "code", "pres_lean"]], on=["year", "code"], how="left")
+        assert data["pres_lean"].notna().all()
     FEATURES[:] = [c for c in data.columns if c not in {"code", "year", "state", "division", "winner", "contested", "margin"}]
     data["relative"] = data["margin"] - data["year"].map(national_history())
     return data
 
 
 def main():
-    data = load()
+    data = load(sys.argv[1] if len(sys.argv) > 1 else "census")
     national = national_history()
     folds = rolling(data)
     report = backtest(data, national, folds)
