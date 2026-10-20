@@ -1,4 +1,5 @@
 import { MAP_HEIGHT, MAP_WIDTH, type MapShape } from "@/lib/playground/geo";
+import { SITE_HOST } from "@/lib/site";
 
 type ExportOptions = {
   shapes: MapShape[];
@@ -14,7 +15,7 @@ type ExportOptions = {
   filename: string;
 };
 
-export const WATERMARK = "midterm-pulse-2026.vercel.app";
+export const WATERMARK = SITE_HOST;
 
 // Renders the user's map to a 1600×1200 PNG entirely in the browser (Path2D from the SVG path data).
 export async function exportMapImage(options: ExportOptions) {

@@ -16,12 +16,13 @@ export const ratingDates = (chamber: ForecastRace["chamber"]) => ratings[chamber
 
 const SCORE: Record<string, number> = { "Safe D": 3, "Likely D": 2, "Lean D": 1, "Tilt D": .5, "Toss-up": 0, "Tilt R": -.5, "Lean R": -1, "Likely R": -2, "Safe R": -3 };
 
-// Races missing from the House table are on no rater's competitive list: Safe for the 2024 winner.
-export function expertBook(race: Pick<ForecastRace, "chamber" | "code" | "baselineDem" | "baselineRep">): { book: ExpertBook; listed: boolean } | null {
+// Races missing from the House table are on no rater's competitive list: Safe for the party that won
+// 2024 on the district's lines (the presidential vote where the map is new).
+export function expertBook(race: Pick<ForecastRace, "chamber" | "code" | "baselineMargin">): { book: ExpertBook; listed: boolean } | null {
   const listed = (ratings[race.chamber].races as Record<string, ExpertBook>)[race.code];
   if (listed) return { book: listed, listed: true };
-  if (race.chamber === "senate" || race.baselineDem === null || race.baselineRep === null) return null;
-  const safe = race.baselineDem > race.baselineRep ? "Safe D" : "Safe R";
+  if (race.chamber === "senate" || race.baselineMargin === null) return null;
+  const safe = race.baselineMargin > 0 ? "Safe D" : "Safe R";
   return { book: { cook: safe, ie: safe, sabato: safe }, listed: false };
 }
 

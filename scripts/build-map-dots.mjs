@@ -3,9 +3,10 @@ import path from "node:path";
 import process from "node:process";
 import { geoAlbersUsa, geoContains, geoPath } from "d3-geo";
 
-// Rasterizes the 119th Congress districts into an even dot grid for the home particle map.
+// Rasterizes the November 2026 districts into an even dot grid for the home particle map. The fit is
+// the same as with the 119th Congress file, since no state border moved in the nine redrawn states.
 // Output: grid size, district codes, projected centroids and the grid cells each district owns.
-const [inputPath = "public/data/congressional-districts-119.geojson", outputPath = "src/data/map-dots.json"] = process.argv.slice(2);
+const [inputPath = "public/data/congressional-districts-2026.geojson", outputPath = "src/data/map-dots.json"] = process.argv.slice(2);
 const WIDTH = 1000;
 const HEIGHT = 620;
 const STEP = 7;
@@ -52,7 +53,9 @@ for (const district of districts) {
 }
 
 const output = {
-  source: "U.S. Census Bureau, 2024 Cartographic Boundary Files, 119th Congress (rasterized)",
+  source: inputPath.includes("2026")
+    ? "U.S. Census Bureau, 2024 Cartographic Boundary Files, with the nine states redrawn for November 2026 (rasterized)"
+    : "U.S. Census Bureau, 2024 Cartographic Boundary Files, 119th Congress (rasterized)",
   width: WIDTH, height: HEIGHT, step: STEP, cols,
   codes: districts.map((district) => district.code),
   centroids: districts.map((district) => district.centroid.map((value) => Math.round(value))),

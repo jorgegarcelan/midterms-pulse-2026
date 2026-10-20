@@ -20,6 +20,7 @@ export function StreamIndex() {
   const label = (item: (typeof races)[number]) => item.chamber === "senate" ? t("{state} Senate", { state: t(stateByCode.get(item.state)?.name || item.state) }) : item.code;
 
   const scenes = [
+    { key: "night", title: t("Election night results"), body: t("Seats called in each chamber, the majority odds given the calls and the latest projections. Updates every 15 seconds. Add ?rehearsal=1 to show a running rehearsal."), path: "/stream/night" },
     { key: "control", title: t("Control scoreboard"), body: t("House and Senate odds, seat medians, the generic ballot and the days left. Refreshes every five minutes."), path: "/stream/control" },
     { key: "senate", title: t("Senate builder"), body: t("Click states to call them live and watch control move. Interact with it in OBS via Interact (right click on the source)."), path: "/stream/senate" },
     { key: "geography", title: t("Geography of the vote"), body: t("The county map story in presentation mode: move between axes with the arrow keys, Esc to leave."), path: "/geography?present" },

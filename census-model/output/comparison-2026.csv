@@ -1,0 +1,16 @@
+,census,census_inc,census_pres,census_pres_inc
+demMedian,239.0,233.0,235.0,229.0
+p10,200.0,204.0,199.0,200.0
+p90,283.0,277.0,279.0,278.0
+demMajority,0.748,0.74,0.726,0.669
+expectedDem,240.0,237.5,237.0,234.4
+redrawEffect,1.6,0.2,-3.5,-2.7
+effect_AL,-0.6,-0.2,-0.8,-0.5
+effect_CA,1.9,1.3,2.9,2.4
+effect_FL,0.6,-0.6,-1.7,-1.6
+effect_LA,-0.9,-0.8,-1.0,-0.9
+effect_NC,0.0,0.1,-0.2,0.3
+effect_OH,0.2,0.2,-0.3,-0.3
+effect_TN,-0.7,-0.7,-0.9,-0.8
+effect_TX,0.2,0.1,-2.4,-2.0
+effect_UT,0.9,0.8,0.9,0.7

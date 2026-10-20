@@ -1,4 +1,5 @@
 import snapshot from "@/data/forecast-snapshot.json";
+import newLines from "@/data/pres-2024-new-lines.json";
 import { fetchVoteScope } from "@/lib/vote-scope";
 
 export type ForecastRace = {
@@ -14,8 +15,12 @@ export type ForecastRace = {
   rating: string;
   demVote: number | null;
   repVote: number | null;
+  // The 2024 result on the district's lines: the House race, or for the nine states with new maps
+  // in 2026 (no House race on those lines yet) the presidential two-party margin. Signed D − R.
   baselineDem: number | null;
   baselineRep: number | null;
+  baselineMargin: number | null;
+  baselineKind: "result" | "pres-new-lines";
   pollCount: number | null;
   incumbentParty: "D" | "R" | null;
   special: boolean;
@@ -72,7 +77,7 @@ function expectedMargin(race: SourceRiding) {
 }
 
 function normalizeRaces(payload: SourcePayload, chamber: "house" | "senate"): ForecastRace[] {
-  return payload.ridings.map((race) => {
+  return payload.ridings.map((race): ForecastRace => {
     const signed = expectedMargin(race);
     const leader = signed >= 0 ? "D" : "R";
     const margin = Math.abs(signed);
@@ -91,11 +96,29 @@ function normalizeRaces(payload: SourcePayload, chamber: "house" | "senate"): Fo
       repVote: race.projection.vote_mean?.us_rep ?? null,
       baselineDem: race.baseline_result?.us_dem_pct ?? null,
       baselineRep: race.baseline_result?.us_rep_pct ?? null,
+      baselineMargin: null,
+      baselineKind: "result",
       pollCount: race.poll_count ?? null,
       incumbentParty: race.incumbent_party === "us_dem" ? "D" : race.incumbent_party === "us_rep" ? "R" : null,
       special: Boolean(race.is_special),
     };
-  });
+  }).map(onTheseLines);
+}
+
+const REDRAWN_2026: readonly string[] = newLines.states;
+const presNewLines = newLines.margins as Record<string, number>;
+
+/*
+  The feed's baseline is the 2024 House result of the old district with the same number, which in the
+  nine redrawn states is different territory (the new UT-01 is a Salt Lake seat; the old one was R+29).
+  Those districts get the 2024 presidential margin measured on the new lines instead.
+*/
+function onTheseLines(race: ForecastRace): ForecastRace {
+  if (race.chamber === "house" && REDRAWN_2026.includes(race.state)) {
+    return { ...race, baselineDem: null, baselineRep: null, baselineMargin: presNewLines[race.code] ?? null, baselineKind: "pres-new-lines" };
+  }
+  const margin = race.baselineDem !== null && race.baselineRep !== null ? Math.round((race.baselineDem - race.baselineRep) * 100) / 100 : null;
+  return { ...race, baselineMargin: margin, baselineKind: "result" };
 }
 
 function closest(districts: ForecastRace[], senateRaces: ForecastRace[]) {
@@ -104,8 +127,10 @@ function closest(districts: ForecastRace[], senateRaces: ForecastRace[]) {
 }
 
 export function cachedForecast(): ForecastFeed {
-  const typed = snapshot as Omit<ForecastFeed, "races" | "stale">;
-  return { ...typed, races: closest(typed.districts, typed.senateRaces), stale: true };
+  const typed = snapshot as unknown as Omit<ForecastFeed, "races" | "stale">;
+  const districts = typed.districts.map(onTheseLines);
+  const senateRaces = typed.senateRaces.map(onTheseLines);
+  return { ...typed, districts, senateRaces, races: closest(districts, senateRaces), stale: true };
 }
 
 export function normalizeForecast(house: SourcePayload, senate: SourcePayload): ForecastFeed {
