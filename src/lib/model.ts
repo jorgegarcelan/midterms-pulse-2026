@@ -6,6 +6,8 @@ import { simulateSenate } from "@/lib/senate-sim";
 export type ModelPoll = { endDate: string; dem: number; rep: number; sample: number; population: "LV" | "RV" | "A" };
 export type ModelResult = {
   version: string; status: "experimental"; runDate: string; simulations: number;
+  // Date of the Vote-Scope run the race margins start from.
+  benchmarkDate: string;
   genericBallot: { dem: number; rep: number; margin: number; effectivePolls: number; latestPoll: string; source: string; benchmarkMargin: number; movement: number };
   house: { demMajority: number; demSeats: number; repSeats: number; interval80: [number, number]; distribution: { seats: number; frequency: number }[] };
   senate: { demMajority: number; demSeats: number; repSeats: number; interval80: [number, number]; distribution: { seats: number; frequency: number }[] };
@@ -66,7 +68,7 @@ export function runModel(forecast: ForecastFeed, polls: ModelPoll[], today: stri
   const signed = (value: number) => `${value >= 0 ? "D" : "R"}+${Math.abs(value).toFixed(1)}`;
 
   return {
-    version: MODEL_VERSION, status: "experimental", runDate: today, simulations: SIMULATIONS,
+    version: MODEL_VERSION, status: "experimental", runDate: today, simulations: SIMULATIONS, benchmarkDate: forecast.updated,
     genericBallot: {
       dem: Math.round(ballot.dem * 10) / 10, rep: Math.round(ballot.rep * 10) / 10, margin: Math.round(ballot.margin * 10) / 10,
       effectivePolls: polls.length, latestPoll, source: pollSource,

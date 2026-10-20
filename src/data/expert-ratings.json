@@ -4,17 +4,17 @@
   "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_election_ratings",
   "https://en.wikipedia.org/wiki/2026_United_States_Senate_elections"
  ],
- "retrieved": "2026-10-09",
+ "retrieved": "2026-10-20",
  "house": {
   "dates": {
-   "cook": "2026-10-09",
-   "ie": "2026-10-01",
-   "sabato": "2026-10-08"
+   "cook": "2026-10-16",
+   "ie": "2026-10-15",
+   "sabato": "2026-10-20"
   },
   "races": {
    "AL-02": {
     "cook": "Likely R",
-    "ie": "Likely R",
+    "ie": "Lean R",
     "sabato": "Lean R"
    },
    "AK-00": {
@@ -24,8 +24,8 @@
    },
    "AZ-01": {
     "cook": "Lean D",
-    "ie": "Toss-up",
-    "sabato": "Toss-up"
+    "ie": "Tilt D",
+    "sabato": "Lean D"
    },
    "AZ-02": {
     "cook": "Likely R",
@@ -40,7 +40,7 @@
    "AZ-06": {
     "cook": "Toss-up",
     "ie": "Toss-up",
-    "sabato": "Toss-up"
+    "sabato": "Lean D"
    },
    "AZ-08": {
     "cook": "Safe R",
@@ -49,7 +49,7 @@
    },
    "AR-02": {
     "cook": "Likely R",
-    "ie": "Safe R",
+    "ie": "Likely R",
     "sabato": "Likely R"
    },
    "CA-05": {
@@ -65,7 +65,7 @@
    "CA-13": {
     "cook": "Lean D",
     "ie": "Tilt D",
-    "sabato": "Lean D"
+    "sabato": "Likely D"
    },
    "CA-21": {
     "cook": "Likely D",
@@ -85,7 +85,7 @@
    "CA-48": {
     "cook": "Lean D",
     "ie": "Tilt D",
-    "sabato": "Lean D"
+    "sabato": "Likely D"
    },
    "CO-03": {
     "cook": "Likely R",
@@ -95,7 +95,7 @@
    "CO-04": {
     "cook": "Safe R",
     "ie": "Safe R",
-    "sabato": "Likely R"
+    "sabato": "Lean R"
    },
    "CO-05": {
     "cook": "Lean R",
@@ -105,7 +105,7 @@
    "CO-08": {
     "cook": "Toss-up",
     "ie": "Toss-up",
-    "sabato": "Toss-up"
+    "sabato": "Lean D"
    },
    "FL-02": {
     "cook": "Safe R",
@@ -168,7 +168,7 @@
     "sabato": "Safe R"
    },
    "FL-16": {
-    "cook": "Safe R",
+    "cook": "Likely R",
     "ie": "Likely R",
     "sabato": "Likely R"
    },
@@ -188,7 +188,7 @@
     "sabato": "Toss-up"
    },
    "FL-25": {
-    "cook": "Toss-up",
+    "cook": "Lean D",
     "ie": "Toss-up",
     "sabato": "Lean D"
    },
@@ -239,8 +239,8 @@
    },
    "IN-05": {
     "cook": "Likely R",
-    "ie": "Safe R",
-    "sabato": "Safe R"
+    "ie": "Likely R",
+    "sabato": "Likely R"
    },
    "IA-01": {
     "cook": "Lean D",
@@ -249,18 +249,18 @@
    },
    "IA-02": {
     "cook": "Toss-up",
-    "ie": "Tilt R",
-    "sabato": "Toss-up"
+    "ie": "Toss-up",
+    "sabato": "Lean D"
    },
    "IA-03": {
     "cook": "Lean D",
     "ie": "Tilt D",
-    "sabato": "Toss-up"
+    "sabato": "Lean D"
    },
    "KS-02": {
-    "cook": "Safe R",
+    "cook": "Likely R",
     "ie": "Safe R",
-    "sabato": "Safe R"
+    "sabato": "Likely R"
    },
    "KS-03": {
     "cook": "Safe D",
@@ -269,18 +269,18 @@
    },
    "KY-06": {
     "cook": "Lean R",
-    "ie": "Lean R",
+    "ie": "Tilt R",
     "sabato": "Lean R"
    },
    "ME-02": {
     "cook": "Lean R",
-    "ie": "Likely R",
+    "ie": "Lean R",
     "sabato": "Lean R"
    },
    "MD-01": {
     "cook": "Safe R",
     "ie": "Safe R",
-    "sabato": "Safe R"
+    "sabato": "Likely R"
    },
    "MI-01": {
     "cook": "Safe R",
@@ -313,9 +313,9 @@
     "sabato": "Toss-up"
    },
    "MN-01": {
-    "cook": "Likely R",
+    "cook": "Lean R",
     "ie": "Likely R",
-    "sabato": "Likely R"
+    "sabato": "Lean R"
    },
    "MN-02": {
     "cook": "Likely D",
@@ -333,18 +333,18 @@
     "sabato": "Lean R"
    },
    "MT-01": {
-    "cook": "Lean R",
-    "ie": "Lean R",
+    "cook": "Toss-up",
+    "ie": "Tilt R",
     "sabato": "Lean R"
    },
    "NE-01": {
-    "cook": "Safe R",
-    "ie": "Safe R",
-    "sabato": "Safe R"
+    "cook": "Likely R",
+    "ie": "Likely R",
+    "sabato": "Likely R"
    },
    "NE-02": {
     "cook": "Likely D",
-    "ie": "Tilt D",
+    "ie": "Lean D",
     "sabato": "Likely D"
    },
    "NV-01": {
@@ -354,13 +354,13 @@
    },
    "NV-02": {
     "cook": "Likely R",
-    "ie": "Likely R",
-    "sabato": "Likely R"
+    "ie": "Lean R",
+    "sabato": "Lean R"
    },
    "NV-03": {
     "cook": "Likely D",
     "ie": "Lean D",
-    "sabato": "Lean D"
+    "sabato": "Likely D"
    },
    "NV-04": {
     "cook": "Likely D",
@@ -370,7 +370,7 @@
    "NH-01": {
     "cook": "Likely D",
     "ie": "Lean D",
-    "sabato": "Lean D"
+    "sabato": "Likely D"
    },
    "NH-02": {
     "cook": "Safe D",
@@ -380,7 +380,7 @@
    "NJ-02": {
     "cook": "Safe R",
     "ie": "Safe R",
-    "sabato": "Safe R"
+    "sabato": "Likely R"
    },
    "NJ-07": {
     "cook": "Lean D",
@@ -389,7 +389,7 @@
    },
    "NJ-09": {
     "cook": "Likely D",
-    "ie": "Likely D",
+    "ie": "Safe D",
     "sabato": "Likely D"
    },
    "NM-02": {
@@ -415,7 +415,7 @@
    "NY-04": {
     "cook": "Likely D",
     "ie": "Tilt D",
-    "sabato": "Lean D"
+    "sabato": "Likely D"
    },
    "NY-17": {
     "cook": "Toss-up",
@@ -424,13 +424,13 @@
    },
    "NY-19": {
     "cook": "Likely D",
-    "ie": "Likely D",
+    "ie": "Safe D",
     "sabato": "Likely D"
    },
    "NY-21": {
-    "cook": "Likely R",
-    "ie": "Likely R",
-    "sabato": "Likely R"
+    "cook": "Lean R",
+    "ie": "Lean R",
+    "sabato": "Lean R"
    },
    "NY-23": {
     "cook": "Safe R",
@@ -439,8 +439,8 @@
    },
    "NC-01": {
     "cook": "Toss-up",
-    "ie": "Tilt R",
-    "sabato": "Toss-up"
+    "ie": "Toss-up",
+    "sabato": "Lean D"
    },
    "NC-03": {
     "cook": "Safe R",
@@ -479,8 +479,8 @@
    },
    "NC-11": {
     "cook": "Toss-up",
-    "ie": "Lean R",
-    "sabato": "Toss-up"
+    "ie": "Toss-up",
+    "sabato": "Lean D"
    },
    "NC-13": {
     "cook": "Safe R",
@@ -493,9 +493,9 @@
     "sabato": "Safe R"
    },
    "OH-01": {
-    "cook": "Lean D",
+    "cook": "Likely D",
     "ie": "Tilt D",
-    "sabato": "Lean D"
+    "sabato": "Likely D"
    },
    "OH-07": {
     "cook": "Toss-up",
@@ -509,11 +509,11 @@
    },
    "OH-09": {
     "cook": "Toss-up",
-    "ie": "Tilt R",
+    "ie": "Toss-up",
     "sabato": "Toss-up"
    },
    "OH-10": {
-    "cook": "Likely R",
+    "cook": "Lean R",
     "ie": "Safe R",
     "sabato": "Likely R"
    },
@@ -523,7 +523,7 @@
     "sabato": "Likely D"
    },
    "OH-15": {
-    "cook": "Likely R",
+    "cook": "Lean R",
     "ie": "Likely R",
     "sabato": "Likely R"
    },
@@ -549,18 +549,18 @@
    },
    "PA-07": {
     "cook": "Lean D",
-    "ie": "Toss-up",
+    "ie": "Tilt D",
     "sabato": "Lean D"
    },
    "PA-08": {
     "cook": "Toss-up",
-    "ie": "Toss-up",
+    "ie": "Tilt D",
     "sabato": "Toss-up"
    },
    "PA-10": {
     "cook": "Lean D",
     "ie": "Toss-up",
-    "sabato": "Toss-up"
+    "sabato": "Lean D"
    },
    "PA-11": {
     "cook": "Safe R",
@@ -568,9 +568,9 @@
     "sabato": "Safe R"
    },
    "SC-01": {
-    "cook": "Likely R",
-    "ie": "Likely R",
-    "sabato": "Likely R"
+    "cook": "Lean R",
+    "ie": "Lean R",
+    "sabato": "Lean R"
    },
    "SC-02": {
     "cook": "Safe R",
@@ -587,17 +587,7 @@
     "ie": "Safe R",
     "sabato": "Safe R"
    },
-   "TN-07": {
-    "cook": "Safe R",
-    "ie": "Safe R",
-    "sabato": "Safe R"
-   },
    "TN-09": {
-    "cook": "Safe R",
-    "ie": "Safe R",
-    "sabato": "Safe R"
-   },
-   "TX-02": {
     "cook": "Safe R",
     "ie": "Safe R",
     "sabato": "Safe R"
@@ -619,13 +609,8 @@
    },
    "TX-15": {
     "cook": "Toss-up",
-    "ie": "Tilt R",
+    "ie": "Toss-up",
     "sabato": "Toss-up"
-   },
-   "TX-17": {
-    "cook": "Safe R",
-    "ie": "Safe R",
-    "sabato": "Safe R"
    },
    "TX-21": {
     "cook": "Safe R",
@@ -640,7 +625,7 @@
    "TX-23": {
     "cook": "Likely R",
     "ie": "Likely R",
-    "sabato": "Likely R"
+    "sabato": "Lean R"
    },
    "TX-24": {
     "cook": "Safe R",
@@ -675,7 +660,7 @@
    "TX-35": {
     "cook": "Lean R",
     "ie": "Lean R",
-    "sabato": "Lean R"
+    "sabato": "Toss-up"
    },
    "TX-38": {
     "cook": "Safe R",
@@ -715,7 +700,7 @@
    "WA-05": {
     "cook": "Safe R",
     "ie": "Safe R",
-    "sabato": "Safe R"
+    "sabato": "Likely R"
    },
    "WI-01": {
     "cook": "Lean R",
@@ -725,7 +710,7 @@
    "WI-03": {
     "cook": "Toss-up",
     "ie": "Toss-up",
-    "sabato": "Toss-up"
+    "sabato": "Lean D"
    },
    "WI-06": {
     "cook": "Safe R",
@@ -741,14 +726,19 @@
     "cook": "Safe R",
     "ie": "Safe R",
     "sabato": "Safe R"
+   },
+   "WY-00": {
+    "cook": "Safe R",
+    "ie": "Likely R",
+    "sabato": "Safe R"
    }
   }
  },
  "senate": {
   "dates": {
-   "cook": "2026-10-06",
-   "ie": "2026-10-01",
-   "sabato": "2026-10-06"
+   "cook": "2026-10-20",
+   "ie": "2026-10-15",
+   "sabato": "2026-10-14"
   },
   "races": {
    "AL": {
@@ -778,7 +768,7 @@
    },
    "FL": {
     "cook": "Safe R",
-    "ie": "Safe R",
+    "ie": "Likely R",
     "sabato": "Safe R"
    },
    "GA": {
@@ -803,8 +793,8 @@
    },
    "KS": {
     "cook": "Toss-up",
-    "ie": "Likely R",
-    "sabato": "Lean R"
+    "ie": "Tilt R",
+    "sabato": "Toss-up"
    },
    "KY": {
     "cook": "Safe R",
@@ -832,14 +822,14 @@
     "sabato": "Lean D"
    },
    "MN": {
-    "cook": "Likely D",
+    "cook": "Lean D",
     "ie": "Lean D",
-    "sabato": "Likely D"
+    "sabato": "Lean D"
    },
    "MS": {
-    "cook": "Safe R",
+    "cook": "Likely R",
     "ie": "Safe R",
-    "sabato": "Safe R"
+    "sabato": "Likely R"
    },
    "MT": {
     "cook": "Safe R",
@@ -849,12 +839,12 @@
    "NE": {
     "cook": "Likely R",
     "ie": "Lean R",
-    "sabato": "Likely R"
+    "sabato": "Lean R"
    },
    "NH": {
     "cook": "Lean D",
-    "ie": "Toss-up",
-    "sabato": "Lean D"
+    "ie": "Tilt D",
+    "sabato": "Likely D"
    },
    "NJ": {
     "cook": "Safe D",
@@ -892,8 +882,8 @@
     "sabato": "Safe D"
    },
    "SC": {
-    "cook": "Likely R",
-    "ie": "Likely R",
+    "cook": "Lean R",
+    "ie": "Lean R",
     "sabato": "Likely R"
    },
    "SD": {
@@ -908,7 +898,7 @@
    },
    "TX": {
     "cook": "Toss-up",
-    "ie": "Tilt R",
+    "ie": "Toss-up",
     "sabato": "Toss-up"
    },
    "VA": {

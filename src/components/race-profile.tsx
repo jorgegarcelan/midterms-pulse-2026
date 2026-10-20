@@ -17,7 +17,7 @@ import { RaceExperts } from "@/components/race/race-experts";
 import { RaceNominees } from "@/components/candidates/race-nominees";
 import { RaceHistory } from "@/components/race/race-history";
 import { RaceSignals } from "@/components/race/race-signals";
-import { RaceReadingsView } from "@/components/readings/readings";
+import { pollsAreSolid, RaceReadingsView, ReadingsSources } from "@/components/readings/readings";
 import type { RaceReadings } from "@/lib/readings-shared";
 import { ShareImageButton } from "@/components/share-image-button";
 import { useIntlLocale, useLocalePath, useT } from "@/components/i18n/locale-provider";
@@ -111,13 +111,14 @@ export function RaceProfile({ slug }: { slug: string }) {
 
   return <>
     <nav className="race-breadcrumb" aria-label={t("Breadcrumb")}><Link href="/races">{t("All races")}</Link><span>/</span><Link href={`/states/${race.state.toLowerCase()}`}>{stateName}</Link><span>/</span><b>{race.chamber === "house" ? race.code : t("Senate")}</b></nav>
-    <section className="race-profile-head"><div><p className="eyebrow">{race.chamber === "house" ? t("U.S. HOUSE") : t("U.S. SENATE")} · {t("2026 GENERAL ELECTION")}</p><h1>{title}</h1><div className="race-profile-tags">{agreed && <span className={tone(agreed.score)}>{t("Rating: {label}", { label: t(agreed.label) })}</span>}{race.baselineMargin !== null && <span>{t("2024: {lean}", { lean: `${race.baselineMargin >= 0 ? "D" : "R"}+${Math.abs(race.baselineMargin).toFixed(1)}` })}</span>}{race.special && <span>{t("Special election")}</span>}</div><ShareImageButton href={`/api/share/race/${raceSlug(race)}`} /></div>{readings?.polls
+    <section className="race-profile-head"><div><p className="eyebrow">{race.chamber === "house" ? t("U.S. HOUSE") : t("U.S. SENATE")} · {t("2026 GENERAL ELECTION")}</p><h1>{title}</h1><div className="race-profile-tags">{agreed && <span className={tone(agreed.score)}>{t("Rating: {label}", { label: t(agreed.label) })}</span>}{race.baselineMargin !== null && <span>{t("2024: {lean}", { lean: `${race.baselineMargin >= 0 ? "D" : "R"}+${Math.abs(race.baselineMargin).toFixed(1)}` })}</span>}{race.special && <span>{t("Special election")}</span>}</div><ShareImageButton href={`/api/share/race/${raceSlug(race)}`} /></div>{readings?.polls && pollsAreSolid(readings.polls)
       ? <div className={`race-callout ${readings.polls.margin >= 0 ? "dem" : "rep"}`}><span>{t("POLLING AVERAGE")}</span><strong>{readings.polls.margin >= 0 ? readings.side : "R"}+<CountUp value={Math.abs(readings.polls.margin)} decimals={1} duration={1100} /></strong><small>{t("{n} polls, latest {date}", { n: readings.polls.polls, date: new Date(`${readings.polls.latest}T12:00:00Z`).toLocaleDateString(intl, { day: "numeric", month: "short", timeZone: "UTC" }) })}</small></div>
-      : <div className={`race-callout ${(agreed?.score ?? 0) >= 0 ? "dem" : "rep"}`}><span>{t("EXPERT RATING")}</span><strong className="race-callout-rating">{agreed ? t(agreed.label) : "—"}</strong><small>{readings ? t("No public polls of this race") : "…"}</small></div>}</section>
+      : <div className={`race-callout ${(agreed?.score ?? 0) >= 0 ? "dem" : "rep"}`}><span>{t("EXPERT RATING")}</span><strong className="race-callout-rating">{agreed ? t(agreed.label) : "—"}</strong><small>{!readings ? "…" : readings.polls ? t("Few or old polls: {n}, latest {date}", { n: readings.polls.polls, date: new Date(`${readings.polls.latest}T12:00:00Z`).toLocaleDateString(intl, { day: "numeric", month: "short", timeZone: "UTC" }) }) : t("No public polls of this race")}</small></div>}</section>
     <section className="panel race-readings">
       <div className="panel-head"><div><p className="eyebrow">{t("FOUR READINGS")}</p><h2>{t("What the polls, the markets and the two models say")}</h2></div></div>
       {readings ? <RaceReadingsView readings={readings} variant="panel" /> : <div className="race-readings-wait" aria-busy="true" />}
     </section>
+    {readings && <ReadingsSources readings={readings} name={title} />}
     <RaceSignals race={race} houseMajority={houseMajority} census={readings?.census?.margin ?? null} />
     <section className="race-profile-grid">
       <div className="race-profile-main">

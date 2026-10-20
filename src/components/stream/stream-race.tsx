@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useT } from "@/components/i18n/locale-provider";
-import { RaceReadingsView } from "@/components/readings/readings";
+import { RaceReadingsView, SourcesLine } from "@/components/readings/readings";
 import { StreamStage, useStreamModel } from "@/components/stream/stream-stage";
 import { stateByCode } from "@/data/geography";
 import { expertBook, modelRatingLabel, RATERS } from "@/lib/expert-ratings";
@@ -39,6 +39,7 @@ export function StreamRace({ slug, transparent }: { slug: string; transparent: b
     <div className="stream-race">
       <div className="stream-race-head"><p className="stream-kicker">{subtitle}{race.special ? ` · ${t("special")}` : ""}</p><h1>{title}</h1></div>
       {readings ? <RaceReadingsView readings={readings} variant="stream" /> : <p className="stream-loading">{t("Loading…")}</p>}
+      {readings && <SourcesLine readings={readings} />}
       <div className="stream-ratings">
         <div><span>{model?.version}</span><strong className={tone(modelRatingLabel(demP))}>{t(modelRatingLabel(demP))}</strong></div>
         {RATERS.map((rater) => { const rating = entry?.book[rater.key] ?? null; return <div key={rater.key}><span>{rater.short}</span><strong className={tone(rating)}>{rating ? t(rating) : "—"}</strong></div>; })}

@@ -2,7 +2,9 @@ import directory from "../../public/data/candidates-2026.json";
 import { stateByCode } from "@/data/geography";
 import type { CandidateData } from "@/lib/candidates";
 import { loadCensusModel } from "@/lib/census-model";
+import { consensus, expertBook, ratingDates } from "@/lib/expert-ratings";
 import type { ForecastRace } from "@/lib/forecast";
+import type { ModelResult } from "@/lib/model";
 import { fetchWinnerMarket, senateWinnerSlug } from "@/lib/polymarket";
 import { loadRacePolls, raceAverage } from "@/lib/race-polls";
 import type { RaceReadings } from "@/lib/readings-shared";
@@ -50,10 +52,12 @@ async function raceMarket(race: ForecastRace): Promise<RaceReadings["market"]> {
   return { p: market.side === "D" ? market.probability : 1 - market.probability, volume: market.volume, url: market.url };
 }
 
-export async function raceReadings(races: ForecastRace[]): Promise<Map<string, RaceReadings>> {
+export async function raceReadings(races: ForecastRace[], model: Pick<ModelResult, "benchmarkDate" | "genericBallot">): Promise<Map<string, RaceReadings>> {
   const polls = await loadRacePolls();
   const today = new Date().toISOString().slice(0, 10);
   const markets = await Promise.all(races.map(raceMarket));
+  const read = new Date().toISOString();
+  const censusModel = loadCensusModel();
   return new Map(races.map((race, index) => {
     const blind = census().get(key(race));
     return [key(race), {
@@ -63,6 +67,12 @@ export async function raceReadings(races: ForecastRace[]): Promise<Map<string, R
       market: markets[index],
       mp26: { margin: race.signedMargin, p: demSide(race) },
       census: blind ? { margin: blind.margin, p: blind.pD } : null,
+      sources: {
+        benchmarkDate: model.benchmarkDate, movement: model.genericBallot.movement,
+        census: blind ? { generated: censusModel.generated, rmse: censusModel.headline.rmse } : null,
+        ratings: (() => { const entry = expertBook(race); return entry ? { book: entry.book, consensus: consensus(race)?.label ?? null, dates: ratingDates(race.chamber) } : null; })(),
+        marketRead: markets[index] ? read : null,
+      },
     }];
   }));
 }

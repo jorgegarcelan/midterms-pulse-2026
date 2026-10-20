@@ -15,6 +15,6 @@ export async function GET(request: NextRequest) {
   const key = `${chamber.toLowerCase()}:${code.toUpperCase()}`;
   const race = model.races.find((item) => `${item.chamber}:${item.code}` === key);
   if (!race) return NextResponse.json({ error: "Unknown race" }, { status: 404 });
-  const readings = (await raceReadings([race])).get(key);
+  const readings = (await raceReadings([race], model)).get(key);
   return NextResponse.json(readings, { headers: CACHE });
 }

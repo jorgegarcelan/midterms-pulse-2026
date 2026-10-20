@@ -47,7 +47,7 @@ export default async function KeyRacesPage({ params }: PageProps<"/[lang]/key-ra
 
   const today = new Date().toISOString().slice(0, 10);
   const [readings, governors] = await Promise.all([
-    raceReadings(races),
+    raceReadings(races, model),
     Promise.all(KEY_GOVERNOR_RACES.map((race) => governorPolls(stateByCode.get(race.state)?.name || race.state)
       .then((polls) => governorAverage(polls, race.candidates.map((candidate) => candidate.name), today)).catch(() => null))),
   ]);
