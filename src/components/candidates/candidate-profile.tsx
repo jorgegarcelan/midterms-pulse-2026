@@ -7,7 +7,7 @@ import { CandidateAvatar } from "@/components/candidates/candidate-avatar";
 import { stateByCode } from "@/data/geography";
 import { RaceReadingsView } from "@/components/readings/readings";
 import { expertBook, RATERS } from "@/lib/expert-ratings";
-import type { RaceReadings } from "@/lib/readings-shared";
+import { READINGS_VERSION, type RaceReadings } from "@/lib/readings-shared";
 import { raceName, raceSlug } from "@/lib/races";
 import {
   candidateState, fecCandidateUrl, fecNameMatches, fecSearchUrl, partyTone, wikipediaUrl,
@@ -41,7 +41,7 @@ export function CandidateProfile({ candidate, race, opponents, retrieved, shared
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`/api/readings?race=${candidate.chamber}:${candidate.race}`, { signal: controller.signal })
+    fetch(`/api/readings?race=${candidate.chamber}:${candidate.race}&v=${READINGS_VERSION}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() as Promise<RaceReadings> : null).then(setReadings).catch(() => undefined);
     const district = candidate.chamber === "house" ? `&district=${candidate.race.slice(3)}` : "";
     fetch(`/api/candidates?state=${state}&office=${candidate.chamber === "house" ? "H" : "S"}${district}`, { signal: controller.signal })

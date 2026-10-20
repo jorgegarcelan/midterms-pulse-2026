@@ -2,14 +2,19 @@ import type { RaceAverage } from "@/lib/race-polls";
 
 // Types and checks for the four readings that client components need, without the server fetchers.
 
+// Bumped whenever the shape of /api/readings changes: clients ask for ?v=…, so an edge-cached answer
+// in the old shape is never served to new code after a deploy.
+export const READINGS_VERSION = 2;
+
 export type RaceReadings = {
   key: string;
   // The non-Republican side: the Democrat, or the independent where no Democrat runs (Nebraska).
   side: "D" | "I";
   polls: RaceAverage | null;
   market: { p: number; volume: number; url: string } | null;
-  mp26: { margin: number; p: number };
-  census: { margin: number; p: number } | null;
+  // Each model's margin, probability and 80% range of the margin (low, high; D positive).
+  mp26: { margin: number; p: number; range: [number, number] };
+  census: { margin: number; p: number; range: [number, number] } | null;
   // Where each number comes from, for anyone quoting it.
   sources: {
     benchmarkDate: string; movement: number;

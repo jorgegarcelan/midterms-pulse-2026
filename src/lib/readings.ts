@@ -5,6 +5,7 @@ import { loadCensusModel } from "@/lib/census-model";
 import { consensus, expertBook, ratingDates } from "@/lib/expert-ratings";
 import type { ForecastRace } from "@/lib/forecast";
 import type { ModelResult } from "@/lib/model";
+import { inverseNormal, RACE_SD } from "@/lib/mp26";
 import { fetchWinnerMarket, senateWinnerSlug } from "@/lib/polymarket";
 import { loadRacePolls, raceAverage } from "@/lib/race-polls";
 import type { RaceReadings } from "@/lib/readings-shared";
@@ -36,6 +37,18 @@ function census() {
 
 const key = (race: Pick<ForecastRace, "chamber" | "code">) => `${race.chamber}:${race.code}`;
 
+// 80% range of a margin with normal error: ±1.28 standard deviations.
+const Z80 = 1.2816;
+const range = (margin: number, sd: number): [number, number] => [margin - Z80 * sd, margin + Z80 * sd];
+// Census-26 publishes a margin and a probability per district; the spread behind them follows from both
+// (it is wider where the lines were redrawn). Near a tie the ratio is unstable, so the typical spread is used.
+const CENSUS_TYPICAL_SD = 11;
+function censusSd(margin: number, p: number) {
+  if (Math.abs(margin) < 1 || p <= .005 || p >= .995) return CENSUS_TYPICAL_SD;
+  const sd = margin / inverseNormal(p);
+  return sd > 0 && Number.isFinite(sd) ? sd : CENSUS_TYPICAL_SD;
+}
+
 const candidates = directory as unknown as CandidateData;
 const partyOf = new Map(candidates.candidates.map((candidate) => [candidate.slug, candidate.party]));
 export function sideOf(race: ForecastRace): "D" | "I" {
@@ -65,8 +78,8 @@ export async function raceReadings(races: ForecastRace[], model: Pick<ModelResul
       side: sideOf(race),
       polls: raceAverage(polls.get(key(race)), today),
       market: markets[index],
-      mp26: { margin: race.signedMargin, p: demSide(race) },
-      census: blind ? { margin: blind.margin, p: blind.pD } : null,
+      mp26: { margin: race.signedMargin, p: demSide(race), range: range(race.signedMargin, RACE_SD) },
+      census: blind ? { margin: blind.margin, p: blind.pD, range: range(blind.margin, censusSd(blind.margin, blind.pD)) } : null,
       sources: {
         benchmarkDate: model.benchmarkDate, movement: model.genericBallot.movement,
         census: blind ? { generated: censusModel.generated, rmse: censusModel.headline.rmse } : null,

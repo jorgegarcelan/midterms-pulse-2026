@@ -7,7 +7,7 @@ import { StreamStage, useStreamModel } from "@/components/stream/stream-stage";
 import { stateByCode } from "@/data/geography";
 import { expertBook, modelRatingLabel, RATERS } from "@/lib/expert-ratings";
 import { parseRaceSlug } from "@/lib/races";
-import type { RaceReadings } from "@/lib/readings-shared";
+import { READINGS_VERSION, type RaceReadings } from "@/lib/readings-shared";
 
 const tone = (rating: string | null) => !rating ? "" : rating.endsWith(" D") ? "dem-text" : rating.endsWith(" R") ? "rep-text" : "toss-text";
 
@@ -21,7 +21,7 @@ export function StreamRace({ slug, transparent }: { slug: string; transparent: b
   useEffect(() => {
     if (!wanted) return;
     let alive = true;
-    const load = () => fetch(`/api/readings?race=${wanted}`).then((response) => response.ok ? response.json() as Promise<RaceReadings> : null).then((next) => { if (alive && next) setReadings(next); }).catch(() => undefined);
+    const load = () => fetch(`/api/readings?race=${wanted}&v=${READINGS_VERSION}`).then((response) => response.ok ? response.json() as Promise<RaceReadings> : null).then((next) => { if (alive && next) setReadings(next); }).catch(() => undefined);
     load();
     const timer = window.setInterval(load, 5 * 60_000);
     return () => { alive = false; window.clearInterval(timer); };

@@ -18,7 +18,7 @@ import { RaceNominees } from "@/components/candidates/race-nominees";
 import { RaceHistory } from "@/components/race/race-history";
 import { RaceSignals } from "@/components/race/race-signals";
 import { pollsAreSolid, RaceReadingsView, ReadingsSources } from "@/components/readings/readings";
-import type { RaceReadings } from "@/lib/readings-shared";
+import { READINGS_VERSION, type RaceReadings } from "@/lib/readings-shared";
 import { ShareImageButton } from "@/components/share-image-button";
 import { useIntlLocale, useLocalePath, useT } from "@/components/i18n/locale-provider";
 import { CountUp } from "@/components/motion/count-up";
@@ -78,7 +78,7 @@ export function RaceProfile({ slug }: { slug: string }) {
   useEffect(() => {
     if (!parsed) return;
     const controller = new AbortController();
-    fetch(`/api/readings?race=${parsed.chamber}:${parsed.code}`, { signal: controller.signal })
+    fetch(`/api/readings?race=${parsed.chamber}:${parsed.code}&v=${READINGS_VERSION}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() as Promise<RaceReadings> : null)
       .then(setReadings).catch(() => undefined);
     return () => controller.abort();

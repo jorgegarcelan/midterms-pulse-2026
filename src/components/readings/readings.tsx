@@ -36,6 +36,8 @@ export function RaceReadingsView({ readings, variant = "card" }: { readings: Rac
   const tone = (lean: number) => (Math.abs(lean) < .05 ? "" : lean > 0 ? side === "I" ? "ind-text" : "dem-text" : "rep-text");
   const lead = (margin: number) => (Math.abs(margin) < .05 ? t("Tied") : `${margin > 0 ? side : "R"}+${one(Math.abs(margin))}`);
   const chance = (p: number) => t("{p}% chance for {party}", { p: Math.round((p >= .5 ? p : 1 - p) * 100), party: p >= .5 ? side : "R" });
+  // An edge-cached answer from before ranges existed has none: show the reading without it.
+  const span = (range?: [number, number]) => range ? ` · ${t("80%: {low} to {high}", { low: lead(range[0]), high: lead(range[1]) })}` : "";
   const { polls, market, mp26, census } = readings;
   const rows: Row[] = [
     polls
@@ -44,9 +46,9 @@ export function RaceReadingsView({ readings, variant = "card" }: { readings: Rac
     market
       ? { label: t("Markets"), value: `${pct(market.p >= .5 ? market.p : 1 - market.p)} ${market.p >= .5 ? side : "R"}`, tone: tone(market.p - .5), detail: t("Polymarket · {volume} traded", { volume: money(market.volume) }), href: market.url }
       : { label: t("Markets"), value: null, tone: "", detail: readings.key.startsWith("house:") ? t("No market of its own: Polymarket only lists the whole House") : t("No market") },
-    { label: "MP-26", value: lead(mp26.margin), tone: tone(mp26.margin), detail: chance(mp26.p) },
+    { label: "MP-26", value: lead(mp26.margin), tone: tone(mp26.margin), detail: `${chance(mp26.p)}${span(mp26.range)}` },
     census
-      ? { label: "Census-26", value: lead(census.margin), tone: tone(census.margin), detail: chance(census.p) }
+      ? { label: "Census-26", value: lead(census.margin), tone: tone(census.margin), detail: `${chance(census.p)}${span(census.range)}` }
       : { label: "Census-26", value: null, tone: "", detail: readings.key.startsWith("senate:") ? t("House only") : t("No estimate") },
   ];
   return <Rows rows={rows} variant={variant} flag={readingsDisagree(readings) ? t("They disagree on who leads") : null} />;
@@ -79,8 +81,8 @@ export function ReadingsSources({ readings, name }: { readings: RaceReadings; na
     polls ? t("Polls: {lead} ({n} polls, latest {date})", { lead: lead(polls.margin), n: polls.polls, date: day(polls.latest) }) : t("No public polls"),
     ratings?.consensus ? t("experts: {rating}", { rating: t(ratings.consensus) }) : null,
     market ? t("Polymarket: {odds}", { odds: `${pct(market.p >= .5 ? market.p : 1 - market.p)} ${market.p >= .5 ? side : "R"}` }) : null,
-    t("MP-26: {lead} ({p})", { lead: lead(mp26.margin), p: `${pct(mp26.p >= .5 ? mp26.p : 1 - mp26.p)} ${mp26.p >= .5 ? side : "R"}` }),
-    census ? t("Census-26: {lead}", { lead: lead(census.margin) }) : null,
+    t("MP-26: {lead} ({p}; between {low} and {high} in 80% of cases)", { lead: lead(mp26.margin), p: `${pct(mp26.p >= .5 ? mp26.p : 1 - mp26.p)} ${mp26.p >= .5 ? side : "R"}`, low: lead(mp26.range[0]), high: lead(mp26.range[1]) }),
+    census ? t("Census-26: {lead} (between {low} and {high})", { lead: lead(census.margin), low: lead(census.range[0]), high: lead(census.range[1]) }) : null,
   ].filter(Boolean).join(" · ");
 
   return <section className="panel readings-sources">
@@ -107,11 +109,13 @@ export function ReadingsSources({ readings, name }: { readings: RaceReadings; na
       </div>
       <div>
         <dt>MP-26</dt>
-        <dd><p>{t("Starts from the Vote-Scope margin of {date}, moved {move} by the generic-ballot polls since; the probability comes from 50,000 simulations. Typical error per race: ±{e} points of margin (2018 and 2022 backtest).", { date: day(sources.benchmarkDate), move: `${sources.movement >= 0 ? "D" : "R"}+${one(Math.abs(sources.movement))}`, e: one(MP26_RACE_RMSE) })}</p></dd>
+        <dd><p>{t("Starts from the Vote-Scope margin of {date}, moved {move} by the generic-ballot polls since; the probability comes from 50,000 simulations. Typical error per race: ±{e} points of margin (2018 and 2022 backtest).", { date: day(sources.benchmarkDate), move: `${sources.movement >= 0 ? "D" : "R"}+${one(Math.abs(sources.movement))}`, e: one(MP26_RACE_RMSE) })}</p>
+          <p className="readings-error">{t("80% range: {low} to {high}, the model's own uncertainty (±{half} points). In the backtest real misses were smaller (±{e}), so the range is on the cautious side.", { low: lead(mp26.range[0]), high: lead(mp26.range[1]), half: one((mp26.range[1] - mp26.range[0]) / 2), e: one(MP26_RACE_RMSE) })}</p></dd>
       </div>
       <div>
         <dt>Census-26</dt>
-        <dd>{census && sources.census ? <p>{t("Only the district's census profile (ACS), no polls; model run of {date}. Typical error: ±{e} points of margin. Use it as a contrast, not as a forecast.", { date: day(sources.census.generated), e: one(sources.census.rmse) })}</p> : <p>{t("Covers House districts only.")}</p>}</dd>
+        <dd>{census && sources.census ? <><p>{t("Only the district's census profile (ACS), no polls; model run of {date}. Typical error: ±{e} points of margin. Use it as a contrast, not as a forecast.", { date: day(sources.census.generated), e: one(sources.census.rmse) })}</p>
+          <p className="readings-error">{t("80% range: {low} to {high}, including the uncertainty about the national environment.", { low: lead(census.range[0]), high: lead(census.range[1]) })}</p></> : <p>{t("Covers House districts only.")}</p>}</dd>
       </div>
     </dl>
   </section>;

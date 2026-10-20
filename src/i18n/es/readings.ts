@@ -128,4 +128,10 @@ export const readings: Record<string, string> = {
   "Census-26: ACS census": "Census-26: censo ACS",
   "Cook rating of {date}": "rating de Cook del {date}",
   "Few or old polls: {n}, latest {date}": "Pocas encuestas o antiguas: {n}, la última del {date}",
+  // Model ranges
+  "80%: {low} to {high}": "80 %: de {low} a {high}",
+  "MP-26: {lead} ({p}; between {low} and {high} in 80% of cases)": "MP-26: {lead} ({p}; entre {low} y {high} en el 80 % de los casos)",
+  "Census-26: {lead} (between {low} and {high})": "Census-26: {lead} (entre {low} y {high})",
+  "80% range: {low} to {high}, the model's own uncertainty (±{half} points). In the backtest real misses were smaller (±{e}), so the range is on the cautious side.": "Rango del 80 %: de {low} a {high}, la incertidumbre del propio modelo (±{half} puntos). En el backtest los fallos reales fueron menores (±{e}), así que el rango es más bien prudente.",
+  "80% range: {low} to {high}, including the uncertainty about the national environment.": "Rango del 80 %: de {low} a {high}, incluida la incertidumbre sobre el ambiente nacional.",
 };
