@@ -5,11 +5,12 @@ import Link from "@/components/i18n/link";
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 import { CandidateAvatar } from "@/components/candidates/candidate-avatar";
 import { stateByCode } from "@/data/geography";
-import type { ForecastRace } from "@/lib/forecast";
-import { modelRatingLabel, RATERS } from "@/lib/expert-ratings";
+import { RaceReadingsView } from "@/components/readings/readings";
+import { expertBook, RATERS } from "@/lib/expert-ratings";
+import type { RaceReadings } from "@/lib/readings-shared";
 import { raceName, raceSlug } from "@/lib/races";
 import {
-  candidateState, demProbability, expertRatings, fecCandidateUrl, fecNameMatches, fecSearchUrl, partyProbability, partyTone, wikipediaUrl,
+  candidateState, fecCandidateUrl, fecNameMatches, fecSearchUrl, partyTone, wikipediaUrl,
   type Candidate, type CandidateRace,
 } from "@/lib/candidates";
 import "./candidates.css";
@@ -35,14 +36,13 @@ export function CandidateProfile({ candidate, race, opponents, retrieved, shared
   const stateName = t(stateByCode.get(state)?.name || state);
   const label = raceName({ chamber: candidate.chamber, code: candidate.race, state }, t);
   const raceHref = `/races/${raceSlug({ chamber: candidate.chamber, code: candidate.race })}`;
-  const [model, setModel] = useState<ForecastRace | null | undefined>(undefined);
+  const [readings, setReadings] = useState<RaceReadings | null>(null);
   const [fec, setFec] = useState<{ match: FecCandidate | null; unavailable: boolean } | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/model", { signal: controller.signal }).then((response) => response.json() as Promise<{ races: ForecastRace[] }>)
-      .then((feed) => setModel(feed.races.find((item) => item.chamber === candidate.chamber && item.code === candidate.race) || null))
-      .catch(() => { if (!controller.signal.aborted) setModel(null); });
+    fetch(`/api/readings?race=${candidate.chamber}:${candidate.race}`, { signal: controller.signal })
+      .then((response) => response.ok ? response.json() as Promise<RaceReadings> : null).then(setReadings).catch(() => undefined);
     const district = candidate.chamber === "house" ? `&district=${candidate.race.slice(3)}` : "";
     fetch(`/api/candidates?state=${state}&office=${candidate.chamber === "house" ? "H" : "S"}${district}`, { signal: controller.signal })
       .then((response) => response.json() as Promise<FecFeed>)
@@ -58,11 +58,10 @@ export function CandidateProfile({ candidate, race, opponents, retrieved, shared
     return () => controller.abort();
   }, [candidate.chamber, candidate.fecIds, candidate.name, candidate.race, opponents, state]);
 
-  const chance = model ? partyProbability(candidate, model, sharedParty) : null;
-  const book = expertRatings(model || undefined);
+  // House races off the raters' lists have no baseline here; their row simply shows dashes.
+  const book = expertBook({ chamber: candidate.chamber, code: candidate.race, baselineMargin: null })?.book;
   const status = candidate.incumbent ? t("Incumbent") : race.open ? t("Open-seat candidate") : t("Challenger");
   const incumbent = race.incumbents[0];
-  const dem = model ? demProbability(model) : null;
   const sittingElsewhere = candidate.currentOffice && !candidate.incumbent;
   const systemNote = SYSTEM_NOTES[race.system];
   const officeFecId = candidate.fecIds.find((id) => id[0] === (candidate.chamber === "house" ? "H" : "S"));
@@ -92,12 +91,8 @@ export function CandidateProfile({ candidate, race, opponents, retrieved, shared
     <div className="cand-profile-grid">
       <section className="panel cand-glance">
         <div className="panel-head"><h2>{t("The race at a glance")}</h2><Link className="panel-tag" href={raceHref}>{t("Full race profile →")}</Link></div>
-        <div className="cand-kpis">
-          <div><small>{candidate.party === "D" && !sharedParty ? t("Democratic win chance") : candidate.party === "R" && !sharedParty ? t("Republican win chance") : t("Win chance")}</small>
-            <strong className={partyTone(candidate.party)}>{model === undefined ? "…" : chance !== null ? `${chance}%` : "—"}</strong>
-            <span>{model && dem !== null ? (sharedParty ? t("The model forecasts parties, and this ballot has more than one {party} candidate", { party: t(candidate.partyLabel) }) : chance === null ? t("Model tracks Democrats vs Republicans only") : t("MP-26 simulation")) : model === null ? t("Not in the model") : ""}</span></div>
-          <div><small>{t("Projected margin")}</small><strong className={model ? (model.leader === "D" ? "dem" : "rep") : ""}>{model ? `${model.leader}+${model.margin.toFixed(1)}` : model === undefined ? "…" : "—"}</strong><span>{model && dem !== null ? t(modelRatingLabel(dem)) : ""}</span></div>
-        </div>
+        {readings ? <RaceReadingsView readings={readings} /> : <div className="race-readings-wait" aria-busy="true" />}
+        {sharedParty && <p className="cand-note">{t("The forecasts are by party, and this ballot has more than one {party} candidate.", { party: t(candidate.partyLabel) })}</p>}
         <div className="cand-raters">
           {RATERS.map((rater) => <a key={rater.key} href={rater.url} target="_blank" rel="noreferrer"><small>{rater.short}</small><b className={/D$/.test(book?.[rater.key] || "") ? "dem" : /R$/.test(book?.[rater.key] || "") ? "rep" : ""}>{book?.[rater.key] ? t(book[rater.key] as string) : "—"}</b></a>)}
         </div>

@@ -12,14 +12,6 @@ export type RaceReadings = {
   census: { margin: number; p: number } | null;
 };
 
-export type ChamberReadings = {
-  // Polls: the generic ballot for the House; the Senate has no single poll.
-  polls: { margin: number } | null;
-  market: { p: number; url: string } | null;
-  mp26: { p: number; seats: number; majority: number; interval: [number, number] };
-  census: { p: number; seats: number; interval: [number, number] } | null;
-};
-
 // Whether the readings disagree on who leads (ignoring near-ties).
 export function readingsDisagree(readings: RaceReadings) {
   const leans = [readings.polls?.margin, readings.market && (readings.market.p - .5) * 100, readings.mp26.margin, readings.census?.margin]

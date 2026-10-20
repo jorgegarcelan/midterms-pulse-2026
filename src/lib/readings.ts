@@ -3,12 +3,11 @@ import { stateByCode } from "@/data/geography";
 import type { CandidateData } from "@/lib/candidates";
 import { loadCensusModel } from "@/lib/census-model";
 import type { ForecastRace } from "@/lib/forecast";
-import type { ModelResult } from "@/lib/model";
-import { fetchWinnerMarket, HOUSE_CONTROL_SLUG, SENATE_CONTROL_SLUG, senateWinnerSlug } from "@/lib/polymarket";
+import { fetchWinnerMarket, senateWinnerSlug } from "@/lib/polymarket";
 import { loadRacePolls, raceAverage } from "@/lib/race-polls";
-import type { ChamberReadings, RaceReadings } from "@/lib/readings-shared";
+import type { RaceReadings } from "@/lib/readings-shared";
 
-export { readingsDisagree, type ChamberReadings, type RaceReadings } from "@/lib/readings-shared";
+export { readingsDisagree, type RaceReadings } from "@/lib/readings-shared";
 
 /*
   The four readings of a race or a chamber, always in this order: what voters say (polls), what money
@@ -37,7 +36,7 @@ const key = (race: Pick<ForecastRace, "chamber" | "code">) => `${race.chamber}:$
 
 const candidates = directory as unknown as CandidateData;
 const partyOf = new Map(candidates.candidates.map((candidate) => [candidate.slug, candidate.party]));
-function sideOf(race: ForecastRace): "D" | "I" {
+export function sideOf(race: ForecastRace): "D" | "I" {
   const parties = (candidates.races[key(race)]?.candidates || []).map((slug) => partyOf.get(slug));
   return !parties.includes("D") && parties.includes("I") ? "I" : "D";
 }
@@ -68,23 +67,3 @@ export async function raceReadings(races: ForecastRace[]): Promise<Map<string, R
   }));
 }
 
-export async function chamberReadings(model: ModelResult): Promise<{ house: ChamberReadings; senate: ChamberReadings }> {
-  const [house, senate] = await Promise.all([HOUSE_CONTROL_SLUG, SENATE_CONTROL_SLUG].map((slug) => fetchWinnerMarket(slug, { history: false }).catch(() => null)));
-  const market = (value: typeof house) => value && { p: value.side === "D" ? value.probability : 1 - value.probability, url: value.url };
-  const blind = loadCensusModel().house;
-  const senateChamber = censusSenate().senateChamber;
-  return {
-    house: {
-      polls: { margin: model.genericBallot.margin },
-      market: market(house),
-      mp26: { p: model.house.demMajority / 100, seats: model.house.demSeats, majority: 218, interval: model.house.interval80 },
-      census: { p: blind.pMajority, seats: blind.median, interval: [blind.p10, blind.p90] },
-    },
-    senate: {
-      polls: null,
-      market: market(senate),
-      mp26: { p: model.senate.demMajority / 100, seats: model.senate.demSeats, majority: 51, interval: model.senate.interval80 },
-      census: senateChamber ? { p: senateChamber.pMajority, seats: senateChamber.median, interval: [senateChamber.p10, senateChamber.p90] } : null,
-    },
-  };
-}

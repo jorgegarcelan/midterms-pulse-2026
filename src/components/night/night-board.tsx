@@ -21,7 +21,7 @@ export function ChamberResult({ label, chamber, big = false }: { label: string; 
     <div className="night-seat-bar" role="img" aria-label={t("Democrats {d}, Republicans {r}, {n} uncalled", { d: chamber.locked.D, r: chamber.locked.R, n: chamber.uncalled })}>
       <i className="dem" style={{ width: share(chamber.locked.D) }} /><i className="rep" style={{ width: share(chamber.locked.R) }} /><b style={{ left: share(chamber.majority) }} />
     </div>
-    <p className="night-odds"><strong className={d >= .5 ? "dem-text" : "rep-text"}>{percent(d >= .5 ? d : 1 - d)}</strong> {d >= .5 ? t("chance of a Democratic majority") : t("chance of a Republican majority")}<small>{t("forecast before the night: {p} D", { p: percent(chamber.forecast.controlD) })}</small></p>
+    <p className="night-odds"><b className="night-odds-model">MP-26</b> <strong className={d >= .5 ? "dem-text" : "rep-text"}>{percent(d >= .5 ? d : 1 - d)}</strong> {d >= .5 ? t("chance of a Democratic majority") : t("chance of a Republican majority")}<small>{t("forecast before the night: {p} D", { p: percent(chamber.forecast.controlD) })}</small></p>
     {chamber.locked.D !== chamber.called.D || chamber.locked.R !== chamber.called.R ? <p className="night-chamber-note">{t("Includes the {d} D and {r} R seats not on the ballot.", { d: chamber.locked.D - chamber.called.D, r: chamber.locked.R - chamber.called.R })}</p> : null}
   </section>;
 }

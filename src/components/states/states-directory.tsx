@@ -6,7 +6,7 @@ import Link from "@/components/i18n/link";
 import { useLocalePath, useT } from "@/components/i18n/locale-provider";
 import { StateTileMap } from "@/components/state-tile-map";
 import { StateGeoMap } from "@/components/states/state-geo-map";
-import type { StateSummary } from "@/lib/state-summary";
+import { inPlay, type StateSummary } from "@/lib/state-summary";
 import "./states.css";
 
 type Lens = "house" | "senate" | "president";
@@ -28,29 +28,30 @@ export function StatesDirectory({ states }: { states: StateSummary[] }) {
   // Map values on the shared D+ / R+ colour scale.
   const values = useMemo(() => Object.fromEntries(states.flatMap((state) => {
     if (lens === "president") return state.president2024 === null ? [] : [[state.code, state.president2024]];
-    if (lens === "senate") return state.senate.length ? [[state.code, state.senate[0].margin]] : [];
-    // House: expected Democratic share of the delegation, mapped to ±50 so a split delegation is neutral.
-    return state.seats ? [[state.code, (state.expectedD / state.seats - .5) * 60]] : [];
+    // Senate: the raters' consensus on the shared colour scale (Safe ≈ 21 points).
+    if (lens === "senate") return state.senate.length ? [[state.code, (state.senate[0].rating?.score ?? 0) * 7]] : [];
+    // House: the delegation by rating (toss-ups count half), mapped so a split delegation is neutral.
+    return state.seats ? [[state.code, ((state.favD + state.toss / 2) / state.seats - .5) * 60]] : [];
   })), [lens, states]);
 
   const note = (code: string) => {
     const state = states.find((item) => item.code === code);
     if (!state) return undefined;
-    if (lens === "house") return t("{d} of {n} seats expected D · {c} in play", { d: state.expectedD.toFixed(1), n: state.seats, c: state.competitive });
-    if (lens === "senate") return state.senate.length ? t("Senate: {p}% D", { p: state.senate[0].pD }) : t("No Senate race in 2026");
+    if (lens === "house") return t("{d} D · {toss} toss-up · {r} R by the raters · {c} in play", { d: state.favD, toss: state.toss, r: state.favR, c: state.competitive });
+    if (lens === "senate") return state.senate.length ? t("Senate: {rating}", { rating: t(state.senate[0].rating?.label || "Unrated") }) : t("No Senate race in 2026");
     return t("2024 presidential result");
   };
 
   const shown = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return states
-      .filter((state) => filter === "all" || (filter === "senate" ? state.senate.length > 0 : state.competitive > 0 || state.senate.some((race) => race.pD > 20 && race.pD < 80)))
+      .filter((state) => filter === "all" || (filter === "senate" ? state.senate.length > 0 : state.competitive > 0 || state.senate.some(inPlay)))
       .filter((state) => !needle || `${state.name} ${t(state.name)} ${state.code}`.toLowerCase().includes(needle))
       .sort((a, b) => {
         if (sort === "name") return t(a.name).localeCompare(t(b.name));
         if (sort === "seats") return b.seats - a.seats;
         if (sort === "lean") return (b.president2024 ?? 0) - (a.president2024 ?? 0);
-        const heat = (state: StateSummary) => state.competitive * 2 + state.senate.filter((race) => race.pD > 20 && race.pD < 80).length * 3;
+        const heat = (state: StateSummary) => state.competitive * 2 + state.senate.filter(inPlay).length * 3;
         return heat(b) - heat(a) || b.seats - a.seats;
       });
   }, [filter, query, sort, states, t]);
@@ -66,7 +67,7 @@ export function StatesDirectory({ states }: { states: StateSummary[] }) {
 
     <section className="panel states-map-panel">
       <div className="panel-head">
-        <div><p className="eyebrow">{t("MAP")}</p><h2>{lens === "house" ? t("House delegation, expected") : lens === "senate" ? t("Senate races, 2026 model") : t("President, 2024")}</h2></div>
+        <div><p className="eyebrow">{t("MAP")}</p><h2>{lens === "house" ? t("House delegation, by expert rating") : lens === "senate" ? t("Senate races, by expert rating") : t("President, 2024")}</h2></div>
         <div className="segmented" role="group" aria-label={t("Map lens")}>{([["house", t("House")], ["senate", t("Senate")], ["president", t("President 2024")]] as const).map(([key, label]) => <button key={key} type="button" className={lens === key ? "selected" : ""} aria-pressed={lens === key} onClick={() => setLens(key)}>{label}</button>)}</div>
       </div>
       {shape === "geo"
@@ -86,16 +87,15 @@ export function StatesDirectory({ states }: { states: StateSummary[] }) {
 
     <section className="states-grid">
       {shown.map((state) => {
-        const share = state.seats ? state.expectedD / state.seats * 100 : 50;
         return <Link key={state.code} href={`/states/${state.code.toLowerCase()}`} className="state-card">
           <header><span className="state-code">{state.code}</span><h3>{t(state.name)}</h3>{state.president2024 !== null && <small className={state.president2024 >= 0 ? "dem-text" : "rep-text"} title={t("2024 presidential result")}>{signed(state.president2024)}</small>}</header>
           <div className="state-card-house">
             <span>{state.seats === 1 ? t("1 House seat") : t("{n} House seats", { n: state.seats })}{state.competitive > 0 && <b> · {t("{n} in play", { n: state.competitive })}</b>}</span>
-            <div className="state-card-bar" aria-hidden="true"><i className="dem" style={{ width: `${share}%` }} /><i className="rep" style={{ width: `${100 - share}%` }} /></div>
-            <small>{t("{d} D · {r} R expected", { d: state.expectedD.toFixed(1), r: (state.seats - state.expectedD).toFixed(1) })}</small>
+            <div className="state-card-bar" aria-hidden="true"><i className="dem" style={{ width: `${state.favD / Math.max(1, state.seats) * 100}%` }} /><i className="toss" style={{ width: `${state.toss / Math.max(1, state.seats) * 100}%` }} /><i className="rep" style={{ width: `${state.favR / Math.max(1, state.seats) * 100}%` }} /></div>
+            <small>{t("{d} D · {toss} toss-up · {r} R by the raters", { d: state.favD, toss: state.toss, r: state.favR })}</small>
           </div>
           {state.senate.length > 0
-            ? state.senate.map((race) => <div key={race.code + race.special} className="state-card-senate"><span>{race.special ? t("Senate (special)") : t("Senate")}</span><b className={race.pD >= 50 ? "dem-text" : "rep-text"}>{race.pD >= 50 ? `${race.pD}% D` : `${100 - race.pD}% R`}</b></div>)
+            ? state.senate.map((race) => <div key={race.key} className="state-card-senate"><span>{race.special ? t("Senate (special)") : t("Senate")}</span><b className={(race.rating?.score ?? 0) >= .25 ? "dem-text" : (race.rating?.score ?? 0) <= -.25 ? "rep-text" : "toss-text"}>{t(race.rating?.label || "Unrated")}</b></div>)
             : <div className="state-card-senate muted"><span>{t("No Senate race in 2026")}</span></div>}
           <em>{t("Open state →")}</em>
         </Link>;

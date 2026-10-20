@@ -69,8 +69,8 @@
 [data-in] .signal-line { stroke-dashoffset: 0; }
 .signal-area { fill: rgba(91,134,255,.1); opacity: 0; transition: opacity 1s ease 1s; }
 [data-in] .signal-area { opacity: 1; }
-.signal-chart .reference line { stroke: #f5d06f; stroke-width: 1.2; stroke-dasharray: 5 4; opacity: .8; }
-.signal-chart .reference text { fill: #f5d06f; font-family: var(--font-mono); font-size: 10px; text-anchor: end; }
+.signal-chart .reference line { stroke: var(--ref, #f5d06f); stroke-width: 1.2; stroke-dasharray: 5 4; opacity: .8; }
+.signal-chart .reference text { fill: var(--ref, #f5d06f); font-family: var(--font-mono); font-size: 10px; text-anchor: end; }
 .hover-mark line { stroke: rgba(255,255,255,.25); stroke-dasharray: 2 3; }
 .hover-mark circle { fill: #fff; filter: drop-shadow(0 0 6px rgba(255,255,255,.8)); }
 .market-now { display: flex; align-items: baseline; gap: 12px; margin-top: 12px; }

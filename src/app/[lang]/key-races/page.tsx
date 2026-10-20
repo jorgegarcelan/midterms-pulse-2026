@@ -12,6 +12,7 @@ import { expertBook, RATERS } from "@/lib/expert-ratings";
 import type { ForecastRace } from "@/lib/forecast";
 import { getModel } from "@/lib/model-server";
 import { raceReadings, readingsDisagree } from "@/lib/readings";
+import { governorAverage, governorPolls } from "@/lib/votehub";
 import { raceName, raceSlug } from "@/lib/races";
 import "../../key-races.css";
 
@@ -44,7 +45,14 @@ export default async function KeyRacesPage({ params }: PageProps<"/[lang]/key-ra
     .filter((candidate, _, list) => candidate.party !== "I" || !list.some((other) => other.party === "D"))
     .sort((a, b) => MAJOR.indexOf(a.party) - MAJOR.indexOf(b.party));
 
-  const readings = await raceReadings(races);
+  const today = new Date().toISOString().slice(0, 10);
+  const [readings, governors] = await Promise.all([
+    raceReadings(races),
+    Promise.all(KEY_GOVERNOR_RACES.map((race) => governorPolls(stateByCode.get(race.state)?.name || race.state)
+      .then((polls) => governorAverage(polls, race.candidates.map((candidate) => candidate.name), today)).catch(() => null))),
+  ]);
+  const intl = lang === "es" ? "es-ES" : "en-US";
+  const day = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString(intl, { day: "numeric", month: "short", timeZone: "UTC" });
   const split = races.filter((race) => readingsDisagree(readings.get(raceKey(race))!)).length;
 
   const card = (race: ForecastRace) => {
@@ -83,15 +91,19 @@ export default async function KeyRacesPage({ params }: PageProps<"/[lang]/key-ra
     <div className="key-races-grid">{races.filter((race) => race.chamber === "house").map(card)}</div>
 
     <h2 className="key-races-section">{t("Governor")}</h2>
-    <p className="key-races-note">{t("The model forecasts Congress only, so these two races have no forecast here. The guide covers both.")}</p>
-    <div className="key-races-grid">{KEY_GOVERNOR_RACES.map((race) => <article key={race.state} className="panel key-race">
+    <p className="key-races-note">{t("The models forecast Congress only, so these two races show their polling average. The guide covers both.")}</p>
+    <div className="key-races-grid">{KEY_GOVERNOR_RACES.map((race, index) => {
+      const average = governors[index];
+      const share = (name: string) => average?.candidates.find((row) => row.name === name)?.pct;
+      return <article key={race.state} className="panel key-race">
       <header><p className="eyebrow">{t("GOVERNOR")}</p><h2>{stateName(race.state)}</h2></header>
-      <ul className="key-race-nominees">{race.candidates.map((candidate) => <li key={candidate.name} className={candidate.party === "R" ? "rep" : "dem"}><b>{candidate.party}</b><span>{candidate.name}</span></li>)}</ul>
+      <ul className="key-race-nominees">{race.candidates.map((candidate) => <li key={candidate.name} className={candidate.party === "R" ? "rep" : "dem"}><b>{candidate.party}</b><span>{candidate.name}</span>{share(candidate.name) !== undefined && <strong className="key-race-share">{share(candidate.name)!.toLocaleString(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</strong>}</li>)}</ul>
+      <p className="key-race-meta">{average ? t("VoteHub polling average · {n} polls, latest {date}", { n: average.polls, date: day(average.latest) }) : t("No public polls")}</p>
       {race.note && <p className="key-race-meta">{t(race.note)}</p>}
       <a className="key-race-link" href={KEY_RACES_GUIDE.url} target="_blank" rel="noopener">{t("In the guide")} ↗</a>
-    </article>)}</div>
+    </article>; })}</div>
 
-    <p className="key-races-source">{t("Selection: {author}, “{title}”, {outlet}. Polls: Vote-Scope poll index, averaged by Midterm Pulse. Models, ratings and candidate lists: Midterm Pulse.", { author: KEY_RACES_GUIDE.author, title: KEY_RACES_GUIDE.title, outlet: KEY_RACES_GUIDE.outlet })}</p>
+    <p className="key-races-source">{t("Selection: {author}, “{title}”, {outlet}. Polls: Vote-Scope poll index and, for governors, VoteHub (CC BY 4.0), averaged by Midterm Pulse. Models and candidate lists: Midterm Pulse.", { author: KEY_RACES_GUIDE.author, title: KEY_RACES_GUIDE.title, outlet: KEY_RACES_GUIDE.outlet })}</p>
     <SiteFooter />
   </div></main>;
 }

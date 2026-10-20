@@ -5,19 +5,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "@/components/i18n/locale-provider";
 import { fitViewBox, useViewBoxTween, type ViewBox } from "@/components/motion/map-viewbox";
 import { stateByCode } from "@/data/geography";
-import type { ForecastRace } from "@/lib/forecast";
+import type { RaceOverview } from "@/lib/overview-shared";
 import { loadMapGeometry, MAP_HEIGHT, MAP_WIDTH, type MapGeometry } from "@/lib/playground/geo";
 
 type Bounds = [[number, number], [number, number]];
 const NATIONAL: ViewBox = [0, 0, MAP_WIDTH, MAP_HEIGHT];
 
-export function raceFill(race?: ForecastRace) {
+// Coloured by the raters' consensus: deeper for Safe, paler toward Toss-up (sand).
+export function raceFill(race?: RaceOverview) {
   if (!race) return "#1c1f27";
-  const intensity = Math.min(1, Math.abs(race.signedMargin) / 18);
-  return race.leader === "D"
-    ? `color-mix(in srgb, #5b86ff ${Math.round(35 + intensity * 55)}%, #141722)`
-    : `color-mix(in srgb, #ff5a6e ${Math.round(35 + intensity * 55)}%, #141722)`;
+  const score = race.rating?.score ?? 0;
+  if (Math.abs(score) < .25) return "color-mix(in srgb, #e5d7a8 70%, #141722)";
+  const intensity = Math.min(1, Math.abs(score) / 3);
+  return score > 0
+    ? `color-mix(in srgb, #5b86ff ${Math.round(30 + intensity * 60)}%, #141722)`
+    : `color-mix(in srgb, #ff5a6e ${Math.round(30 + intensity * 60)}%, #141722)`;
 }
+const tone = (score: number) => (score >= .25 ? "dem-text" : score <= -.25 ? "rep-text" : "toss-text");
 
 /*
   The races on a real map, on the November 2026 district lines. House: every district; a click zooms
@@ -26,8 +30,8 @@ export function raceFill(race?: ForecastRace) {
   Fully controlled by the parent.
 */
 export function RaceMap({ chamber, races, matches, stateCode, hovered, onHover, onState, onOpen }: {
-  chamber: "house" | "senate"; races: ForecastRace[]; matches: Set<string> | null; stateCode: string; hovered: string;
-  onHover: (code: string) => void; onState: (code: string) => void; onOpen: (race: ForecastRace) => void;
+  chamber: "house" | "senate"; races: RaceOverview[]; matches: Set<string> | null; stateCode: string; hovered: string;
+  onHover: (code: string) => void; onState: (code: string) => void; onOpen: (race: RaceOverview) => void;
 }) {
   const t = useT();
   const [geometry, setGeometry] = useState<MapGeometry | null>(null);
@@ -89,7 +93,8 @@ export function RaceMap({ chamber, races, matches, stateCode, hovered, onHover, 
   }, [hovered]);
 
   const name = (code: string) => t(stateByCode.get(code)?.name || code);
-  const label = (race: ForecastRace) => race.chamber === "senate" ? t("{state} Senate", { state: name(race.state) }) : race.code;
+  const label = (race: RaceOverview) => race.chamber === "senate" ? t("{state} Senate", { state: name(race.state) }) : race.code;
+  const lean = (race: RaceOverview, margin: number) => `${margin >= 0 ? race.side : "R"}+${Math.abs(margin).toFixed(1)}`;
 
   if (!geometry) return <div className="map-loading">{t("Loading Census boundaries and model output…")}</div>;
   return <div className={`district-map-frame race-map${zoomed ? " zoomed" : ""}${matches ? " filtering" : ""}`} ref={frame}
@@ -110,7 +115,7 @@ export function RaceMap({ chamber, races, matches, stateCode, hovered, onHover, 
           style={{ fill: raceFill(race), "--d": (shape.centroid[0] / MAP_WIDTH).toFixed(3) } as React.CSSProperties}
           className={`${outside ? "outside" : ""}${muted ? " muted" : ""}${chamber === "senate" && !race ? " no-race" : ""}`}
           tabIndex={(race || chamber === "senate") && !outside ? 0 : -1} role={race ? "link" : undefined}
-          aria-label={race ? t("{code}, {party} leads by {margin} points", { code: label(race), party: race.leader, margin: race.margin.toFixed(1) }) : chamber === "senate" ? t("{state}: no Senate race in 2026", { state: name(shape.code) }) : shape.code} />;
+          aria-label={race ? `${label(race)}: ${t(race.rating?.label || "Unrated")}` : chamber === "senate" ? t("{state}: no Senate race in 2026", { state: name(shape.code) }) : shape.code} />;
       })}
       {chamber === "house" && geometry.states.map((shape) => shape.outline ? <path key={`outline-${shape.code}`} d={shape.outline} className="race-map-state-line" aria-hidden="true" /> : null)}
       {hoveredPath && <path className="district-hover-outline" d={hoveredPath} aria-hidden="true" />}
@@ -119,9 +124,9 @@ export function RaceMap({ chamber, races, matches, stateCode, hovered, onHover, 
     {zoomed && <div className="map-zoom-label" key={stateCode}><b>{name(stateCode)}</b><span>{t("{count} districts", { count: geometry.districts.filter((shape) => shape.state === stateCode).length })}</span></div>}
     <div className={`map-float-tip${hoveredRace || (chamber === "senate" && hovered) ? " show" : ""}`} ref={tip} aria-hidden="true">
       {hoveredRace ? <>
-        <div className="map-float-tip-head"><strong>{label(hoveredRace)}</strong><b className={hoveredRace.leader === "D" ? "dem-text" : "rep-text"}>{hoveredRace.leader}+{hoveredRace.margin.toFixed(1)}</b></div>
-        <span className="map-float-tip-bar"><i className="dem" style={{ width: `${hoveredRace.demVote || 50}%` }} /><i className="rep" style={{ width: `${hoveredRace.repVote || 50}%` }} /></span>
-        <small>{t(hoveredRace.rating)} · {t("{probability}% win probability", { probability: hoveredRace.winProbability })}</small>
+        <div className="map-float-tip-head"><strong>{label(hoveredRace)}</strong><b className={tone(hoveredRace.rating?.score ?? 0)}>{t(hoveredRace.rating?.label || "Unrated")}</b></div>
+        <small>{hoveredRace.polls ? t("Polls {lean} · {n} polls", { lean: lean(hoveredRace, hoveredRace.polls.margin), n: hoveredRace.polls.polls }) : t("No public polls")}{hoveredRace.market !== null ? ` · Polymarket ${Math.round((hoveredRace.market >= .5 ? hoveredRace.market : 1 - hoveredRace.market) * 100)}% ${hoveredRace.market >= .5 ? hoveredRace.side : "R"}` : ""}</small>
+        {hoveredRace.baseline !== null && <small>{t("2024: {lean}", { lean: lean(hoveredRace, hoveredRace.baseline) })}</small>}
         <em>{chamber === "senate" || hoveredRace.state === stateCode ? t("Click to open the race →") : t("Click to zoom into {state}", { state: name(hoveredRace.state) })}</em>
       </> : chamber === "senate" && hovered ? <><div className="map-float-tip-head"><strong>{name(hovered)}</strong></div><small>{t("No Senate race in 2026")}</small><em>{t("Click to open the state →")}</em></> : null}
     </div>

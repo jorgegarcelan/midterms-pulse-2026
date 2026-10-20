@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { StateProfile } from "@/components/state/state-profile";
 import { StateRaces } from "@/components/states/state-races";
 import { getModel } from "@/lib/model-server";
+import { overview } from "@/lib/overview";
 import { stateByCode } from "@/data/geography";
 import { isLocale } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
@@ -29,7 +30,7 @@ export default async function StatePage({ params }: PageProps<"/[lang]/states/[c
     getModel(),
     readFile(path.join(process.cwd(), "public/data/history/president.json"), "utf8").then((text) => (JSON.parse(text) as { states: Record<string, { y: number; m: number }[]> }).states),
   ]);
-  const races = model.races.filter((race) => race.state === state);
+  const races = (await overview(model)).races.filter((race) => race.state === state);
   const president2024 = president[state]?.find((result) => result.y === 2024)?.m ?? null;
   return <main className="page-main"><div className="content-shell">
     <StateRaces code={state} races={races} president2024={president2024} />

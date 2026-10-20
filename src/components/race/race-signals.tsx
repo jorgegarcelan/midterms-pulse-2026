@@ -36,7 +36,8 @@ function weightedTrend(polls: RaceSignalsFeed["polls"]) {
 }
 
 // Polls and prediction-market prices over time for one race.
-export function RaceSignals({ race, houseMajority }: { race: ForecastRace; houseMajority?: number }) {
+// `census` is the Census-26 margin for the race when there is one (House districts).
+export function RaceSignals({ race, houseMajority, census }: { race: ForecastRace; houseMajority?: number; census?: number | null }) {
   const t = useT();
   const intl = useIntlLocale();
   const [feed, setFeed] = useState<RaceSignalsFeed | null>(null);
@@ -56,7 +57,7 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
   const pollDots = (feed?.polls || []).map((poll) => ({ date: poll.date, value: poll.dem - poll.rep, tone: poll.dem >= poll.rep ? "dem" as const : "rep" as const, title: `${poll.pollster} · ${poll.date} · ${signed(poll.dem - poll.rep)} · ${poll.population}${poll.sample ? ` n=${poll.sample}` : ""}` }));
   // Scale to the 95th percentile so a single outlier poll cannot flatten the chart (outliers sit on the edge).
   const spread = pollDots.map((dot) => Math.abs(dot.value)).sort((a, b) => a - b);
-  const marginExtent = Math.max(10, spread[Math.floor(spread.length * .95)] || 0, Math.abs(race.signedMargin));
+  const marginExtent = Math.max(10, spread[Math.floor(spread.length * .95)] || 0, Math.abs(race.signedMargin), Math.abs(census ?? 0));
   const limit = Math.min(40, Math.ceil(marginExtent / 5) * 5);
   const latest = [...(feed?.polls || [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
 
@@ -82,7 +83,10 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                   ticks={[-limit, -limit / 2, 0, limit / 2, limit]}
                   baseline={0}
                   format={(value) => value === 0 ? t("EVEN") : `${value >= 0 ? "D" : "R"}+${Number.isInteger(value) ? Math.abs(value) : Math.abs(value).toFixed(1)}`}
-                  reference={national ? undefined : { value: race.signedMargin, label: t("2026 model {margin}", { margin: signed(race.signedMargin) }) }}
+                  references={national ? [] : [
+                    { value: race.signedMargin, label: `MP-26 ${signed(race.signedMargin)}`, color: "#f5d06f" },
+                    ...(census !== null && census !== undefined ? [{ value: census, label: `Census-26 ${signed(census)}`, color: "#6fd3c4" }] : []),
+                  ]}
                   ariaLabel={national ? t("Generic ballot polls over time") : race.chamber === "house" ? t("{district} polls over time", { district: race.code }) : t("{state} Senate polls over time", { state: stateName })}
                   legend={{ dots: t("Polls"), line: t("Weighted average") }}
                 />
@@ -90,7 +94,7 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                   {latest.map((poll, index) => <li key={poll.id} style={{ "--i": index } as React.CSSProperties}><a href={poll.url} target="_blank" rel="noreferrer"><span>{poll.pollster}<small>{poll.date} · {poll.population}{poll.sample ? ` · n=${poll.sample.toLocaleString(intl)}` : ""}</small></span><b className={poll.dem >= poll.rep ? "dem-text" : "rep-text"}>{signed(poll.dem - poll.rep)}</b></a></li>)}
                 </ul>
               </>}
-        <p className="chart-note">{national ? `${t("No public polls of this district yet; the national generic ballot is shown instead.")} ` : ""}{t("Dots are individual polls (D minus R); the line applies the model's weighting (30-day half-life, sample size, likely voters) to the polls released by each date.")}</p>
+        <p className="chart-note">{national ? `${t("No public polls of this district yet; the national generic ballot is shown instead.")} ` : ""}{t("Dots are individual polls (D minus R); the line is their weighted average (30-day half-life, sample size, likely voters) by each date. Dashed lines: the margins of MP-26 and Census-26.")}</p>
       </article>
 
       <article className="panel">
@@ -105,7 +109,7 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                 <div className="market-now">
                   <strong className={market.side === "D" ? "dem-text" : "rep-text"}><CountUp value={market.probability * 100} decimals={1} />%</strong>
                   <span>{t(`${market.label}${feed.marketScope === "national" ? " the House" : ""} · now`)}</span>
-                  {marketReference !== undefined && <em>{t("Model {value}%", { value: Math.round(marketReference) })}</em>}
+                  {marketReference !== undefined && <em>MP-26 {Math.round(marketReference)}%</em>}
                 </div>
                 <SignalChart
                   tone="market"
@@ -114,7 +118,7 @@ export function RaceSignals({ race, houseMajority }: { race: ForecastRace; house
                   ticks={[0, 25, 50, 75, 100]}
                   baseline={0}
                   format={(value) => `${Math.round(value)}%`}
-                  reference={marketReference !== undefined ? { value: marketReference, label: t("Model {value}%", { value: Math.round(marketReference) }) } : undefined}
+                  references={marketReference !== undefined ? [{ value: marketReference, label: `MP-26 ${Math.round(marketReference)}%`, color: "#f5d06f" }] : []}
                   ariaLabel={t("{title}: {label} probability over time", { title: market.title, label: t(market.label) })}
                   legend={{ line: t("Price") }}
                 />

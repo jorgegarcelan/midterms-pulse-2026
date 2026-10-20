@@ -301,3 +301,14 @@
 .glossary-term .glossary-example { margin-top: 10px; padding-left: 12px; border-left: 2px solid rgba(167,139,250,.5); color: #8f939d; font-size: 14px; }
 .glossary-term dd a { display: inline-block; margin-top: 10px; color: #9fb8ff; font-size: 13.5px; }
 @media (max-width: 720px) { .glossary-term { grid-template-columns: 1fr; scroll-margin-top: 150px; } .glossary-tools { position: static; } }
+
+/* MP-26: where it starts */
+.model-origin { display: grid; gap: 14px; margin-bottom: 16px; }
+.model-origin .panel-head { margin: 0; }
+.model-origin-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.model-origin-grid > div { display: grid; gap: 6px; align-content: start; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
+.model-origin-grid b { color: #f5d06f; font-family: var(--font-mono); font-size: 12px; }
+.model-origin-grid h3 { margin: 0; font-size: 15px; }
+.model-origin-grid p { margin: 0; color: #a5abb5; font-size: 13px; line-height: 1.5; }
+.model-origin-compare { margin: 0; color: #8e97a0; font-size: 13px; font-family: var(--font-mono); }
+@media (max-width: 760px) { .model-origin-grid { grid-template-columns: 1fr; } }

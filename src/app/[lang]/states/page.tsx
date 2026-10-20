@@ -6,6 +6,7 @@ import { StatesDirectory } from "@/components/states/states-directory";
 import { isLocale } from "@/i18n/config";
 import { getT } from "@/i18n/translate";
 import { getModel } from "@/lib/model-server";
+import { overview } from "@/lib/overview";
 import { summarizeStates } from "@/lib/state-summary";
 
 export const revalidate = 900;
@@ -21,5 +22,5 @@ export default async function StatesPage() {
     getModel(),
     readFile(path.join(process.cwd(), "public/data/history/president.json"), "utf8").then((text) => (JSON.parse(text) as { states: Record<string, { y: number; m: number }[]> }).states),
   ]);
-  return <main className="page-main"><div className="content-shell"><StatesDirectory states={summarizeStates(model.races, president)} /><SiteFooter /></div></main>;
+  return <main className="page-main"><div className="content-shell"><StatesDirectory states={summarizeStates((await overview(model)).races, president)} /><SiteFooter /></div></main>;
 }

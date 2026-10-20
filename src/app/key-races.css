@@ -23,3 +23,4 @@
 .key-race-link { color: var(--blue-soft); font-size: 13px; text-decoration: none; }
 .key-race-link:hover { text-decoration: underline; }
 .key-races-source { margin: 28px 0 0; color: #7e8790; font-size: 12px; }
+.key-race-share { margin-left: auto; font-size: 15px; }

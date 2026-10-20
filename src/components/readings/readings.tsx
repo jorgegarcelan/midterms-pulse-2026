@@ -1,7 +1,7 @@
 "use client";
 
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
-import { readingsDisagree, type ChamberReadings, type RaceReadings } from "@/lib/readings-shared";
+import { readingsDisagree, type RaceReadings } from "@/lib/readings-shared";
 import "./readings.css";
 
 type Row = { label: string; value: string | null; tone: string; detail: string; href?: string };
@@ -50,24 +50,4 @@ export function RaceReadingsView({ readings, variant = "card" }: { readings: Rac
       : { label: "Census-26", value: null, tone: "", detail: readings.key.startsWith("senate:") ? t("House only") : t("No estimate") },
   ];
   return <Rows rows={rows} variant={variant} flag={readingsDisagree(readings) ? t("They disagree on who leads") : null} />;
-}
-
-// One chamber, four readings: generic ballot, the control market, MP-26 and Census-26 majority odds.
-export function ChamberReadingsView({ readings, variant = "panel" }: { readings: ChamberReadings; variant?: "card" | "panel" | "stream" }) {
-  const { t, one, pct } = useFormat();
-  const odds = (p: number) => ({ value: `${pct(p >= .5 ? p : 1 - p)} ${p >= .5 ? "D" : "R"}`, tone: p >= .5 ? "dem-text" : "rep-text" });
-  const { polls, market, mp26, census } = readings;
-  const rows: Row[] = [
-    polls
-      ? { label: t("Polls"), value: `${polls.margin >= 0 ? "D" : "R"}+${one(Math.abs(polls.margin))}`, tone: polls.margin >= 0 ? "dem-text" : "rep-text", detail: t("Generic ballot average") }
-      : { label: t("Polls"), value: null, tone: "", detail: t("No national Senate poll: each state votes its own race") },
-    market
-      ? { label: t("Markets"), ...odds(market.p), detail: t("Polymarket: chance of control"), href: market.url }
-      : { label: t("Markets"), value: null, tone: "", detail: t("No market") },
-    { label: "MP-26", ...odds(mp26.p), detail: t("chance of a majority · {seats} D seats (80%: {low}–{high})", { seats: mp26.seats, low: mp26.interval[0], high: mp26.interval[1] }) },
-    census
-      ? { label: "Census-26", ...odds(census.p), detail: t("chance of a majority · {seats} D seats (80%: {low}–{high})", { seats: census.seats, low: census.interval[0], high: census.interval[1] }) }
-      : { label: "Census-26", value: null, tone: "", detail: t("House only") },
-  ];
-  return <Rows rows={rows} variant={variant} />;
 }

@@ -8,16 +8,18 @@ import Link from "@/components/i18n/link";
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 import { CandidateAvatar } from "@/components/candidates/candidate-avatar";
 import { stateByCode, states } from "@/data/geography";
-import type { ForecastRace } from "@/lib/forecast";
+import type { Overview, RaceOverview } from "@/lib/overview-shared";
 import { raceName, raceSlug } from "@/lib/races";
+import { favours, inPlay } from "@/lib/state-summary";
 import {
-  candidateState, competitiveness, expertRatings, isCompetitive, loadCandidates, PARTY_NAMES, partyProbability, partyTone, raceKey, sharesParty,
+  candidateState, loadCandidates, PARTY_NAMES, partyTone, raceKey, sharesParty,
   type Candidate, type CandidateData, type CandidateParty, type CandidateRace,
 } from "@/lib/candidates";
 import "./candidates.css";
 
-type ModelFeed = { races: ForecastRace[]; runDate: string; version: string };
-type Row = { candidate: Candidate; race: CandidateRace; model?: ForecastRace; sharedParty: boolean; search: string };
+type Row = { candidate: Candidate; race: CandidateRace; outlook?: RaceOverview; sharedParty: boolean; search: string };
+// Most contested first, by the raters' consensus and then the polls.
+const competitiveness = (race?: RaceOverview) => race ? Math.abs(race.rating?.score ?? 0) * 10 + Math.abs(race.polls?.margin ?? 10) : 99;
 type Status = "all" | "incumbent" | "challenger" | "open";
 type Sort = "competitive" | "state" | "name";
 
@@ -29,7 +31,7 @@ export function CandidatesDirectory() {
   const intl = useIntlLocale();
   const params = useSearchParams();
   const [data, setData] = useState<CandidateData | null>(null);
-  const [model, setModel] = useState<ModelFeed | null>(null);
+  const [overview, setOverview] = useState<Overview | null>(null);
   const [failed, setFailed] = useState(false);
   const [query, setQuery] = useState(params.get("q") || "");
   const [chamber, setChamber] = useState(params.get("chamber") || "all");
@@ -46,7 +48,7 @@ export function CandidatesDirectory() {
   useEffect(() => {
     const controller = new AbortController();
     loadCandidates().then(setData).catch(() => setFailed(true));
-    fetch("/api/model", { signal: controller.signal }).then((response) => response.json() as Promise<ModelFeed>).then(setModel).catch(() => undefined);
+    fetch("/api/overview", { signal: controller.signal }).then((response) => response.json() as Promise<Overview>).then(setOverview).catch(() => undefined);
     return () => controller.abort();
   }, []);
 
@@ -67,7 +69,7 @@ export function CandidatesDirectory() {
 
   const rows = useMemo<Row[]>(() => {
     if (!data) return [];
-    const byRace = new Map((model?.races || []).map((race) => [raceKey(race), race]));
+    const byRace = new Map((overview?.races || []).map((race) => [race.key, race]));
     const bySlug = new Map(data.candidates.map((candidate) => [candidate.slug, candidate]));
     return data.candidates.map((candidate) => {
       const race = data.races[raceKey({ chamber: candidate.chamber, code: candidate.race })];
@@ -76,22 +78,22 @@ export function CandidatesDirectory() {
       const shortCode = candidate.race.replace(/-0(\d)$/, "-$1");
       const names = raceName({ chamber: candidate.chamber, code: candidate.race, state: code }, t);
       return {
-        candidate, race, model: byRace.get(raceKey({ chamber: candidate.chamber, code: candidate.race })), sharedParty: sharesParty(candidate, race, bySlug),
+        candidate, race, outlook: byRace.get(raceKey({ chamber: candidate.chamber, code: candidate.race })), sharedParty: sharesParty(candidate, race, bySlug),
         search: fold(`${candidate.name} ${candidate.race} ${shortCode} ${shortCode.replace("-", " ")} ${stateName} ${t(stateName)} ${names} ${candidate.chamber === "senate" ? `${code} senate ${t("Senate")}` : ""}`),
       };
     });
-  }, [data, model, t]);
+  }, [data, overview, t]);
 
   // Every filter except the state: the map counts these per state, the list then narrows to one state.
   const beforeState = useMemo(() => {
     const needle = fold(search.trim());
-    return rows.filter(({ candidate, race, model: forecast, search: haystack }) => {
+    return rows.filter(({ candidate, race, outlook, search: haystack }) => {
       if (chamber !== "all" && candidate.chamber !== chamber) return false;
       if (party !== "all" && (party === "other" ? ["D", "R", "I"].includes(candidate.party) : candidate.party !== party)) return false;
       if (status === "incumbent" && !candidate.incumbent) return false;
       if (status === "challenger" && (candidate.incumbent || race.open)) return false;
       if (status === "open" && !race.open) return false;
-      if (competitiveOnly && !isCompetitive(forecast)) return false;
+      if (competitiveOnly && !(outlook && inPlay(outlook))) return false;
       return !needle || needle.split(/\s+/).every((word) => haystack.includes(word));
     });
   }, [chamber, competitiveOnly, party, rows, search, status]);
@@ -109,7 +111,7 @@ export function CandidatesDirectory() {
     return list.sort((a, b) => {
       if (sort === "name") return surname(a.candidate.name).localeCompare(surname(b.candidate.name), intl) || a.candidate.name.localeCompare(b.candidate.name, intl);
       if (sort === "state") return t(stateByCode.get(candidateState(a.candidate))?.name || "").localeCompare(t(stateByCode.get(candidateState(b.candidate))?.name || ""), intl) || byRace(a, b);
-      return competitiveness(a.model) - competitiveness(b.model) || byRace(a, b);
+      return competitiveness(a.outlook) - competitiveness(b.outlook) || byRace(a, b);
     });
   }, [beforeState, intl, sort, state, t]);
 
@@ -125,7 +127,7 @@ export function CandidatesDirectory() {
       <div>
         <p className="eyebrow">{t("HOUSE + SENATE · GENERAL-ELECTION CANDIDATES")}</p>
         <h1>{t("Who is on the ballot")}</h1>
-        <p>{t("Every nominee for the 435 House seats and 35 Senate races on 3 November, with the model's odds and the handicappers' ratings for each race.")}</p>
+        <p>{t("Every nominee for the 435 House seats and 35 Senate races on 3 November, with each race's expert rating and polling average.")}</p>
       </div>
       <div className="stat-stamp"><strong>{data ? filtered.length.toLocaleString(intl) : "—"}</strong><span>{t("candidates in view")}</span><small>{retrieved ? t("Lists retrieved {date}", { date: retrieved }) : t("Loading candidates…")}</small></div>
     </section>
@@ -158,12 +160,12 @@ export function CandidatesDirectory() {
       {failed && <p className="table-empty">{t("The candidate directory could not be loaded. Try reloading the page.")}</p>}
       {!data && !failed && <div className={`cand-grid ${view}`} aria-busy="true">{Array.from({ length: 8 }, (_, index) => <div key={index} className="cand-card skeleton" />)}</div>}
       {data && <div className={`cand-grid ${view}`}>
-        {view === "list" && <div className="cand-list-head" aria-hidden="true"><span>{t("Candidate")}</span><span>{t("Race")}</span><span>{t("Status")}</span><span>{t("Party's chance")}</span><span>Cook</span></div>}
+        {view === "list" && <div className="cand-list-head" aria-hidden="true"><span>{t("Candidate")}</span><span>{t("Race")}</span><span>{t("Status")}</span><span>{t("Rating")}</span><span>{t("Polls")}</span></div>}
         {visible.map((row, index) => <CandidateCard key={row.candidate.slug} row={row} index={index % PAGE} />)}
       </div>}
       {data && filtered.length === 0 && <div className="table-empty cand-empty"><p>{t("No candidates match the selected filters.")}</p><button type="button" onClick={reset}>{t("Clear filters")}</button></div>}
       {filtered.length > limit && <button type="button" className="cand-more" onClick={() => setLimit((value) => value + PAGE * 2)}>{t("Show more ({count} left)", { count: (filtered.length - limit).toLocaleString(intl) })}</button>}
-      {data && <p className="source-note cand-source">{t("Source: Wikipedia candidate tables (state election offices' certified lists), retrieved {date}. Portraits: official congressional photos for sitting members (public domain). Odds: {model}.", { date: retrieved || "", model: model ? `${model.version} · ${model.runDate}` : "MP-26" })}</p>}
+      {data && <p className="source-note cand-source">{t("Source: Wikipedia candidate tables (state election offices' certified lists), retrieved {date}. Portraits: official congressional photos for sitting members (public domain). Ratings: Cook, Inside Elections and Sabato. Polls: Vote-Scope index.", { date: retrieved || "" })}</p>}
     </section>
   </>;
 }
@@ -172,10 +174,10 @@ const surname = (name: string) => name.replace(/,?\s+(Jr|Sr|II|III|IV)\.?$/, "")
 
 function CandidateCard({ row, index }: { row: Row; index: number }) {
   const t = useT();
-  const { candidate, race, model, sharedParty } = row;
+  const { candidate, race, outlook } = row;
   const code = candidateState(candidate);
-  const chance = partyProbability(candidate, model, sharedParty);
-  const cook = expertRatings(model)?.cook;
+  const side = favours(outlook || { rating: null });
+  const lean = outlook?.polls ? `${outlook.polls.margin >= 0 ? outlook.side : "R"}+${Math.abs(outlook.polls.margin).toFixed(1)}` : null;
   // The code already says "Senate"; the subtitle only needs the state there.
   const label = candidate.chamber === "senate" ? t(stateByCode.get(code)?.name || code) : raceName({ chamber: candidate.chamber, code: candidate.race, state: code }, t);
   const status = candidate.incumbent ? t("Incumbent") : race.open ? t("Open seat") : t("Challenger");
@@ -190,7 +192,7 @@ function CandidateCard({ row, index }: { row: Row; index: number }) {
       <small>{label}{race.special ? ` · ${t("special")}` : ""}</small>
     </Link>
     <span className={`cand-status${candidate.incumbent ? " incumbent" : ""}`}>{status}</span>
-    <span className="cand-odds">{chance === null ? <em>{sharedParty && model ? t("Same-party rivals") : "—"}</em> : <><b className={chance >= 50 ? "fav" : ""}>{chance}%</b><span className="cand-bar"><i style={{ width: `${chance}%` }} /></span></>}</span>
-    <span className="cand-cook" title="Cook Political Report">{cook ? <><small>Cook</small>{t(cook)}</> : <small>{model ? t("Not rated") : "…"}</small>}</span>
+    <span className="cand-cook" title={t("Consensus of Cook, Inside Elections and Sabato")}>{outlook?.rating ? <><small>{t("Rating")}</small><b className={side === "D" ? "dem-text" : side === "R" ? "rep-text" : "toss-text"}>{t(outlook.rating.label)}</b></> : <small>{outlook ? t("Not rated") : "…"}</small>}</span>
+    <span className="cand-cook">{outlook ? <><small>{t("Polls")}</small>{lean ? <b className={outlook.polls!.margin >= 0 ? "dem-text" : "rep-text"}>{lean}</b> : <span>—</span>}</> : <small>…</small>}</span>
   </article>;
 }
