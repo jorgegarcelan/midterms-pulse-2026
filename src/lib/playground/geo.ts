@@ -10,31 +10,54 @@ export const MAP_HEIGHT = 600;
 export type MapShape = { code: string; state: string; d: string; centroid: [number, number]; area: number; outline?: string; km2?: number };
 export type MapGeometry = { districts: MapShape[]; states: MapShape[] };
 
-let cache: Promise<MapGeometry> | null = null;
+export type MapLines = "2024" | "2026";
+const SOURCES: Record<MapLines, string> = { "2024": "/data/congressional-districts-119.geojson", "2026": "/data/congressional-districts-2026.geojson" };
+type Collection = FeatureCollection<Geometry, DistrictProperties>;
+const cache = new Map<MapLines, Promise<MapGeometry>>();
+const rawCache = new Map<MapLines, Promise<Collection["features"]>>();
+
+// Memoized: "2026" needs the 2024 features twice (projection fit and state outlines), one download.
+function fetchDistricts(lines: MapLines) {
+  const known = rawCache.get(lines);
+  if (known) return known;
+  const pending = fetch(SOURCES[lines]).then((response) => {
+    if (!response.ok) throw new Error(`Boundaries ${response.status}`);
+    return response.json() as Promise<Collection>;
+  }).then((collection) => collection.features.filter((feature) => stateCodeByFips.has(feature.properties.STATEFP) && feature.properties.STATEFP !== "72" && feature.properties.CD119FP !== "98"));
+  rawCache.set(lines, pending.catch((error) => { rawCache.delete(lines); throw error; }));
+  return rawCache.get(lines)!;
+}
+
+function projectDistricts(features: Collection["features"], projection: ReturnType<typeof geoAlbersUsa>) {
+  const draw = geoPath(projection);
+  return features.map((feature) => {
+    const state = stateCodeByFips.get(feature.properties.STATEFP)!;
+    const centroid = draw.centroid(feature);
+    // Spherical area; a ring wound the "wrong" way for d3 measures the rest of the globe.
+    const steradians = geoArea(feature);
+    const km2 = (steradians > 2 * Math.PI ? 4 * Math.PI - steradians : steradians) * 6371.0088 ** 2;
+    const shape: MapShape = { code: `${state}-${feature.properties.CD119FP}`, state, d: draw(feature) || "", centroid: [centroid[0], centroid[1]], area: draw.area(feature), km2 };
+    return shape;
+  }).filter((shape) => shape.d).sort((a, b) => a.code.localeCompare(b.code));
+}
 
 /*
-  District and state outlines projected once (Albers USA, 960×600) from the 119th Congress Census file.
+  District and state outlines projected once (Albers USA, 960×600). "2024" is the 119th Congress Census
+  file; "2026" holds the November 2026 lines (nine states redrawn, census-model/build_geometry_2026.py)
+  and reuses the 2024 projection and state shapes, since no state border moved.
   States are the union of their districts drawn as one path, so the Senate map needs no second download.
 */
-export function loadMapGeometry() {
-  cache ??= fetch("/data/congressional-districts-119.geojson")
-    .then((response) => {
-      if (!response.ok) throw new Error(`Boundaries ${response.status}`);
-      return response.json() as Promise<FeatureCollection<Geometry, DistrictProperties>>;
+export function loadMapGeometry(lines: MapLines = "2024"): Promise<MapGeometry> {
+  const known = cache.get(lines);
+  if (known) return known;
+  const pending = lines === "2026"
+    ? Promise.all([fetchDistricts("2024"), fetchDistricts("2026"), loadMapGeometry("2024")]).then(([base, features, geometry]) => {
+      const projection = geoAlbersUsa().fitExtent([[10, 10], [MAP_WIDTH - 10, MAP_HEIGHT - 10]], { type: "FeatureCollection", features: base });
+      return { districts: projectDistricts(features, projection), states: geometry.states };
     })
-    .then((collection) => {
-      const features = collection.features.filter((feature) => stateCodeByFips.has(feature.properties.STATEFP) && feature.properties.STATEFP !== "72" && feature.properties.CD119FP !== "98");
+    : fetchDistricts("2024").then((features) => {
       const projection = geoAlbersUsa().fitExtent([[10, 10], [MAP_WIDTH - 10, MAP_HEIGHT - 10]], { type: "FeatureCollection", features });
-      const draw = geoPath(projection);
-      const districts: MapShape[] = features.map((feature) => {
-        const state = stateCodeByFips.get(feature.properties.STATEFP)!;
-        const centroid = draw.centroid(feature);
-        // Spherical area; a ring wound the "wrong" way for d3 measures the rest of the globe.
-        const steradians = geoArea(feature);
-        const km2 = (steradians > 2 * Math.PI ? 4 * Math.PI - steradians : steradians) * 6371.0088 ** 2;
-        const shape: MapShape = { code: `${state}-${feature.properties.CD119FP}`, state, d: draw(feature) || "", centroid: [centroid[0], centroid[1]], area: draw.area(feature), km2 };
-        return shape;
-      }).filter((shape) => shape.d).sort((a, b) => a.code.localeCompare(b.code));
+      const districts = projectDistricts(features, projection);
       const outlines = stateOutlines(features, projection);
       const byState = new Map<string, MapShape[]>();
       for (const district of districts) byState.set(district.state, [...(byState.get(district.state) || []), district]);
@@ -44,9 +67,10 @@ export function loadMapGeometry() {
         return { code: state, state, d: parts.map((part) => part.d).join(""), centroid, area, outline: outlines.get(state) || "" };
       }).sort((a, b) => a.code.localeCompare(b.code));
       return { districts, states };
-    })
-    .catch((error) => { cache = null; throw error; });
-  return cache;
+    });
+  const guarded = pending.catch((error) => { cache.delete(lines); throw error; });
+  cache.set(lines, guarded);
+  return guarded;
 }
 
 /*
@@ -54,7 +78,7 @@ export function loadMapGeometry() {
   the same state cancel out (Census cartographic files share vertices along common edges); the rest is
   drawn as short projected lines, chained into polylines where they connect.
 */
-function stateOutlines(features: FeatureCollection<Geometry, DistrictProperties>["features"], projection: ReturnType<typeof geoAlbersUsa>) {
+function stateOutlines(features: Collection["features"], projection: ReturnType<typeof geoAlbersUsa>) {
   const segments = new Map<string, Map<string, [number[], number[]]>>();
   for (const feature of features) {
     const state = stateCodeByFips.get(feature.properties.STATEFP)!;

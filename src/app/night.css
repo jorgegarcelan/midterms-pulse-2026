@@ -26,3 +26,103 @@
   .night-race { grid-template-columns: 1fr auto auto; gap: 10px; }
   .night-prob, .night-cook { display: none; }
 }
+
+/* Election night results: board, chambers, the "now" line and calls on the timeline */
+.night-rehearsal-tag { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #f2c46d; color: #1a1406; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .08em; }
+.night-board { display: grid; gap: 18px; margin-bottom: 22px; padding: 22px 24px; }
+.night-board.rehearsal { border-color: rgba(242,196,109,.45); box-shadow: inset 0 0 0 1px rgba(242,196,109,.12); }
+.night-board-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.night-board-head .eyebrow { margin: 0; }
+.night-clock { margin: 0; color: #8e97a0; font-size: 13px; }
+.night-clock strong { color: var(--ink); font-family: var(--font-mono); font-size: 22px; letter-spacing: -.02em; }
+.night-chambers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.night-chamber { display: grid; gap: 10px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.02); }
+.night-chamber header { display: flex; justify-content: space-between; align-items: baseline; color: #7e8790; font-size: 12px; }
+.night-chamber header .eyebrow { margin: 0; }
+.night-tally { display: flex; justify-content: space-between; align-items: baseline; }
+.night-tally strong { font-family: var(--font-mono); font-size: 34px; letter-spacing: -.04em; }
+.night-tally span { color: #7e8790; font-size: 12px; }
+.night-seat-bar { position: relative; display: flex; height: 14px; border-radius: 5px; overflow: hidden; background: #1d222a; }
+.night-seat-bar i.dem { background: var(--blue); }
+.night-seat-bar i.rep { background: var(--red); margin-left: auto; }
+.night-seat-bar b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #fff; transform: translateX(-50%); }
+.night-odds { margin: 0; color: #b9c0ca; font-size: 13px; }
+.night-odds strong { font-size: 18px; }
+.night-odds small { display: block; margin-top: 2px; color: #6f7780; font-size: 11px; }
+.night-chamber-note { margin: 0; color: #6f7780; font-size: 11px; }
+.night-shift { margin: 0; padding-left: 12px; border-left: 2px solid var(--blue-soft); color: #c7cdd3; font-size: 14px; }
+.night-latest { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: #c7cdd3; }
+.night-latest li { display: inline-flex; gap: 6px; align-items: baseline; }
+.night-latest time, .stream-night-ticker time { font-family: var(--font-mono); color: #7e8790; }
+.night-board-note { margin: 0; color: #6f7780; font-size: 12px; }
+.night-now { display: flex; align-items: center; gap: 12px; color: #f2c46d; font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; }
+.night-now::before, .night-now::after { content: ""; flex: 1; height: 1px; background: rgba(242,196,109,.5); }
+.night-slot.closed { opacity: .92; }
+.night-slot.closed .night-time strong { color: #8e97a0; }
+.night-slot.next { border-color: rgba(242,196,109,.35); }
+.night-status { font-style: normal; font-size: 11px; color: #8e97a0; }
+.night-status.soon { color: #f2c46d; }
+.night-race.called { background: rgba(255,255,255,.025); }
+.night-call { font-size: 12px; color: #8e97a0; font-family: var(--font-mono); }
+.night-race.called.dem .night-call b { color: var(--blue-soft); }
+.night-race.called.rep .night-call b { color: var(--red-soft); }
+.night-call.pending { font-family: inherit; color: #6f7780; font-style: italic; }
+@media (max-width: 720px) {
+  .night-chambers { grid-template-columns: 1fr; }
+  .night-board { padding: 18px 16px; }
+  .night-race.called .night-call, .night-call.pending { display: inline; grid-column: 1 / -1; }
+}
+
+/* Call desk */
+.desk-login { max-width: 460px; margin: 40px auto; display: grid; gap: 12px; }
+.desk-login h1 { margin: 0; }
+.desk-login form, .desk-buttons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.desk input, .desk select, .desk-login input { min-height: 36px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: rgba(255,255,255,.04); color: var(--ink); }
+.desk button, .desk-buttons a, .desk-login button { min-height: 34px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: rgba(255,255,255,.05); color: var(--ink); font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; cursor: pointer; }
+.desk button:disabled { opacity: .35; cursor: default; }
+.desk button.danger { border-color: rgba(255,90,110,.5); color: var(--red-soft); }
+.desk { display: grid; gap: 14px; padding-top: 18px; }
+.desk.rehearsal { --desk-accent: #f2c46d; }
+.desk-head { position: sticky; top: 64px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(10,12,17,.94); backdrop-filter: blur(8px); }
+.desk.rehearsal .desk-head { border-color: rgba(242,196,109,.5); }
+.desk-head .eyebrow { margin: 0; color: var(--desk-accent, #7c818c); }
+.desk-clock { margin: 2px 0 0; color: #8e97a0; font-size: 13px; }
+.desk-clock strong { font-family: var(--font-mono); font-size: 24px; color: var(--ink); }
+.desk-score { display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; color: #b9c0ca; }
+.desk-slot-toggle { display: inline-flex; margin-top: 6px; padding: 2px; border: 1px solid var(--border); border-radius: 9px; }
+.desk-error { margin: 0; padding: 10px 14px; border-radius: 10px; background: rgba(255,90,110,.12); color: var(--red-soft); font-size: 14px; }
+.desk-controls { display: grid; gap: 10px; font-size: 14px; color: #b9c0ca; }
+.desk-controls p { margin: 0; }
+.desk-meta { color: #6f7780; font-size: 12px; }
+.desk-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+.desk-main { display: grid; gap: 10px; }
+.desk-search { width: 100%; }
+.desk-slot { display: grid; gap: 2px; padding: 12px 14px; }
+.desk-slot header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-bottom: 6px; }
+.desk-slot header strong { font-family: var(--font-mono); font-size: 20px; }
+.desk-slot header span { flex: 1; color: #8e97a0; font-size: 12px; }
+.desk-slot header em { font-style: normal; font-size: 11px; color: #7e8790; }
+.desk-slot.closed header em { color: #f2c46d; }
+.desk-slot details summary { padding: 6px 0; color: #8e97a0; font-size: 13px; cursor: pointer; }
+.desk-race { display: grid; grid-template-columns: minmax(140px, 1.3fr) minmax(110px, 1fr) 110px auto; gap: 10px; align-items: center; min-height: 40px; padding: 2px 6px; border-radius: 8px; font-size: 13px; }
+.desk-race:hover { background: rgba(255,255,255,.03); }
+.desk-race.called.dem { background: rgba(91,134,255,.1); }
+.desk-race.called.rep { background: rgba(255,90,110,.1); }
+.desk-race-model, .desk-race-status { color: #8e97a0; font-family: var(--font-mono); font-size: 12px; }
+.desk-race-actions { display: flex; gap: 4px; }
+.desk-race-actions button { min-width: 38px; min-height: 32px; justify-content: center; }
+.desk-race-actions button.dem { border-color: rgba(91,134,255,.6); color: var(--blue-soft); }
+.desk-race-actions button.rep { border-color: rgba(255,90,110,.6); color: var(--red-soft); }
+.desk-log { position: sticky; top: 150px; max-height: calc(100vh - 170px); overflow: auto; padding: 14px; }
+.desk-log ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.desk-log li { display: grid; grid-template-columns: 44px 16px 1fr auto; gap: 6px; align-items: center; font-size: 12px; }
+.desk-log time { font-family: var(--font-mono); color: #7e8790; }
+.desk-log button { min-height: 26px; padding: 0 8px; font-size: 11px; }
+@media (max-width: 900px) {
+  .desk-grid { grid-template-columns: 1fr; }
+  .desk-log { position: static; max-height: none; }
+  .desk-race { grid-template-columns: 1fr auto; }
+  .desk-race-model, .desk-race-status { grid-column: 1; }
+  .desk-race-actions { grid-row: 1 / span 3; grid-column: 2; }
+  .desk-head { top: 56px; }
+}

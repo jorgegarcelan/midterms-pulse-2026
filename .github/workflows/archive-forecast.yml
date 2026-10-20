@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: 22
       - name: Archive today's run
-        run: node app/scripts/archive-run.mjs archive "${{ vars.MODEL_URL || 'https://midterm-pulse-2026.vercel.app/api/model' }}"
+        run: node app/scripts/archive-run.mjs archive "${{ vars.MODEL_URL || 'https://www.us-elections.dev/api/model' }}"
       - name: Commit
         working-directory: archive
         run: |

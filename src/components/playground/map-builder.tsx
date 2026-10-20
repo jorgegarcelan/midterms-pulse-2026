@@ -50,7 +50,7 @@ export function MapBuilder({ races, initial }: Props) {
   const [hover, setHover] = useState<{ code: string; x: number; y: number } | null>(null);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"" | "copied" | "exporting" | "error">("");
-  const geometry = useResource(loadMapGeometry);
+  const geometry = useResource(() => loadMapGeometry("2026"));
   const root = useRef<HTMLDivElement>(null);
   const stroke = useRef<{ value: Pick | undefined; done: Set<string> } | null>(null);
 

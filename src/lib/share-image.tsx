@@ -12,6 +12,7 @@ import { MODEL_VERSION, NATIONALIZATION } from "@/lib/mp26";
 import { parliamentLayout } from "@/lib/parliament";
 import { parseRaceSlug, raceName } from "@/lib/races";
 import { simulateSenate, type SenatePick } from "@/lib/senate-sim";
+import { SITE_HOST } from "@/lib/site";
 
 /*
   Share images: branded, dated PNG cards rendered on the server from the published model run, so a
@@ -25,7 +26,7 @@ export const DOWNLOAD_SIZE: ImageSize = { width: 1600, height: 900 };
 export type ShareOptions = { swing?: number; picks?: Record<string, SenatePick> };
 export type ShareCard = { element: React.ReactElement; filename: string };
 
-const SITE = "midterm-pulse-2026.vercel.app";
+const SITE = SITE_HOST;
 const CREDIT = "jorgegarcelan.com · @jgarcelan";
 const C = {
   bg: "#06070b", ink: "#ededef", muted: "#8b8f99", dim: "#5d626d", line: "rgba(255,255,255,.1)",
@@ -84,11 +85,11 @@ function dotMap(margins: Map<string, number>) {
 type DistrictFeature = Feature<Geometry, { STATEFP: string; CD119FP: string }>;
 let districtCache: Promise<DistrictFeature[]> | null = null;
 function districtShapes() {
-  districtCache ??= readFile(join(process.cwd(), "public/data/congressional-districts-119.geojson"), "utf8").then((text) => (JSON.parse(text) as FeatureCollection<Geometry, { STATEFP: string; CD119FP: string }>).features);
+  districtCache ??= readFile(join(process.cwd(), "public/data/congressional-districts-2026.geojson"), "utf8").then((text) => (JSON.parse(text) as FeatureCollection<Geometry, { STATEFP: string; CD119FP: string }>).features);
   return districtCache;
 }
 
-// One state's districts from the Census boundaries, each filled with a dot pattern in its forecast
+// One state's districts on the November 2026 lines, each filled with a dot pattern in its forecast
 // colour so small states stay legible. `focus` keeps one district bright and outlines it.
 async function stateMap(state: string, margins: Map<string, number>, focusCode?: string) {
   const features = (await districtShapes()).filter((feature) => feature.properties.STATEFP === stateFips[state]);
@@ -313,7 +314,7 @@ async function raceCard(model: ModelResult, slug: string, size: ImageSize): Prom
   const demPct = race.leader === "D" ? race.winProbability : 100 - race.winProbability;
   const map = await stateMap(race.state, new Map(model.races.filter((item) => item.chamber === "house").map((item) => [item.code, item.signedMargin])), race.chamber === "house" ? race.code : undefined);
   const img = fit(map.aspect, 400 * u, size.height - 300 * u);
-  const baseline = race.baselineDem !== null && race.baselineRep !== null ? signed(race.baselineDem - race.baselineRep) : "—";
+  const baseline = race.baselineMargin !== null ? signed(race.baselineMargin) : "—";
   return {
     filename: `midterm-pulse-${slug.toLowerCase()}-${fileDate(model.runDate)}.png`,
     element: frame({
@@ -330,7 +331,7 @@ async function raceCard(model: ModelResult, slug: string, size: ImageSize): Prom
             <div style={{ display: "flex", marginTop: 26 * u }}>
               {stat("Projected margin", signed(race.signedMargin), u, race.signedMargin >= 0 ? C.blueSoft : C.redSoft)}
               {race.demVote !== null && race.repVote !== null && stat("Two-party vote", `${race.demVote.toFixed(1)} – ${race.repVote.toFixed(1)}`, u)}
-              {stat("2024 baseline", baseline, u, C.muted)}
+              {stat(race.baselineKind === "pres-new-lines" ? "2024 pres. · new lines" : "2024 baseline", baseline, u, C.muted)}
             </div>
           </div>
         </div>,

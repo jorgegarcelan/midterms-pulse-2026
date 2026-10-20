@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+data/gazetteer/*.zip
+run.log
+data/raw/
+data/geo/

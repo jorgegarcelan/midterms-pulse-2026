@@ -66,3 +66,28 @@ html:has(.stream-root.transparent), body:has(.stream-root.transparent) { backgro
 .stream-scene-actions a, .stream-scene-actions button { min-height: 34px; display: inline-flex; align-items: center; padding: 0 12px; border: 1px solid #3a3f44; border-radius: 8px; background: transparent; color: #c7cdd3; font-size: 13px; cursor: pointer; text-decoration: none; }
 .stream-scene-actions a:hover, .stream-scene-actions button:hover { border-color: #66717d; color: var(--ink); }
 @media (max-width: 960px) { .stream-scenes { grid-template-columns: 1fr; } }
+
+/* Election night scene */
+.stream-night { display: grid; gap: 40px; }
+.stream-night-head { display: flex; justify-content: space-between; align-items: center; }
+.stream-night-head .night-rehearsal-tag { font-size: 26px; padding: 10px 22px; }
+.stream-night-clock { font-size: 26px; color: #8e97a0; }
+.stream-night-clock strong { font-family: var(--font-mono); font-size: 44px; color: var(--ink); }
+.stream-night-chambers { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.night-chamber.big { gap: 24px; padding: 36px 40px; border-radius: 28px; background: rgba(16,20,26,.78); border-color: rgba(255,255,255,.1); }
+.night-chamber.big header { font-size: 22px; }
+.night-chamber.big header .eyebrow { font-size: 24px; letter-spacing: .14em; }
+.night-chamber.big .night-tally strong { font-size: 150px; line-height: .9; }
+.night-chamber.big .night-tally span { font-size: 26px; }
+.night-chamber.big .night-seat-bar { height: 40px; border-radius: 12px; }
+.night-chamber.big .night-seat-bar b { width: 4px; top: -8px; bottom: -8px; }
+.night-chamber.big .night-odds { font-size: 28px; }
+.night-chamber.big .night-odds strong { font-size: 56px; letter-spacing: -.03em; }
+.night-chamber.big .night-odds small { font-size: 20px; margin-top: 6px; }
+.night-chamber.big .night-chamber-note { font-size: 18px; }
+.stream-night-foot { display: grid; gap: 14px; }
+.stream-night-ticker { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stream-night-ticker li { display: flex; gap: 12px; align-items: baseline; padding: 16px 22px; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; background: rgba(16,20,26,.78); font-size: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stream-night-ticker li.quiet { grid-column: 1 / -1; color: #7e8790; }
+.stream-night-ticker b { font-size: 26px; }
+.stream-night-shift { margin: 0; font-size: 24px; color: #c7cdd3; }

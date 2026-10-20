@@ -17,12 +17,15 @@ export const NAV_GROUPS: Group[] = [
   ] },
   { key: "races", label: "Races", items: [
     { href: "/races", label: "Races: map and list", note: "All 470 House and Senate races" },
+    { href: "/key-races", label: "Key races", note: "Calle 14's guide, with the model alongside" },
     { href: "/states", label: "States", note: "Each state's Senate race and House districts" },
     { href: "/candidates", label: "Candidates", note: "Every 2026 nominee" },
   ] },
   { key: "understand", label: "Understand", items: [
     { href: "/geography", label: "Geography", note: "Seven axes of the American vote, county by county" },
     { href: "/history", label: "History", note: "Seat changes and past cycles" },
+    { href: "/gerrymandering", label: "Gerrymandering", note: "How drawing lines decides elections" },
+    { href: "/census", label: "Only the census", note: "A House forecast from demographics alone, no polls" },
     { href: "/glossary", label: "Glossary", note: "Every term, in plain words" },
     { href: "/about", label: "About", note: "Who builds Midterm Pulse" },
   ] },
