@@ -47,7 +47,7 @@ export function RaceReadingsView({ readings, variant = "card" }: { readings: Rac
     { label: "MP-26", value: lead(mp26.margin), tone: tone(mp26.margin), detail: chance(mp26.p) },
     census
       ? { label: "Census-26", value: lead(census.margin), tone: tone(census.margin), detail: chance(census.p) }
-      : { label: "Census-26", value: null, tone: "", detail: t("House only") },
+      : { label: "Census-26", value: null, tone: "", detail: readings.key.startsWith("senate:") ? t("House only") : t("No estimate") },
   ];
   return <Rows rows={rows} variant={variant} flag={readingsDisagree(readings) ? t("They disagree on who leads") : null} />;
 }

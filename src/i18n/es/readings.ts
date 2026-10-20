@@ -31,4 +31,5 @@ export const readings: Record<string, string> = {
   "Polls, markets, MP-26 and Census-26": "Encuestas, mercados, MP-26 y Census-26",
   "Midterm Pulse owns the weighting and 50,000-draw simulation layer. Vote-Scope remains the attributed benchmark for every race margin. Both chambers are simulated race by race, and the engine is backtested on 2018 and 2022 (see Validation).": "Midterm Pulse se encarga de la ponderación y de la capa de 50.000 simulaciones. Vote-Scope sigue siendo la referencia citada para el margen de cada carrera. Las dos cámaras se simulan carrera a carrera, y el motor está validado con 2018 y 2022 (ver Validación).",
   "Census-26: only the census — Midterm Pulse 2026": "Census-26: solo el censo — Midterm Pulse 2026",
+  "No estimate": "Sin estimación",
 };

@@ -16,9 +16,20 @@ export { readingsDisagree, type ChamberReadings, type RaceReadings } from "@/lib
   Probabilities are for the non-Republican side: the Democrat, or the independent in Nebraska.
 */
 
+/*
+  Census-26 covers the House; a Senate extension, when census-model/export_web.py writes it, adds
+  `senate` (one entry per state with a Senate race) and `senateChamber` to the same file. Until then
+  Senate readings show no Census-26 value.
+*/
+type CensusSenate = { senate?: { state: string; margin: number; pD: number }[]; senateChamber?: { median: number; p10: number; p90: number; pMajority: number } };
+const censusSenate = () => loadCensusModel() as unknown as CensusSenate;
+
 let censusRaces: Map<string, { margin: number; pD: number }> | null = null;
 function census() {
-  censusRaces ??= new Map(loadCensusModel().races.map((race) => [`house:${race.code}`, { margin: race.margin, pD: race.pD }]));
+  censusRaces ??= new Map([
+    ...loadCensusModel().races.map((race) => [`house:${race.code}`, { margin: race.margin, pD: race.pD }] as const),
+    ...(censusSenate().senate || []).map((race) => [`senate:${race.state}`, { margin: race.margin, pD: race.pD }] as const),
+  ]);
   return censusRaces;
 }
 
@@ -61,6 +72,7 @@ export async function chamberReadings(model: ModelResult): Promise<{ house: Cham
   const [house, senate] = await Promise.all([HOUSE_CONTROL_SLUG, SENATE_CONTROL_SLUG].map((slug) => fetchWinnerMarket(slug, { history: false }).catch(() => null)));
   const market = (value: typeof house) => value && { p: value.side === "D" ? value.probability : 1 - value.probability, url: value.url };
   const blind = loadCensusModel().house;
+  const senateChamber = censusSenate().senateChamber;
   return {
     house: {
       polls: { margin: model.genericBallot.margin },
@@ -72,7 +84,7 @@ export async function chamberReadings(model: ModelResult): Promise<{ house: Cham
       polls: null,
       market: market(senate),
       mp26: { p: model.senate.demMajority / 100, seats: model.senate.demSeats, majority: 51, interval: model.senate.interval80 },
-      census: null,
+      census: senateChamber ? { p: senateChamber.pMajority, seats: senateChamber.median, interval: [senateChamber.p10, senateChamber.p90] } : null,
     },
   };
 }
