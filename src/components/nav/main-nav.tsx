@@ -23,6 +23,7 @@ export const NAV_GROUPS: Group[] = [
   { key: "understand", label: "Understand", items: [
     { href: "/geography", label: "Geography", note: "Seven axes of the American vote, county by county" },
     { href: "/history", label: "History", note: "Seat changes and past cycles" },
+    { href: "/gerrymandering", label: "Gerrymandering", note: "How drawing lines decides elections" },
     { href: "/census", label: "Only the census", note: "A House forecast from demographics alone, no polls" },
     { href: "/glossary", label: "Glossary", note: "Every term, in plain words" },
     { href: "/about", label: "About", note: "Who builds Midterm Pulse" },
