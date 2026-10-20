@@ -19,12 +19,14 @@
 .key-race-nominees a { color: var(--ink); text-decoration: none; }
 .key-race-nominees a:hover { text-decoration: underline; }
 .key-race-nominees small { color: #7e8790; font-size: 11px; }
-.key-race-model { display: grid; gap: 6px; }
-.key-race-model p { margin: 0; color: #b9c0ca; font-size: 13px; }
-.key-race-model strong { font-size: 24px; letter-spacing: -.02em; }
-.key-race-bar { display: block; height: 6px; border-radius: 3px; background: var(--red); overflow: hidden; }
-.key-race-bar i { display: block; height: 100%; background: var(--blue); }
-.key-race-bar.ind i { background: #f2c46d; }
+.key-race-compare { display: grid; gap: 8px; margin: 0; }
+.key-race-compare > div { display: grid; grid-template-columns: 82px 1fr; gap: 10px; align-items: baseline; }
+.key-race-compare dt { color: #7e8790; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.key-race-compare dd { display: grid; gap: 1px; margin: 0; }
+.key-race-compare strong { font-size: 19px; letter-spacing: -.02em; }
+.key-race-compare small { color: #8e97a0; font-size: 11.5px; line-height: 1.4; }
+.ind-text { color: #f2c46d; }
+.key-race-split { color: #f2c46d; font-weight: 600; }
 .key-race-meta { margin: 0; color: #7e8790; font-size: 12px; line-height: 1.5; }
 .key-race-link { color: var(--blue-soft); font-size: 13px; text-decoration: none; }
 .key-race-link:hover { text-decoration: underline; }
