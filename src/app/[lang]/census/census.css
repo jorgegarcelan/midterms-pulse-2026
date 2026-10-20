@@ -342,3 +342,27 @@
   .cz-senate-states li { grid-template-columns: 30px minmax(0, 1fr) 56px 42px; gap: 8px; }
   .cz-senate-states .cz-redraw-axis { margin: 0 0 10px; }
 }
+
+/* ---------- Section pages (tabs) ---------- */
+
+.cz-page-head { max-width: 820px; padding: 18px 0 6px; }
+.cz-page-head h1 {
+  margin: 18px 0 0; font-size: clamp(36px, 5vw, 64px); font-weight: 650; letter-spacing: -.055em; line-height: 1.02;
+  background: linear-gradient(100deg, #fff 0%, #c3d3ff 35%, #a78bfa 60%, #ffb4bf 85%, #fff 100%); background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: mp-wipe-up .9s var(--ease-snap) .05s backwards;
+}
+.cz-page-head .cz-deck { max-width: 680px; }
+.cz-page-head + .cz-head { margin-top: 70px; }
+.cz-hero-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; animation: mp-rise .6s var(--ease-out) .55s both; }
+.cz-national { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: 24px 26px; border: 1px solid var(--border); border-radius: 24px; background: var(--glass); box-shadow: var(--shadow); }
+.cz-big-stats.single { grid-template-columns: 1fr; gap: 18px; }
+.cz-method.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cz-next { display: flex; justify-content: space-between; align-items: center; gap: 14px; max-width: 760px; margin: 90px auto 30px; padding: 18px 22px; border: 1px solid var(--border); border-radius: 18px; background: var(--glass); color: inherit; text-decoration: none; transition: border-color .2s ease, background .2s ease; }
+.cz-next:hover { border-color: var(--border-strong); background: var(--glass-hover); }
+.cz-next span { color: var(--cz-faint); font: 500 11px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.cz-next b { color: #fff; font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.cz-next i { font-style: normal; color: #c4b5fd; }
+.cz-sources { padding-bottom: 20px; }
+@media (max-width: 1000px) {
+  .cz-national, .cz-method.three { grid-template-columns: 1fr; }
+}

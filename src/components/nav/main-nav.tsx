@@ -24,7 +24,12 @@ export const NAV_GROUPS: Group[] = [
     { href: "/methodology", label: "Sources", note: "Data, pipeline and status" },
   ] },
   { key: "census26", label: "Census-26", href: "/census", items: [
-    { href: "/census", label: "Census-26", note: "A House forecast from demographics alone, no polls" },
+    { href: "/census", label: "Forecast", note: "House and Senate from demographics alone, no polls" },
+    { href: "/census/how-it-works", label: "How it works", note: "What it reads, twin districts, play the model" },
+    { href: "/census/validation", label: "Validation", note: "House and Senate 2016–2024, predicted blind" },
+    { href: "/census/vs-polls", label: "Census vs polls", note: "Where demographics and MP-26 disagree" },
+    { href: "/census/limits", label: "Limits", note: "Gerrymanders, candidates and the size of the wave" },
+    { href: "/census/sources", label: "Sources", note: "Data and pipeline" },
   ] },
   { key: "data", label: "Data", items: [
     { href: "/polls", label: "Polls", note: "Generic ballot, Senate and House polls" },
