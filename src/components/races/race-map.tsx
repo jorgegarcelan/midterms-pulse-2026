@@ -20,9 +20,10 @@ export function raceFill(race?: ForecastRace) {
 }
 
 /*
-  The races on a real map. House: every district; a click zooms into its state, a second click opens
-  the race. Senate: every state, a click opens its race. Races outside the current filters are muted,
-  and hovering (or focusing) a shape shows a floating card. Fully controlled by the parent.
+  The races on a real map, on the November 2026 district lines. House: every district; a click zooms
+  into its state, a second click opens the race. Senate: every state, a click opens its race. Races
+  outside the current filters are muted, and hovering (or focusing) a shape shows a floating card.
+  Fully controlled by the parent.
 */
 export function RaceMap({ chamber, races, matches, stateCode, hovered, onHover, onState, onOpen }: {
   chamber: "house" | "senate"; races: ForecastRace[]; matches: Set<string> | null; stateCode: string; hovered: string;
@@ -32,7 +33,7 @@ export function RaceMap({ chamber, races, matches, stateCode, hovered, onHover, 
   const [geometry, setGeometry] = useState<MapGeometry | null>(null);
   const frame = useRef<HTMLDivElement>(null);
   const tip = useRef<HTMLDivElement>(null);
-  useEffect(() => { let alive = true; loadMapGeometry().then((data) => { if (alive) setGeometry(data); }).catch(() => undefined); return () => { alive = false; }; }, []);
+  useEffect(() => { let alive = true; loadMapGeometry("2026").then((data) => { if (alive) setGeometry(data); }).catch(() => undefined); return () => { alive = false; }; }, []);
 
   const byCode = useMemo(() => new Map(races.filter((race) => race.chamber === chamber).map((race) => [race.code, race])), [chamber, races]);
   const stateBounds = useMemo(() => {

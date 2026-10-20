@@ -14,12 +14,18 @@ export type MapLines = "2024" | "2026";
 const SOURCES: Record<MapLines, string> = { "2024": "/data/congressional-districts-119.geojson", "2026": "/data/congressional-districts-2026.geojson" };
 type Collection = FeatureCollection<Geometry, DistrictProperties>;
 const cache = new Map<MapLines, Promise<MapGeometry>>();
+const rawCache = new Map<MapLines, Promise<Collection["features"]>>();
 
+// Memoized: "2026" needs the 2024 features twice (projection fit and state outlines), one download.
 function fetchDistricts(lines: MapLines) {
-  return fetch(SOURCES[lines]).then((response) => {
+  const known = rawCache.get(lines);
+  if (known) return known;
+  const pending = fetch(SOURCES[lines]).then((response) => {
     if (!response.ok) throw new Error(`Boundaries ${response.status}`);
     return response.json() as Promise<Collection>;
   }).then((collection) => collection.features.filter((feature) => stateCodeByFips.has(feature.properties.STATEFP) && feature.properties.STATEFP !== "72" && feature.properties.CD119FP !== "98"));
+  rawCache.set(lines, pending.catch((error) => { rawCache.delete(lines); throw error; }));
+  return rawCache.get(lines)!;
 }
 
 function projectDistricts(features: Collection["features"], projection: ReturnType<typeof geoAlbersUsa>) {
