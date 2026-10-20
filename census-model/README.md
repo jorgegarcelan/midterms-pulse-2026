@@ -1,4 +1,4 @@
-# Census-only House model (phases 1–5)
+# Census-26: the census-only House and Senate model
 
 A House forecast that never looks at polls or markets: every district's margin comes from its
 American Community Survey profile, and the national level comes from election history alone.
@@ -44,6 +44,7 @@ census-model/.venv/bin/python census-model/train_backtest.py census_pres_inc   #
 census-model/.venv/bin/python census-model/compare.py
 census-model/.venv/bin/python census-model/build_geometry_2026.py    # public/data/congressional-districts-2026.geojson
 census-model/.venv/bin/python census-model/export_web.py             # src/data/census-model.json for /census
+census-model/.venv/bin/python census-model/senate.py                 # Senate: adds senate* keys to the same JSON
 ```
 
 The web page `/census` (`src/app/[lang]/census`, `src/components/census`) reads only
@@ -150,6 +151,50 @@ Best per-race benchmark is census_pres_inc (Brier 0.049 and 0.039 in 2018 and 20
 538's 0.027 and 0.032). Its redraw effect is less reliable than the others': on the 2024 lines
 incumbents are matched by name between the history files and the 2026 candidate list (271 of
 ~360 match), so some old-line seats count as open.
+
+## Senate (`senate.py`)
+
+The Senate reuses the House model unchanged: a state is the sum of its districts.
+
+- **State margin**: the mean of the census-only margins of the state's districts on the November
+  2026 maps (national House popular vote + each district's structural term). AK, DE, ND, SD, VT
+  and WY have one district, so the state is that district.
+- **Weights**: districts have equal population but not equal turnout, so the obvious refinement is
+  to weight each district by votes cast. The script tries the total presidential vote cast in the
+  last presidential election on the same lines (known in advance, no party information) against
+  equal weights, and keeps whichever backtests better. They tie (mean Brier 0.0751 with votes,
+  0.0742 equal), so the published version uses **equal weights**: within a state, census-predicted
+  turnout differences between districts barely move the statewide margin.
+- **Races scored**: every Senate contest 2014–2024 with a Democrat and a Republican on the ballot,
+  specials included, runoffs where they decided the seat; except contests where D + R took under
+  85% of the vote, because an independent, a third party or a split jungle-primary field was the
+  real alternative and D − R does not measure the race (Maine 2018/2024 with King, Alaska 2016,
+  Louisiana 2020/2022, North Dakota 2022, New Mexico 2018, South Dakota 2014).
+- **State error, from the data**: residuals of earlier Senate races scored with the real national
+  vote, pooled from 2014 (an expanding window: 2016 is calibrated on 2014 only, 2026 on
+  2014–2024). It comes out at **±10.9 points for 2026**, against ±8.0 for a House district on
+  unchanged lines: the candidate effect is larger statewide.
+- **Probability and chamber**: P(D) = Φ(margin / √(state² + national²)); 20,000 simulations draw
+  one national error shared by every state (same mean and spread as the House: D+4.8 ± 7.4) and an
+  independent state error. Seats not up in 2026: D 34, R 31 (`src/lib/senate-sim.ts`); Democrats
+  need 51, a 50–50 Senate is Republican through the Vice President.
+
+| Blind backtest | 2016 | 2018 | 2020 | 2022 | 2024 |
+|---|---|---|---|---|---|
+| Races scored | 32 | 31 | 33 | 32 | 33 |
+| Seats called | 96.9% | 83.9% | 93.9% | 90.6% | 93.9% |
+| Mean miss (pts) | 9.6 | 9.0 | 7.2 | 8.0 | 5.7 |
+| Brier | 0.061 | 0.133 | 0.066 | 0.062 | 0.049 |
+| MP-26 Brier (polls) | – | 0.055 | – | 0.039 | – |
+
+2018 is the weak year: Democratic incumbents held Montana and West Virginia, and lost North Dakota
+by far less, against their states' demographics. **2026**: median 50 Democratic seats (80%: 45–55), 47% chance
+of a Democratic majority. Nebraska has no Democrat (Dan Osborn runs as an independent), so its
+census D − R margin is the demographic lean, not a race between those two parties.
+
+Outputs: `output/senate-backtest.csv` (both weightings), `output/senate-races-scored.csv`,
+`output/senate-state-margins.csv`; `senate`, `senateChamber` and `senateBacktest` in
+`src/data/census-model.json` (other keys untouched; `export_web.py` keeps them on re-export).
 
 ## Known limits
 

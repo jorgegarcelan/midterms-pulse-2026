@@ -327,3 +327,18 @@
 @media (max-width: 760px) {
   .cz-map-hint { position: static; margin-top: 8px; }
 }
+
+/* ---------- Senate ---------- */
+
+.cz-senate-states { max-width: 820px; margin: 22px auto 0; padding: 24px 26px; border: 1px solid var(--border); border-radius: 24px; background: var(--glass); box-shadow: var(--shadow); }
+.cz-senate-states ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.cz-senate-states li { display: grid; grid-template-columns: 34px minmax(0, 1fr) 62px 48px; gap: 12px; align-items: center; }
+.cz-senate-states li > b { font: 600 12px var(--font-mono); text-align: right; }
+.cz-senate-states sup { color: #fbbf24; }
+.cz-senate-p { color: #b7bbc4; font: 500 12px var(--font-mono); text-align: right; }
+.cz-senate-states .cz-redraw-axis { margin: 0 122px 10px 48px; }
+@media (max-width: 760px) {
+  .cz-senate-states { padding: 18px 16px; }
+  .cz-senate-states li { grid-template-columns: 30px minmax(0, 1fr) 56px 42px; gap: 8px; }
+  .cz-senate-states .cz-redraw-axis { margin: 0 0 10px; }
+}

@@ -18,6 +18,15 @@ export type CensusToy = {
   intercept: number; variables: ToyVariable[]; regions: Record<string, number>; rmse: number; national2026: number;
   presets: { code: string; division: string; margin2024: number | null; values: Record<string, number> }[];
 };
+export type CensusSenateRace = { state: string; margin: number; pD: number; special?: boolean };
+export type CensusSenateChamber = {
+  median: number; p10: number; p90: number; pMajority: number; expected: number; notUp: { D: number; R: number };
+  localSd: number; nationalSd: number; national: number; weighting: "equal" | "votes"; houseLocalSd: number; distribution: [number, number][];
+};
+export type CensusSenateYear = {
+  year: number; races: number; localSd: number; nationalSd: number; brier: number; accuracy: number; accuracyRealVote: number;
+  meanAbsError: number; meanAbsErrorRealVote: number; meanError: number; demWinsExpected: number; demWins: number; brierMp26: number | null;
+};
 export type CensusModel = {
   generated: string; acs: string; mainModel: string;
   headline: { accuracy: number; years: number[]; rmse: number; stateHoldoutRmse: number; variables: number };
@@ -35,6 +44,10 @@ export type CensusModel = {
   results2024: [string, number, number | null][];
   twins: CensusTwin[];
   toy: CensusToy;
+  // Senate (census-model/senate.py); optional so the page still renders from an older export.
+  senate?: CensusSenateRace[];
+  senateChamber?: CensusSenateChamber;
+  senateBacktest?: CensusSenateYear[];
 };
 
 type RawRace = [string, number, number, number];

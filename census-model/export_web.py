@@ -198,6 +198,9 @@ def main():
                         "seatBias": round(float(row["seat_bias"]), 1), "median2026": int(outlook.loc["demMedian", row["mode"]]),
                         "pMajority2026": round(float(outlook.loc["demMajority", row["mode"]]), 3)} for _, row in benchmarks.iterrows()],
     }
+    # Keys written by other scripts (senate.py: "senate", "senateChamber", "senateBacktest") are kept.
+    existing = json.loads(OUT.read_text()) if OUT.exists() else {}
+    payload.update({key: value for key, value in existing.items() if key not in payload})
     OUT.write_text(json.dumps(payload, separators=(",", ":"), ensure_ascii=False))
     print(f"{OUT.relative_to(PROJECT)}: {OUT.stat().st_size / 1024:.0f} KB")
     print(json.dumps({k: payload[k] for k in ("headline", "lesson2018", "redraw")}, indent=1))

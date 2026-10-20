@@ -32,13 +32,17 @@ function Tooltip({ tip }: { tip: Tip }) {
   );
 }
 
-// 20,000 simulated Houses: Democratic seats, with the 218 majority line, the median and the 80% band.
-export function SeatHistogram({ distribution, median, p10, p90, compact = false }: { distribution: [number, number][]; median: number; p10: number; p90: number; compact?: boolean }) {
+// 20,000 simulated chambers: Democratic seats, with the majority line, the median and the 80% band.
+// Defaults are the House (218 of 435); the Senate passes its own range and 51.
+export function SeatHistogram({ distribution, median, p10, p90, compact = false, range = [150, 320], majority = 218, ticks = [175, 200, 250, 275, 300], chamber = "House" }: {
+  distribution: [number, number][]; median: number; p10: number; p90: number; compact?: boolean;
+  range?: [number, number]; majority?: number; ticks?: number[]; chamber?: "House" | "Senate";
+}) {
   const t = useT();
   const n = useNumber();
   const [tip, setTip] = useState<Tip>(null);
   const width = 640, height = compact ? 220 : 260, pad = { l: 8, r: 8, t: 34, b: 30 };
-  const lo = 150, hi = 320;
+  const [lo, hi] = range;
   const peak = Math.max(...distribution.map(([, share]) => share));
   const x = (seats: number) => pad.l + (seats - lo) / (hi - lo) * (width - pad.l - pad.r);
   const y = (share: number) => height - pad.b - share / peak * (height - pad.t - pad.b);
@@ -47,23 +51,23 @@ export function SeatHistogram({ distribution, median, p10, p90, compact = false 
 
   return (
     <figure className="cz-chart cz-hist">
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t("Simulated Democratic House seats: median {median}, 80% between {p10} and {p90}", { median, p10, p90 })}
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t(chamber === "House" ? "Simulated Democratic House seats: median {median}, 80% between {p10} and {p90}" : "Simulated Democratic Senate seats: median {median}, 80% between {p10} and {p90}", { median, p10, p90 })}
         onPointerLeave={() => setTip(null)}>
         <rect x={x(p10)} y={pad.t - 8} width={x(p90) - x(p10)} height={height - pad.t - pad.b + 8} className="cz-band" />
         {bars.map(([seats, share]) => (
           <rect key={seats} x={x(seats) - step / 2 + .5} y={y(share)} width={Math.max(step - 1, .8)} height={height - pad.b - y(share)} rx={1}
-            fill={seats >= 218 ? D : R} opacity={tip && tip.title !== String(seats) ? .55 : .9}
+            fill={seats >= majority ? D : R} opacity={tip && tip.title !== String(seats) ? .55 : .9}
             onPointerEnter={() => setTip({ x: x(seats) / width * 100, y: y(share) / height * 100, title: String(seats), lines: [t("{share} of simulations", { share: n.percent(share, 1) })] })} />
         ))}
-        <line x1={x(218)} x2={x(218)} y1={pad.t - 14} y2={height - pad.b} className="cz-rule" />
-        <text x={x(218) + 6} y={pad.t - 4} className="cz-note">{t("218 for a majority")}</text>
+        <line x1={x(majority - .5)} x2={x(majority - .5)} y1={pad.t - 14} y2={height - pad.b} className="cz-rule" />
+        <text x={x(majority - .5) + 6} y={pad.t - 4} className="cz-note">{t("{n} for a majority", { n: majority })}</text>
         <line x1={x(median)} x2={x(median)} y1={pad.t + 6} y2={height - pad.b} className="cz-median" />
         <text x={x(median)} y={height - pad.b + 20} textAnchor="middle" className="cz-axis strong">{median}</text>
-        {[175, 200, 250, 275, 300].map((tick) => <text key={tick} x={x(tick)} y={height - pad.b + 20} textAnchor="middle" className="cz-axis">{tick}</text>)}
+        {ticks.filter((tick) => Math.abs(tick - median) > (hi - lo) / 30).map((tick) => <text key={tick} x={x(tick)} y={height - pad.b + 20} textAnchor="middle" className="cz-axis">{tick}</text>)}
         <line x1={pad.l} x2={width - pad.r} y1={height - pad.b} y2={height - pad.b} className="cz-baseline" />
       </svg>
       <Tooltip tip={tip} />
-      {!compact && <figcaption>{t("Each bar is a number of Democratic seats; its height, how often it came up in 20,000 simulations. The shaded band holds 80% of them.")}</figcaption>}
+      {!compact && <figcaption>{t("Each bar is a number of Democratic seats; its height, how often it came up in 20,000 simulations. The shaded band holds 80% of them.")}{chamber === "Senate" ? ` ${t("A 50–50 Senate is Republican: the Vice President breaks ties.")}` : ""}</figcaption>}
     </figure>
   );
 }
@@ -249,6 +253,31 @@ export function RedrawBars({ rows }: { rows: { state: string; census: number; wi
         ))}
       </ul>
       <figcaption>{t("Expected Democratic seats on the November 2026 maps minus the same model on the 2024 maps, in the same national environment.")}</figcaption>
+    </figure>
+  );
+}
+
+// The 35 Senate races of 2026: census margin per state (diverging) and the Democratic win chance.
+export function SenateStates({ races }: { races: { state: string; margin: number; pD: number; special?: boolean }[] }) {
+  const t = useT();
+  const n = useNumber();
+  const cap = 40;
+  return (
+    <figure className="cz-chart cz-senate-states">
+      <div className="cz-redraw-axis" aria-hidden="true"><span>{t("← Republican")}</span><span>{t("Democratic →")}</span></div>
+      <ul>
+        {[...races].sort((a, b) => b.margin - a.margin).map((race) => (
+          <li key={race.state}>
+            <span className="cz-redraw-state">{race.state}{race.special ? <sup>*</sup> : null}</span>
+            <span className="cz-redraw-track">
+              <i style={{ width: `${Math.min(Math.abs(race.margin), cap) / cap * 50}%`, [race.margin >= 0 ? "left" : "right"]: "50%", background: race.margin >= 0 ? D : R } as React.CSSProperties} />
+            </span>
+            <b className={race.margin >= 0 ? "blue" : "red"}>{n.margin(race.margin)}</b>
+            <span className="cz-senate-p">{n.percent(race.pD)}</span>
+          </li>
+        ))}
+      </ul>
+      <figcaption>{t("Census margin and Democratic win chance in each state with a 2026 Senate race. * Special election (Florida, Ohio). Margins beyond ±40 points are capped.")}</figcaption>
     </figure>
   );
 }

@@ -191,4 +191,23 @@ export const census: Record<string, string> = {
   "2026 forecast ({margin})": "Previsión 2026 ({margin})",
   "Set the national mood to 2024 to compare like with like.": "Pon el ambiente nacional de 2024 para comparar en igualdad de condiciones.",
   "bar: lowest to highest district": "barra: del distrito más bajo al más alto",
+
+  // Senate
+  "{n} for a majority": "{n} para la mayoría",
+  "Simulated Democratic Senate seats: median {median}, 80% between {p10} and {p90}": "Escaños demócratas simulados en el Senado: mediana {median}, el 80 % entre {p10} y {p90}",
+  "A 50–50 Senate is Republican: the Vice President breaks ties.": "Un Senado 50–50 es republicano: el vicepresidente deshace los empates.",
+  "← Republican": "← Republicano",
+  "Democratic →": "Demócrata →",
+  "Census margin and Democratic win chance in each state with a 2026 Senate race. * Special election (Florida, Ohio). Margins beyond ±40 points are capped.": "Margen del censo y probabilidad de victoria demócrata en cada estado con carrera al Senado en 2026. * Elección especial (Florida, Ohio). Los márgenes de más de ±40 puntos se cortan.",
+  "The Senate": "El Senado",
+  "The same census, state by state": "El mismo censo, estado a estado",
+  "A state is the sum of its districts, so the Senate needs no new model: each state's margin is the average of the census margins of its districts on the November maps. The error per state is not assumed, it is measured on every Senate race since 2014, and it comes out larger than for a House district.": "Un estado es la suma de sus distritos, así que el Senado no necesita un modelo nuevo: el margen de cada estado es la media de los márgenes del censo de sus distritos con los mapas de noviembre. El error por estado no se supone: se mide en todas las carreras al Senado desde 2014, y sale mayor que el de un distrito de la Cámara.",
+  "Democratic Senate seats, median ({p10}–{p90})": "escaños demócratas en el Senado, mediana ({p10}–{p90})",
+  "chance of a Democratic majority (51 seats)": "de probabilidad de mayoría demócrata (51 escaños)",
+  "points of error per state, against ±{house} for a House district": "puntos de error por estado, frente a ±{house} en un distrito de la Cámara",
+  "Not on the ballot: {d} Democratic and {r} Republican seats. Same national mood as the House ({national}), drawn once per simulation for every state.": "No se votan: {d} escaños demócratas y {r} republicanos. El mismo ambiente nacional que la Cámara ({national}), sorteado una vez por simulación para todos los estados.",
+  "Races": "Carreras",
+  "Average miss (pts)": "Error medio (pts)",
+  "MP-26 (polls)": "MP-26 (encuestas)",
+  "Each year was predicted blind, using only earlier cycles. The Senate is harder than the House: one candidate on a statewide ballot weighs more than a district's profile. In 2018, its worst year, Democratic incumbents held on in states like Montana and West Virginia that their demographics gave to Republicans. Average Brier score: {brier}.": "Cada año se predijo a ciegas, solo con los ciclos anteriores. El Senado es más difícil que la Cámara: un candidato en una papeleta estatal pesa más que el perfil de un distrito. En 2018, su peor año, senadores demócratas resistieron en estados como Montana y Virginia Occidental que su demografía daba a los republicanos. Puntuación de Brier media: {brier}.",
 };

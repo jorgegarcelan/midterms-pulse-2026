@@ -5,7 +5,7 @@ import Link from "@/components/i18n/link";
 import { useT } from "@/components/i18n/locale-provider";
 import { useInView } from "@/components/explainer/use-in-view";
 import { ScrambleText } from "@/components/motion/scramble-text";
-import { BacktestChart, DisagreementScatter, FeatureBars, RedrawBars, SeatHistogram, SwingBars, useNumber, type ScatterPoint } from "@/components/census/census-charts";
+import { BacktestChart, DisagreementScatter, FeatureBars, RedrawBars, SeatHistogram, SenateStates, SwingBars, useNumber, type ScatterPoint } from "@/components/census/census-charts";
 import { DistrictCard, PlayModel, Twins, VariableScatter } from "@/components/census/census-explore";
 import { CensusMap, DivergingLegend, divergingFill } from "@/components/census/census-map";
 import type { CensusModel } from "@/lib/census-model";
@@ -18,6 +18,7 @@ export const SECTIONS = [
   { id: "track", label: "Track record" },
   { id: "2026", label: "2026" },
   { id: "polls", label: "Census vs polls" },
+  { id: "senate", label: "The Senate" },
   { id: "blind-spot", label: "The blind spot" },
   { id: "clues", label: "Extra clues" },
   { id: "method", label: "How it works" },
@@ -90,6 +91,48 @@ type PollState = ModelResult | null | "error";
 const AGREE_D = "color-mix(in srgb, #5b86ff 46%, #2b2f3a)";
 const AGREE_R = "color-mix(in srgb, #ff5a6e 46%, #2b2f3a)";
 const SPLIT = "#fbbf24";
+
+function Senate({ data }: { data: CensusModel }) {
+  const t = useT();
+  const n = useNumber();
+  const chamber = data.senateChamber;
+  if (!data.senate || !chamber) return null;
+  const years = data.senateBacktest ?? [];
+  const meanBrier = years.reduce((sum, year) => sum + year.brier, 0) / (years.length || 1);
+  return (
+    <>
+      <div className="cz-2026">
+        <SeatHistogram chamber="Senate" distribution={chamber.distribution} median={chamber.median} p10={chamber.p10} p90={chamber.p90}
+          range={[38, 64]} majority={51} ticks={[40, 45, 50, 55, 60]} />
+        <div className="cz-2026-side">
+          <div className="cz-big-stats">
+            <div><b className="blue">{chamber.median}</b><span>{t("Democratic Senate seats, median ({p10}–{p90})", { p10: chamber.p10, p90: chamber.p90 })}</span></div>
+            <div><b>{n.percent(chamber.pMajority)}</b><span>{t("chance of a Democratic majority (51 seats)")}</span></div>
+            <div><b>±{n.fixed(chamber.localSd)}</b><span>{t("points of error per state, against ±{house} for a House district", { house: n.fixed(chamber.houseLocalSd) })}</span></div>
+          </div>
+          <p className="cz-aside">{t("Not on the ballot: {d} Democratic and {r} Republican seats. Same national mood as the House ({national}), drawn once per simulation for every state.", { d: chamber.notUp.D, r: chamber.notUp.R, national: n.margin(chamber.national) })}</p>
+        </div>
+      </div>
+      <SenateStates races={data.senate} />
+      {years.length > 0 && <>
+        <div className="cz-table-wrap">
+          <table className="cz-table">
+            <thead><tr><th>{t("Year")}</th><th>{t("Races")}</th><th>{t("Seats called")}</th><th>{t("Average miss (pts)")}</th><th>{t("Brier score")}</th><th>{t("MP-26 (polls)")}</th></tr></thead>
+            <tbody>
+              {years.map((year) => (
+                <tr key={year.year}>
+                  <td>{year.year}</td><td>{year.races}</td><td>{n.percent(year.accuracy, 1)}</td><td>{n.fixed(year.meanAbsError)}</td>
+                  <td>{n.fixed(year.brier, 3)}</td><td>{year.brierMp26 === null ? "–" : n.fixed(year.brierMp26, 3)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="cz-lede">{t("Each year was predicted blind, using only earlier cycles. The Senate is harder than the House: one candidate on a statewide ballot weighs more than a district's profile. In 2018, its worst year, Democratic incumbents held on in states like Montana and West Virginia that their demographics gave to Republicans. Average Brier score: {brier}.", { brier: n.fixed(meanBrier, 3) })}</p>
+      </>}
+    </>
+  );
+}
 
 function Disagreements({ data, model, polls, selected, onSelect }: { data: CensusModel; model: PollState; polls: Map<string, number> | null; selected: string; onSelect: (code: string) => void }) {
   const t = useT();
@@ -249,11 +292,14 @@ export function CensusExplainer({ data }: { data: CensusModel }) {
       <SectionHead id="polls" n="06" kicker="Census vs polls" title="Where demographics and polls part ways" deck="The same districts scored by the census model and by MP-26, this site's poll-based forecast. Most land in the same corner. The ones that don't are the interesting ones." />
       <Disagreements data={data} model={pollModel} polls={polls} selected={selected} onSelect={setSelected} />
 
-      <SectionHead id="blind-spot" n="07" kicker="The blind spot" title="A census model cannot see a gerrymander" deck="Nine states vote on new maps this year. Map-drawers work from past election returns, precisely to exploit what demographics miss, such as Hispanic South Texas voting Republican. To the census the new lines barely matter; add 2024 presidential results by district and the redraws appear." />
+      <SectionHead id="senate" n="07" kicker="The Senate" title="The same census, state by state" deck="A state is the sum of its districts, so the Senate needs no new model: each state's margin is the average of the census margins of its districts on the November maps. The error per state is not assumed, it is measured on every Senate race since 2014, and it comes out larger than for a House district." />
+      <Senate data={data} />
+
+      <SectionHead id="blind-spot" n="08" kicker="The blind spot" title="A census model cannot see a gerrymander" deck="Nine states vote on new maps this year. Map-drawers work from past election returns, precisely to exploit what demographics miss, such as Hispanic South Texas voting Republican. To the census the new lines barely matter; add 2024 presidential results by district and the redraws appear." />
       <RedrawBars rows={data.redraw} />
       <p className="cz-lede">{t("Net effect of the new maps: {census} expected Democratic seats with the census alone, {pres} once presidential results are added.", { census: `${redrawCensus >= 0 ? "+" : "−"}${n.fixed(Math.abs(redrawCensus))}`, pres: `${redrawPres >= 0 ? "+" : "−"}${n.fixed(Math.abs(redrawPres))}` })} <Link href="/gerrymandering">{t("How gerrymandering works →")}</Link></p>
 
-      <SectionHead id="clues" n="08" kicker="Extra clues" title="What past votes and incumbents would add" deck="The same model, given extra information it deliberately does without. Each clue helps, but less than you might expect: most of what decides a House seat is already written in who lives there." />
+      <SectionHead id="clues" n="09" kicker="Extra clues" title="What past votes and incumbents would add" deck="The same model, given extra information it deliberately does without. Each clue helps, but less than you might expect: most of what decides a House seat is already written in who lives there." />
       <div className="cz-table-wrap">
         <table className="cz-table cz-bench">
           <thead><tr><th>{t("Information used")}</th><th>{t("Brier score (lower is better)")}</th><th>{t("Seats called")}</th><th>{t("2026 Democratic seats")}</th><th>{t("Democratic majority")}</th></tr></thead>
@@ -273,7 +319,7 @@ export function CensusExplainer({ data }: { data: CensusModel }) {
         fte: references.map((year) => n.fixed(year.brier538 ?? 0, 3)).join(" / "),
       })}</p>
 
-      <SectionHead id="method" n="09" kicker="How it works" title="The fine print" deck="What the model does, where the data comes from, and where it is weaker than it looks." />
+      <SectionHead id="method" n="10" kicker="How it works" title="The fine print" deck="What the model does, where the data comes from, and where it is weaker than it looks." />
       <div className="cz-method">
         <article>
           <h3>{t("The model")}</h3>
