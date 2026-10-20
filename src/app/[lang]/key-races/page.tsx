@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import directory from "../../../../public/data/candidates-2026.json";
 import Link from "@/components/i18n/link";
+import { RaceReadingsView } from "@/components/readings/readings";
 import { SiteFooter } from "@/components/site-footer";
 import { stateByCode } from "@/data/geography";
 import { KEY_GOVERNOR_RACES, KEY_RACES, KEY_RACES_GUIDE } from "@/data/key-races";
@@ -9,9 +10,8 @@ import { getT } from "@/i18n/translate";
 import { raceKey, type Candidate, type CandidateData } from "@/lib/candidates";
 import { expertBook, RATERS } from "@/lib/expert-ratings";
 import type { ForecastRace } from "@/lib/forecast";
-import { loadCensusModel } from "@/lib/census-model";
 import { getModel } from "@/lib/model-server";
-import { loadRacePolls, raceAverage } from "@/lib/race-polls";
+import { raceReadings, readingsDisagree } from "@/lib/readings";
 import { raceName, raceSlug } from "@/lib/races";
 import "../../key-races.css";
 
@@ -32,12 +32,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/key-races"
 export default async function KeyRacesPage({ params }: PageProps<"/[lang]/key-races">) {
   const lang = localeOf((await params).lang);
   const t = getT(lang);
-  const [model, polls] = await Promise.all([getModel(), loadRacePolls()]);
-  const census = new Map(loadCensusModel().races.map((race) => [`house:${race.code}`, race]));
-  const intl = lang === "es" ? "es-ES" : "en-US";
-  const today = new Date().toISOString().slice(0, 10);
-  const one = (value: number) => value.toLocaleString(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const day = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString(intl, { day: "numeric", month: "short", timeZone: "UTC" });
+  const model = await getModel();
   const byKey = new Map(model.races.map((race) => [raceKey(race), race]));
   const races = KEY_RACES.flatMap((key) => byKey.get(key) || []);
   const stateName = (code: string) => t(stateByCode.get(code)?.name || code);
@@ -48,30 +43,12 @@ export default async function KeyRacesPage({ params }: PageProps<"/[lang]/key-ra
     .filter((candidate) => MAJOR.includes(candidate.party))
     .filter((candidate, _, list) => candidate.party !== "I" || !list.some((other) => other.party === "D"))
     .sort((a, b) => MAJOR.indexOf(a.party) - MAJOR.indexOf(b.party));
-  const challenger = (race: ForecastRace) => nominees(race).some((candidate) => candidate.party === "D") ? "D" : "I";
 
-  // Polls first, then the two models: each as a D-minus-R margin (D stands for the independent in Nebraska).
-  const readings = (race: ForecastRace) => {
-    const key = raceKey(race);
-    const average = raceAverage(polls.get(key), today);
-    const blind = census.get(key);
-    return { average, mp26: race.signedMargin, census: blind ? { margin: blind.margin, p: blind.pD } : null };
-  };
-  const disagree = (race: ForecastRace) => {
-    const { average, mp26, census: blind } = readings(race);
-    const signs = [average?.margin, mp26, blind?.margin].filter((value): value is number => value !== undefined && Math.abs(value) >= .05).map(Math.sign);
-    return new Set(signs).size > 1;
-  };
-  const split = races.filter(disagree).length;
+  const readings = await raceReadings(races);
+  const split = races.filter((race) => readingsDisagree(readings.get(raceKey(race))!)).length;
 
   const card = (race: ForecastRace) => {
-    const side = challenger(race);
     const cook = expertBook(race)?.book[RATERS[0].key] ?? null;
-    const leaderLabel = race.leader === "D" ? side : "R";
-    const { average, mp26, census: blind } = readings(race);
-    const split = disagree(race);
-    const tone = (margin: number) => (Math.abs(margin) < .05 ? "" : margin > 0 ? side === "I" ? "ind-text" : "dem-text" : "rep-text");
-    const lead = (margin: number) => (Math.abs(margin) < .05 ? t("Tied") : `${margin > 0 ? side : "R"}+${one(Math.abs(margin))}`);
     return <article key={raceKey(race)} className="panel key-race">
       <header>
         <p className="eyebrow">{race.chamber === "senate" ? t("SENATE") : t("HOUSE")}{race.special ? ` · ${t("special")}` : ""}</p>
@@ -82,21 +59,8 @@ export default async function KeyRacesPage({ params }: PageProps<"/[lang]/key-ra
           <b>{candidate.party}</b><Link href={`/candidates/${candidate.slug}`}>{candidate.name}</Link>{candidate.incumbent && <small>{t("incumbent")}</small>}
         </li>)}
       </ul>
-      <dl className="key-race-compare">
-        <div>
-          <dt>{t("Polls")}</dt>
-          <dd>{average ? <><strong className={tone(average.margin)}>{lead(average.margin)}</strong><small>{side} {one(average.dem)} · R {one(average.rep)} · {t("{n} polls, latest {date}", { n: average.polls, date: day(average.latest) })}</small></> : <small>{t("No public polls")}</small>}</dd>
-        </div>
-        <div>
-          <dt>MP-26</dt>
-          <dd><strong className={tone(mp26)}>{lead(mp26)}</strong><small>{t("{p}% chance for {party}", { p: race.winProbability, party: leaderLabel })}</small></dd>
-        </div>
-        <div>
-          <dt>Census-26</dt>
-          <dd>{blind ? <><strong className={tone(blind.margin)}>{lead(blind.margin)}</strong><small>{t("{p}% chance for {party}", { p: Math.round((blind.margin >= 0 ? blind.p : 1 - blind.p) * 100), party: blind.margin >= 0 ? side : "R" })}</small></> : <small>{t("House only")}</small>}</dd>
-        </div>
-      </dl>
-      <p className="key-race-meta">{split ? <b className="key-race-split">{t("They disagree on who leads")}</b> : null}{split ? " · " : ""}{cook ? `Cook: ${t(cook)}` : ""}</p>
+      <RaceReadingsView readings={readings.get(raceKey(race))!} />
+      {cook && <p className="key-race-meta">Cook: {t(cook)}</p>}
       <Link className="key-race-link" href={`/races/${raceSlug(race)}`}>{t("Race profile →")}</Link>
     </article>;
   };
@@ -105,12 +69,12 @@ export default async function KeyRacesPage({ params }: PageProps<"/[lang]/key-ra
     <section className="page-intro"><div>
       <p className="eyebrow">{t("KEY RACES · A GUIDE BY CALLE 14")}</p>
       <h1>{t("The races that matter")}</h1>
-      <p>{t("Mario Castroviejo picked, in Calle 14, the races that can decide control of Congress and several states, and explains each one: candidates, district, ads and polls. Here they are with three readings: the polling average, the MP-26 model (polls and fundamentals) and Census-26 (demographics only, no polls). For the candidates and the campaigns, read the guide.")}</p>
+      <p>{t("Mario Castroviejo picked, in Calle 14, the races that can decide control of Congress and several states, and explains each one: candidates, district, ads and polls. Here they are with four readings: the polling average, prediction markets, the MP-26 model (polls and fundamentals) and Census-26 (demographics only, no polls). For the candidates and the campaigns, read the guide.")}</p>
       <p className="key-races-cta">
         <a className="key-races-button" href={KEY_RACES_GUIDE.url} target="_blank" rel="noopener">{t("Read the guide in Calle 14")} ↗</a>
         <a href={KEY_RACES_GUIDE.home} target="_blank" rel="noopener">{t("Subscribe to Calle 14")} ↗</a>
       </p>
-    </div><div className="stat-stamp"><strong>{split}</strong><span>{t("of {n} races where the polls and the models disagree on who leads", { n: races.length })}</span><small>{t("Polls, MP-26 and Census-26")}</small></div></section>
+    </div><div className="stat-stamp"><strong>{split}</strong><span>{t("of {n} races where the readings disagree on who leads", { n: races.length })}</span><small>{t("Polls, markets, MP-26 and Census-26")}</small></div></section>
 
     <h2 className="key-races-section">{t("Senate")}</h2>
     <div className="key-races-grid">{races.filter((race) => race.chamber === "senate").map(card)}</div>

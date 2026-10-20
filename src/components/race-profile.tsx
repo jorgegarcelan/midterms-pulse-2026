@@ -15,6 +15,8 @@ import { RaceExperts } from "@/components/race/race-experts";
 import { RaceNominees } from "@/components/candidates/race-nominees";
 import { RaceHistory } from "@/components/race/race-history";
 import { RaceSignals } from "@/components/race/race-signals";
+import { RaceReadingsView } from "@/components/readings/readings";
+import type { RaceReadings } from "@/lib/readings-shared";
 import { ShareImageButton } from "@/components/share-image-button";
 import { useIntlLocale, useLocalePath, useT } from "@/components/i18n/locale-provider";
 import { CountUp } from "@/components/motion/count-up";
@@ -68,6 +70,17 @@ export function RaceProfile({ slug }: { slug: string }) {
   const [houseMajority, setHouseMajority] = useState<number | undefined>();
   const [geography, setGeography] = useState<DistrictCollection | null>(null);
   const [loading, setLoading] = useState(Boolean(parsed));
+  const [readings, setReadings] = useState<RaceReadings | null>(null);
+
+  // The four readings load on their own: markets and polls should not hold up the page.
+  useEffect(() => {
+    if (!parsed) return;
+    const controller = new AbortController();
+    fetch(`/api/readings?race=${parsed.chamber}:${parsed.code}`, { signal: controller.signal })
+      .then((response) => response.ok ? response.json() as Promise<RaceReadings> : null)
+      .then(setReadings).catch(() => undefined);
+    return () => controller.abort();
+  }, [parsed]);
 
   useEffect(() => {
     if (!parsed) return;
@@ -95,7 +108,12 @@ export function RaceProfile({ slug }: { slug: string }) {
 
   return <>
     <nav className="race-breadcrumb" aria-label={t("Breadcrumb")}><Link href="/races">{t("All races")}</Link><span>/</span><Link href={`/states/${race.state.toLowerCase()}`}>{stateName}</Link><span>/</span><b>{race.chamber === "house" ? race.code : t("Senate")}</b></nav>
-    <section className="race-profile-head"><div><p className="eyebrow">{race.chamber === "house" ? t("U.S. HOUSE") : t("U.S. SENATE")} · {t("2026 GENERAL ELECTION")}</p><h1>{title}</h1><div className="race-profile-tags"><span>{t(race.rating)}</span>{race.special && <span>{t("Special election")}</span>}<span>{t("{count} race polls in benchmark", { count: race.pollCount ?? 0 })}</span></div><ShareImageButton href={`/api/share/race/${raceSlug(race)}`} /></div><div className={`race-callout ${race.leader === "D" ? "dem" : "rep"}`}><span>{t("MODEL LEAD")}</span><strong>{race.leader}+<CountUp value={race.margin} decimals={1} duration={1100} /></strong><small>{t("{probability}% win probability", { probability: race.winProbability })}</small></div></section>
+    <section className="race-profile-head"><div><p className="eyebrow">{race.chamber === "house" ? t("U.S. HOUSE") : t("U.S. SENATE")} · {t("2026 GENERAL ELECTION")}</p><h1>{title}</h1><div className="race-profile-tags"><span>{t(race.rating)}</span>{race.special && <span>{t("Special election")}</span>}</div><ShareImageButton href={`/api/share/race/${raceSlug(race)}`} /></div><div className={`race-callout ${race.leader === "D" ? "dem" : "rep"}`}><span>MP-26</span><strong>{race.leader}+<CountUp value={race.margin} decimals={1} duration={1100} /></strong><small>{t("{probability}% win probability", { probability: race.winProbability })}</small></div></section>
+    <section className="panel race-readings">
+      <div className="panel-head"><div><p className="eyebrow">{t("FOUR READINGS")}</p><h2>{t("What the polls, the markets and the two models say")}</h2></div></div>
+      {readings ? <RaceReadingsView readings={readings} variant="panel" /> : <div className="race-readings-wait" aria-busy="true" />}
+    </section>
+    <RaceSignals race={race} houseMajority={houseMajority} />
     <section className="race-profile-grid">
       <div className="race-profile-main">
         <article className="panel race-benchmark"><div className="panel-head"><div><p className="eyebrow">{t("FORECAST SNAPSHOT")}</p><h2>{t("Projected two-party vote")}</h2></div><span className="panel-tag">{MODEL_VERSION}</span></div><div className="race-share mpb-share"><span className="dem" style={{ width: `${race.demVote || 50}%` }}><b>D {race.demVote ? <CountUp value={race.demVote} decimals={1} delay={250} /> : "—"}%</b></span><span className="rep" style={{ width: `${race.repVote || 50}%` }}><b>R {race.repVote ? <CountUp value={race.repVote} decimals={1} delay={250} /> : "—"}%</b></span><i className="mpb-share-mid" aria-hidden="true" /></div><div className="race-metric-grid"><div><span>{t("Win probability")}</span><strong><CountUp value={race.winProbability} delay={350} />% {race.leader}</strong></div><div><span>{t("Close-race probability")}</span><strong><CountUp value={race.closeProbability} delay={450} />%</strong></div><div title={newLines ? t("No House race has been held on this district's new 2026 lines, so this is the 2024 presidential margin inside them.") : undefined}><span>{newLines ? t("2024 presidential, new lines") : t("2024 baseline")}</span><strong>{race.baselineMargin !== null ? `${race.baselineMargin > 0 ? "D" : "R"}+${Math.abs(race.baselineMargin).toFixed(1)}` : "—"}</strong></div><div><span>{t("Rating")}</span><strong>{t(race.rating)}</strong></div></div></article>
@@ -110,7 +128,6 @@ export function RaceProfile({ slug }: { slug: string }) {
     </section>
     <section className="race-deep">
       <RaceHistory race={race} />
-      <RaceSignals race={race} houseMajority={houseMajority} />
       <RaceDemographics race={race} />
     </section>
   </>;
