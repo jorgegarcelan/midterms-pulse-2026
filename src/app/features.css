@@ -5,7 +5,7 @@
 
 /* ---------- 1. Pulse story (sticky canvas, three chapters) ---------- */
 
-.pulse-story { --chrome: 110px; position: relative; height: 330vh; }
+.pulse-story { --chrome: 110px; position: relative; height: 230vh; }
 .pulse-sticky { --p: 0; position: sticky; top: var(--chrome); height: calc(100svh - var(--chrome)); min-height: 520px; overflow: hidden; isolation: isolate; }
 .pulse-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; touch-action: pan-y; }
 .pulse-canvas[data-hovering] { cursor: pointer; }
@@ -50,7 +50,7 @@
   position: absolute; left: clamp(20px, 4vw, 64px); top: 50%; z-index: 3; width: min(420px, 34vw); pointer-events: none;
   opacity: var(--o); translate: 0 calc(-50% + (1 - var(--o)) * 36px); filter: blur(calc((1 - var(--o)) * 6px));
 }
-.pulse-chapter-2 { --o: clamp(0, min(calc((var(--p) - .22) * 9), calc((.62 - var(--p)) * 9)), 1); }
+.pulse-chapter-2 { --o: clamp(0, calc((var(--p) - .4) * 9), 1); }
 .pulse-chapter-3 { --o: clamp(0, calc((var(--p) - .66) * 9), 1); }
 .pulse-story[data-chapter="2"] .pulse-chapter-2, .pulse-story[data-chapter="3"] .pulse-chapter-3 { pointer-events: auto; }
 .pulse-chapter .eyebrow { margin-bottom: 12px; }
@@ -220,7 +220,7 @@ html body .command-input input { flex: 1; height: 54px; padding: 0; border: 0 !i
   .update-pill { display: none; }
 }
 @media (max-width: 760px) {
-  .pulse-story { height: 300vh; }
+  .pulse-story { height: 210vh; }
   .pulse-hero .kinetic { font-size: clamp(34px, 10vw, 44px); }
   .pulse-hero .hero-deck { font-size: 14px; }
   .pulse-hud { left: 12px; right: 12px; translate: 0 calc(var(--p) * 140px); flex-wrap: wrap; }

@@ -186,9 +186,6 @@ export const races: Record<string, string> = {
   "{p}% chance for {party}": "{p} % de probabilidad para {party}",
   "House only": "Solo cubre la Cámara",
   "They disagree on who leads": "No coinciden en quién va delante",
-  "Mario Castroviejo picked, in Calle 14, the races that can decide control of Congress and several states, and explains each one: candidates, district, ads and polls. Here they are with three readings: the polling average, the MP-26 model (polls and fundamentals) and Census-26 (demographics only, no polls). For the candidates and the campaigns, read the guide.": "Mario Castroviejo ha elegido en Calle 14 las carreras que pueden decidir el control del Congreso y de varios estados, y explica cada una: candidatos, distrito, anuncios y encuestas. Aquí están con tres lecturas: la media de encuestas, el modelo MP-26 (encuestas y fundamentos) y Census-26 (solo demografía, sin encuestas). Para conocer a los candidatos y las campañas, lee la guía.",
-  "of {n} races where the polls and the models disagree on who leads": "de {n} carreras en las que encuestas y modelos no coinciden en quién va delante",
-  "Polls, MP-26 and Census-26": "Encuestas, MP-26 y Census-26",
   "Selection: {author}, “{title}”, {outlet}. Polls: Vote-Scope poll index, averaged by Midterm Pulse. Models, ratings and candidate lists: Midterm Pulse.": "Selección: {author}, «{title}», {outlet}. Encuestas: índice de encuestas de Vote-Scope, promediadas por Midterm Pulse. Modelos, ratings y listas de candidatos: Midterm Pulse.",
   "Key races — Midterm Pulse 2026": "Carreras clave — Midterm Pulse 2026",
   "The races Calle 14's guide picks as decisive for control of Congress, with Midterm Pulse's forecast for each.": "Las carreras que la guía de Calle 14 señala como decisivas para el control del Congreso, con el pronóstico de Midterm Pulse para cada una.",
@@ -203,5 +200,4 @@ export const races: Record<string, string> = {
   "In the guide": "En la guía",
   "Ranked-choice ballot: voters rank the candidates and the last-placed are eliminated until someone passes 50%.": "Voto por preferencia: los votantes ordenan a los candidatos y se elimina al último hasta que alguien supera el 50 %.",
   "Key races": "Carreras clave",
-  "Calle 14's guide, with the model alongside": "La guía de Calle 14, con el modelo al lado",
 };

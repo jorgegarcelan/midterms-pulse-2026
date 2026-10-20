@@ -9,28 +9,24 @@ import { Magnetic } from "@/components/motion/magnetic";
 import { OdometerCountdown } from "@/components/motion/odometer-countdown";
 import { ScrambleText } from "@/components/motion/scramble-text";
 import { PulseEngine } from "@/components/pulse/pulse-engine";
-import { ShareImageButton } from "@/components/share-image-button";
-import { TippingExplainer } from "@/components/pulse/tipping-explainer";
-import { NATIONALIZATION } from "@/lib/mp26";
+import { ratingStrength, type ChamberOverview, type RaceOverview } from "@/lib/overview-shared";
 
-export type StoryRace = { code: string; chamber: "house" | "senate"; leader: "D" | "R"; margin: number; signedMargin?: number; winProbability: number; rating?: string };
-type Chamber = { demMajority: number; demSeats: number; repSeats: number };
-type PulseStoryProps = {
-  races: StoryRace[];
-  live: boolean;
-  house: Chamber;
-  senate: Chamber;
-  ballotMargin: number;
-  swing: number;
-  onSwing: (value: number) => void;
-};
+type PulseStoryProps = { races: RaceOverview[]; house: ChamberOverview | null; senate: ChamberOverview | null };
 
-const CHAPTER_TARGETS = [0, .48, 1];
-const signed = (race: StoryRace) => race.signedMargin ?? (race.leader === "D" ? race.margin : -race.margin);
+const CHAPTER_TARGETS = [0, 1];
+// The engine draws three phases (map, chamber, margin ladder); the home story stops at the chamber.
+const ENGINE_SPAN = .5;
+// The engine colours and orders seats by a margin; ratings are fed on that scale (Safe ≈ 21 points).
+const RATING_TO_MARGIN = 7;
 const lean = (margin: number) => `${margin >= 0 ? "D" : "R"}+${Math.abs(margin).toFixed(1)}`;
+const pct = (p: number) => `${Math.round((p >= .5 ? p : 1 - p) * 100)}% ${p >= .5 ? "D" : "R"}`;
 
-// Three-chapter scroll story on one sticky canvas: the map, the chamber, the tipping point.
-export function PulseStory({ races, live, house, senate, ballotMargin, swing, onSwing }: PulseStoryProps) {
+/*
+  Two-chapter scroll story on one sticky canvas: the map, then the chamber. Seats are coloured and
+  ordered by the expert raters' consensus (Cook, Inside Elections, Sabato), with the 2024 result only
+  ordering seats inside the same rating. No model numbers: the hero bar shows markets and the polls.
+*/
+export function PulseStory({ races, house, senate }: PulseStoryProps) {
   const router = useRouter();
   const localize = useLocalePath();
   const locale = useLocale();
@@ -47,10 +43,6 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
   const houseRaces = useMemo(() => races.filter((race) => race.chamber === "house"), [races]);
   const byCode = useMemo(() => new Map(houseRaces.map((race) => [race.code, race])), [houseRaces]);
   const complete = houseRaces.length >= 400;
-  const shift = swing * NATIONALIZATION;
-  const leanD = complete ? houseRaces.filter((race) => signed(race) + shift > 0).length : house.demSeats;
-  const tipping = useMemo(() => complete ? [...houseRaces].sort((a, b) => signed(b) - signed(a))[217] : null, [complete, houseRaces]);
-  const tippingMargin = tipping ? signed(tipping) + shift : 0;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -90,8 +82,8 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
       const total = section.offsetHeight - sticky.offsetHeight;
       const progress = total > 0 ? Math.max(0, Math.min(1, (top - rect.top) / total)) : 0;
       sticky.style.setProperty("--p", progress.toFixed(4));
-      engine.setProgress(progress);
-      const next = progress < .27 ? 1 : progress < .64 ? 2 : 3;
+      engine.setProgress(progress * ENGINE_SPAN);
+      const next = progress < .45 ? 1 : 2;
       if (next !== lastChapter) { lastChapter = next; setChapter(next); }
     };
     const onScroll = () => { if (!scrollFrame) scrollFrame = requestAnimationFrame(update); };
@@ -119,10 +111,8 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
 
   useEffect(() => {
     if (!complete) return;
-    engineRef.current?.setMargins(new Map(houseRaces.map((race) => [race.code, signed(race)])));
+    engineRef.current?.setMargins(new Map(houseRaces.map((race) => [race.code, ratingStrength(race) * RATING_TO_MARGIN])));
   }, [complete, houseRaces]);
-
-  useEffect(() => { engineRef.current?.setSwing(swing); }, [swing]);
 
   function pointer(event: React.PointerEvent<HTMLCanvasElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -146,9 +136,6 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
   const hoveredRace = hovered ? byCode.get(hovered) : undefined;
   const rotator = [t("Congress"), t("the House"), t("the Senate")];
   const rotatorSizer = rotator.reduce((longest, word) => word.length > longest.length ? word : longest);
-  const [decidesBefore, decidesAfter] = t("{code} decides the House.").split("{code}");
-
-  const tippingWhy = tipping ? <TippingExplainer margins={houseRaces.map((race) => signed(race) + shift)} code={tipping.code} demMajority={swing ? null : house.demMajority} /> : null;
 
   return (
     <>
@@ -166,24 +153,24 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
           />
 
           <div className="pulse-hero">
-            <p className="eyebrow"><ScrambleText text={`${t("2026 U.S. MIDTERMS")} · ${t(live ? "LIVE MODEL" : "DATED SNAPSHOT")}`} delay={250} /></p>
+            <p className="eyebrow"><ScrambleText text={`${t("2026 U.S. MIDTERMS")} · ${t("POLLS, MARKETS AND RATINGS")}`} delay={250} /></p>
             <h1 className="kinetic" aria-label={t("The fight for Congress")}>
               {t("The fight for").split(" ").map((word, index) => <span className="w" aria-hidden="true" key={word}><span style={{ "--i": index } as React.CSSProperties}>{word}</span></span>)}
               <span className="w" aria-hidden="true"><span style={{ "--i": 3 } as React.CSSProperties}>
                 <span className="rotator"><span className="rotator-sizer">{rotatorSizer}</span><span className="rotator-window"><span className="rotator-track"><span>{rotator[0]}</span><span>{rotator[1]}</span><span>{rotator[2]}</span><span>{rotator[0]}</span></span></span></span>
               </span></span>
             </h1>
-            <p className="hero-deck">{t("Every dot is a slice of one of the 435 House districts, coloured by today's forecast. Hover the map, then scroll.")}</p>
+            <p className="hero-deck">{t("Every dot is a slice of one of the 435 House districts, coloured by the expert ratings of Cook, Inside Elections and Sabato. Hover the map, then scroll.")}</p>
             <div className="hero-actions">
               <Magnetic><Link className="primary-action" href="/races?view=map" transitionTypes={["nav-forward"]}>{t("Explore 435 districts")}</Link></Magnetic>
-              <Magnetic><Link className="secondary-action" href="/model" transitionTypes={["nav-forward"]}>{t("Inspect the model")} <span>→</span></Link></Magnetic>
+              <Magnetic><Link className="secondary-action" href="/key-races" transitionTypes={["nav-forward"]}>{t("Key races")} <span>→</span></Link></Magnetic>
             </div>
           </div>
 
           <div className="pulse-hud">
-            <div><span>{t("House · D majority")}</span><strong><CountUp value={house.demMajority} delay={900} />%</strong></div>
-            <div><span>{t("Senate · D majority")}</span><strong><CountUp value={senate.demMajority} delay={1000} />%</strong></div>
-            <div><span>{t("Generic ballot")}</span><strong className={ballotMargin >= 0 ? "dem-text" : "rep-text"}>{ballotMargin >= 0 ? "D" : "R"}+<CountUp value={Math.abs(ballotMargin)} decimals={1} delay={1100} /></strong></div>
+            <div><span>{t("House · markets")}</span><strong className={house?.market ? house.market.p >= .5 ? "dem-text" : "rep-text" : ""}>{house?.market ? pct(house.market.p) : "—"}</strong></div>
+            <div><span>{t("Senate · markets")}</span><strong className={senate?.market ? senate.market.p >= .5 ? "dem-text" : "rep-text" : ""}>{senate?.market ? pct(senate.market.p) : "—"}</strong></div>
+            <div><span>{t("Generic ballot · polls")}</span>{house?.polls ? <strong className={house.polls.margin >= 0 ? "dem-text" : "rep-text"}>{house.polls.margin >= 0 ? "D" : "R"}+<CountUp value={Math.abs(house.polls.margin)} decimals={1} delay={1100} /></strong> : <strong>—</strong>}</div>
             <OdometerCountdown />
           </div>
 
@@ -192,41 +179,24 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
             <h2>{t("435 seats. One majority.")}</h2>
             <p>{t("Each district collapses into its seat, ordered from the safest Democratic seat on the left to the safest Republican seat on the right.")}</p>
             <div className="pulse-tally">
-              <div><strong className="dem-text"><CountUp value={leanD} duration={700} /></strong><span>{t("lean D")}</span></div>
-              <i>{t("218 to win")}</i>
-              <div><strong className="rep-text"><CountUp value={435 - leanD} duration={700} /></strong><span>{t("lean R")}</span></div>
+              <div><strong className="dem-text">{house ? house.ratings.D : "—"}</strong><span>{t("favour D")}</span></div>
+              <div><strong>{house ? house.ratings.toss : "—"}</strong><span>{t("toss-up")}</span></div>
+              <div><strong className="rep-text">{house ? house.ratings.R : "—"}</strong><span>{t("favour R")}</span></div>
             </div>
-            <small>{t("Leads count who is ahead today. The model median, D {dem} – {rep} R across 50,000 simulations, also prices in the upsets each side is likely to pull off.", { dem: house.demSeats, rep: house.repSeats })}</small>
+            <small>{t("Seats by the consensus of Cook, Inside Elections and Sabato. 218 wins the House: the toss-ups decide it.")}</small>
           </article>
-
-          <article className="pulse-chapter pulse-chapter-3" aria-hidden={chapter !== 3}>
-            <p className="eyebrow">{t("03 · The tipping point")}</p>
-            <h2>{tipping ? <>{decidesBefore}<span className={tippingMargin >= 0 ? "dem-text" : "rep-text"}>{tipping.code}</span>{decidesAfter}</> : t("The seat that decides the House.")}</h2>
-            {tippingWhy}
-            {tipping && <Link className="tip-open" href={`/races/${tipping.code.toLowerCase()}`}>{t("Open the {code} race →", { code: tipping.code })}</Link>}
-          </article>
-
-          <div className="pulse-swing">
-            <label htmlFor="pulse-swing">{t("National swing")} <output className={swing > 0 ? "dem-text" : swing < 0 ? "rep-text" : ""}>{swing === 0 ? t("Baseline") : `${swing > 0 ? "D" : "R"}+${Math.abs(swing)}`}</output></label>
-            <div className="swing-range" style={{ "--pct": `${(swing + 5) * 10}%` } as React.CSSProperties}>
-              <input id="pulse-swing" type="range" min="-5" max="5" step="0.5" value={swing} onChange={(event) => onSwing(Number(event.target.value))} />
-              <span className="swing-shock go" key={swing} aria-hidden="true" />
-            </div>
-            <button type="button" onClick={() => onSwing(0)} disabled={swing === 0}>{t("Reset")}</button>
-          </div>
 
           <nav className="pulse-steps" aria-label={t("Story chapters")}>
-            {["The map", "The chamber", "Tipping point"].map((label, index) => (
+            {["The map", "The chamber"].map((label, index) => (
               <button key={label} type="button" className={chapter === index + 1 ? "active" : ""} onClick={() => goTo(index)}><i />{t(label)}</button>
             ))}
-            <ShareImageButton className="pulse-share" label={t(chapter === 2 ? "Save chamber" : "Save map")} href={`/api/share/${chapter === 2 ? "house" : "map"}${swing ? `?swing=${swing}` : ""}`} />
           </nav>
 
           <div className="pulse-tooltip" ref={tooltipRef} data-visible={hoveredRace ? "true" : undefined} aria-hidden="true">
             {hoveredRace && <>
               <strong>{hoveredRace.code}</strong>
-              <b className={signed(hoveredRace) + shift >= 0 ? "dem-text" : "rep-text"}>{lean(signed(hoveredRace) + shift)}</b>
-              <span>{t(hoveredRace.rating || "Unrated")} · {hoveredRace.winProbability}% {hoveredRace.leader}</span>
+              <b className={(hoveredRace.rating?.score ?? 0) > 0 ? "dem-text" : (hoveredRace.rating?.score ?? 0) < 0 ? "rep-text" : "toss-text"}>{t(hoveredRace.rating?.label || "Unrated")}</b>
+              <span>{hoveredRace.polls ? t("Polls {lean}", { lean: lean(hoveredRace.polls.margin) }) : t("No district polls")}{hoveredRace.baseline !== null ? ` · ${t("2024: {lean}", { lean: lean(hoveredRace.baseline) })}` : ""}</span>
               <small>{t("Click to open race")}</small>
             </>}
           </div>
@@ -234,8 +204,6 @@ export function PulseStory({ races, live, house, senate, ballotMargin, swing, on
           <a className="pulse-skip" href="#signals">{t("Skip to the dashboard ↓")}</a>
         </div>
       </section>
-      {/* On phones the sticky stage is too short for the explainer, so it follows the story instead. */}
-      {tippingWhy && <div className="tip-why-mobile">{tippingWhy}</div>}
     </>
   );
 }

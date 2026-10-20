@@ -9,7 +9,12 @@ import { fetchVoteScope } from "@/lib/vote-scope";
   is one. Polls from before this cycle's last 180 days are left out.
 */
 
-export type RaceAverage = { dem: number; rep: number; margin: number; polls: number; latest: string };
+export type RacePollUsed = { pollster: string; date: string; dem: number; rep: number; sample: number; population: "LV" | "RV" | "A"; url: string };
+export type RaceAverage = {
+  dem: number; rep: number; margin: number; polls: number; latest: string;
+  // Interviews behind the average (polls with a published sample) and the polls themselves, newest first.
+  respondents: number; list: RacePollUsed[];
+};
 
 const WINDOW_DAYS = 180;
 
@@ -32,8 +37,9 @@ export function raceAverage(polls: IndexPoll[] | undefined, today: string): Race
     const kept = once.get(key);
     if (!kept || (pollPopulation(poll.population) === "LV" && pollPopulation(kept.population) !== "LV")) once.set(key, poll);
   }
-  let dem = 0, rep = 0, total = 0, latest = "";
+  let dem = 0, rep = 0, total = 0, latest = "", respondents = 0;
   for (const poll of once.values()) {
+    respondents += poll.sample_size || 0;
     const { weight } = pollWeight({ endDate: poll.field_end, sample: poll.sample_size || 0, population: pollPopulation(poll.population) }, today);
     dem += poll.topline.us_dem! * weight;
     rep += poll.topline.us_rep! * weight;
@@ -41,5 +47,8 @@ export function raceAverage(polls: IndexPoll[] | undefined, today: string): Race
     if (poll.field_end > latest) latest = poll.field_end;
   }
   if (!total) return null;
-  return { dem: dem / total, rep: rep / total, margin: (dem - rep) / total, polls: once.size, latest };
+  const list = [...once.values()].sort((a, b) => b.field_end.localeCompare(a.field_end)).map((poll) => ({
+    pollster: poll.firm_name, date: poll.field_end, dem: poll.topline.us_dem!, rep: poll.topline.us_rep!, sample: poll.sample_size || 0, population: pollPopulation(poll.population), url: poll.source_url,
+  }));
+  return { dem: dem / total, rep: rep / total, margin: (dem - rep) / total, polls: once.size, latest, respondents, list };
 }

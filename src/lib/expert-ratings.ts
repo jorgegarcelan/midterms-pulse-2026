@@ -58,3 +58,16 @@ export function disagreement(race: ForecastRace) {
   if (Math.abs(gap) < 2 && !opposite) return null;
   return { gap, toward: gap > 0 ? "D" as const : "R" as const, model: modelRatingLabel(demProbability) };
 }
+
+// The raters' consensus as a label on their own scale: the mean of the three ratings, rounded to a band.
+export function consensusLabel(score: number) {
+  const size = Math.abs(score);
+  if (size < .25) return "Toss-up";
+  return `${size >= 2.5 ? "Safe" : size >= 1.5 ? "Likely" : size >= .75 ? "Lean" : "Tilt"} ${score > 0 ? "D" : "R"}`;
+}
+
+export function consensus(race: Pick<ForecastRace, "chamber" | "code" | "baselineMargin">) {
+  const entry = expertBook(race);
+  const score = entry ? expertScore(entry.book) : null;
+  return score === null || score === undefined ? null : { score, label: consensusLabel(score), listed: entry!.listed };
+}

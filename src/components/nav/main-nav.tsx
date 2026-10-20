@@ -6,26 +6,35 @@ import Link from "@/components/i18n/link";
 import { useT } from "@/components/i18n/locale-provider";
 
 type Item = { href: string; label: string; note: string };
-type Group = { key: string; label: string; items: Item[] };
+// A group with `href` is a direct link in the top bar (the two models); its items still list its pages in
+// the footer and the mobile menu.
+type Group = { key: string; label: string; items: Item[]; href?: string };
 
 export const NAV_GROUPS: Group[] = [
-  { key: "forecast", label: "Forecast", items: [
-    { href: "/model", label: "The model", note: "The forecast, how it works, its validation and sources" },
-    { href: "/changes", label: "Latest", note: "Headlines, new polls, market swings and what moved" },
-    { href: "/polls", label: "Polls", note: "Generic ballot, Senate and House polls" },
-    { href: "/markets", label: "Markets", note: "Prediction markets against the model" },
-  ] },
   { key: "races", label: "Races", items: [
     { href: "/races", label: "Races: map and list", note: "All 470 House and Senate races" },
-    { href: "/key-races", label: "Key races", note: "Calle 14's guide, with the model alongside" },
+    { href: "/key-races", label: "Key races", note: "Calle 14's guide, with the four readings" },
     { href: "/states", label: "States", note: "Each state's Senate race and House districts" },
     { href: "/candidates", label: "Candidates", note: "Every 2026 nominee" },
+  ] },
+  { key: "mp26", label: "MP-26", href: "/model", items: [
+    { href: "/model", label: "Forecast", note: "House and Senate odds from polls and fundamentals" },
+    { href: "/how-it-works", label: "How it works", note: "The model, stage by stage" },
+    { href: "/validation", label: "Validation", note: "How it would have done in 2018 and 2022" },
+    { href: "/methodology", label: "Sources", note: "Data, pipeline and status" },
+  ] },
+  { key: "census26", label: "Census-26", href: "/census", items: [
+    { href: "/census", label: "Census-26", note: "A House forecast from demographics alone, no polls" },
+  ] },
+  { key: "data", label: "Data", items: [
+    { href: "/polls", label: "Polls", note: "Generic ballot, Senate and House polls" },
+    { href: "/markets", label: "Markets", note: "Prediction markets against the model" },
+    { href: "/changes", label: "Latest", note: "Headlines, new polls, market swings and what moved" },
   ] },
   { key: "understand", label: "Understand", items: [
     { href: "/geography", label: "Geography", note: "Seven axes of the American vote, county by county" },
     { href: "/history", label: "History", note: "Seat changes and past cycles" },
     { href: "/gerrymandering", label: "Gerrymandering", note: "How drawing lines decides elections" },
-    { href: "/census", label: "Only the census", note: "A House forecast from demographics alone, no polls" },
     { href: "/glossary", label: "Glossary", note: "Every term, in plain words" },
     { href: "/about", label: "About", note: "Who builds Midterm Pulse" },
   ] },
@@ -49,8 +58,9 @@ function useDaysLeft() {
 }
 
 /*
-  Grouped main navigation. Desktop: four menus that open on hover or click with a one-line note per
-  page, plus Home and an election-night shortcut. Mobile: a Menu button that opens every group as a sheet.
+  Grouped main navigation. Desktop: menus that open on hover or click with a one-line note per page, the
+  two models as direct links, plus Home and an election-night shortcut. Mobile: a Menu button that opens
+  every group as a sheet.
 */
 export function MainNav({ pathname }: { pathname: string }) {
   const t = useT();
@@ -79,8 +89,7 @@ export function MainNav({ pathname }: { pathname: string }) {
     if (key) { if (open !== key) hoverOpened.current = stamp; setOpen(key); }
     else closeTimer.current = window.setTimeout(() => setOpen(null), 160);
   };
-  const modelTab = ["/how-it-works", "/validation", "/methodology"].includes(pathname);
-  const activeGroup = modelTab ? "forecast" : NAV_GROUPS.find((group) => group.items.some((item) => isActivePath(item.href, pathname)))?.key;
+  const activeGroup = NAV_GROUPS.find((group) => group.items.some((item) => isActivePath(item.href, pathname)))?.key;
   const ink = <i className="nav-ink" style={{ viewTransitionName: "nav-ink" }} aria-hidden="true" />;
   const nightActive = isActivePath("/election-night", pathname);
 
@@ -88,6 +97,7 @@ export function MainNav({ pathname }: { pathname: string }) {
     <nav aria-label={t("Main navigation")} className="main-nav-bar">
       <Link href="/" className={`main-nav-link${pathname === "/" ? " active" : ""}`} aria-current={pathname === "/" ? "page" : undefined}>{t("Dashboard")}{pathname === "/" && ink}</Link>
       {NAV_GROUPS.map((group) => {
+        if (group.href) return <Link key={group.key} href={group.href} className={`main-nav-link${activeGroup === group.key ? " active" : ""}`} aria-current={activeGroup === group.key ? "page" : undefined}>{t(group.label)}{activeGroup === group.key && ink}</Link>;
         const isOpen = open === group.key;
         return <div key={group.key} className={`main-nav-group${isOpen ? " open" : ""}`} onPointerEnter={(event) => event.pointerType === "mouse" && hover(group.key, event.timeStamp)} onPointerLeave={(event) => event.pointerType === "mouse" && hover(null)}>
           <button type="button" className={`main-nav-link${activeGroup === group.key ? " active" : ""}`} aria-expanded={isOpen} aria-controls={`nav-${group.key}`} onClick={(event) => setOpen(isOpen && event.timeStamp - hoverOpened.current > 500 ? null : group.key)}

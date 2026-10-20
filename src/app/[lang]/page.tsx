@@ -1,256 +1,76 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "@/components/i18n/link";
-import { useElectionContext } from "@/components/election-context";
 import { useIntlLocale, useT } from "@/components/i18n/locale-provider";
 import { SiteFooter } from "@/components/site-footer";
-import { stateByCode } from "@/data/geography";
-import { electionSnapshot, type Race } from "@/data/election";
-import type { ForecastRace } from "@/lib/forecast";
-import { raceSlug } from "@/lib/races";
-import { useAnalystEnabled } from "@/lib/use-analyst";
-import { CountUp } from "@/components/motion/count-up";
+import type { ChamberOverview, Overview } from "@/lib/overview-shared";
 import { RaceTicker } from "@/components/motion/race-ticker";
 import { PulseStory } from "@/components/pulse/pulse-story";
-import { SenateBuilder } from "@/components/senate/senate-builder";
-import { SignalGauges } from "@/components/signals/signal-gauges";
+import "@/components/readings/readings.css";
 
-const suggestedQuestions = [
-  "What is driving the House forecast?",
-  "Which Senate race is closest?",
-  "How should I read a 62% probability?",
-];
-
-type LiveForecast = {
-  runDate: string;
-  version: string;
-  simulations: number;
-  house: { demMajority: number; demSeats: number; repSeats: number };
-  senate: { demMajority: number; demSeats: number; repSeats: number };
-  genericBallot: { dem: number; rep: number; margin: number; effectivePolls: number; latestPoll: string; source: string };
-  races: ForecastRace[];
-};
-
-declare global {
-  interface Document {
-    readonly modelContext?: {
-      registerTool: (tool: {
-        name: string;
-        title: string;
-        description: string;
-        inputSchema: object;
-        annotations: { readOnlyHint: boolean; untrustedContentHint: boolean };
-        execute: (input: unknown) => unknown;
-      }, options?: { signal?: AbortSignal }) => void | Promise<void>;
-    };
-  }
-}
-
-function PartyBar({ democratic, republican }: { democratic: number; republican: number }) {
+// What the polls, the markets and the expert raters say about one chamber. The models have their own tabs.
+function ChamberOutlook({ chamber, label, data }: { chamber: "house" | "senate"; label: string; data: ChamberOverview | null }) {
   const t = useT();
-  const undecided = Math.max(0, 100 - democratic - republican);
-  return (
-    <div className="party-bar" aria-label={t("{dem}% Democratic, {rep}% Republican", { dem: democratic, rep: republican })}>
-      <span className="party-bar-dem" style={{ width: `${democratic}%` }} />
-      <span className="party-bar-undecided" style={{ width: `${undecided}%` }} />
-      <span className="party-bar-rep" style={{ width: `${republican}%` }} />
-    </div>
-  );
-}
-
-function Sparkline({ currentMargin }: { currentMargin: number }) {
-  const t = useT();
-  const values = [...electionSnapshot.genericBallot.history.slice(0, -1), { date: "2026-09-20", margin: currentMargin }];
-  const minimum = Math.floor(Math.min(...values.map((item) => item.margin)) - 1);
-  const maximum = Math.ceil(Math.max(...values.map((item) => item.margin)) + 1);
-  const span = Math.max(1, maximum - minimum);
-  const points = values.map((item, index) => {
-    const x = (index / (values.length - 1)) * 360;
-    const y = 76 - ((item.margin - minimum) / span) * 60;
-    return `${x},${y}`;
-  }).join(" ");
-
-  return (
-    <div className="sparkline-wrap" aria-label={t("Democratic generic ballot margin since May")}>
-      <svg viewBox="0 0 360 86" role="img">
-        <defs>
-          <linearGradient id="line-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stopColor="#4f8cff" stopOpacity=".34" />
-            <stop offset="1" stopColor="#4f8cff" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path className="spark-area" d={`M 0,86 L ${points} L 360,86 Z`} fill="url(#line-fill)" />
-        <path className="spark-line" d={`M ${points}`} pathLength={1} fill="none" stroke="#73a7ff" strokeWidth="3" />
-        {values.map((item, index) => {
-          const x = (index / (values.length - 1)) * 360;
-          const y = 76 - ((item.margin - minimum) / span) * 60;
-          return <g key={item.date}>
-            {index === values.length - 1 && <circle className="spark-ping" cx={x} cy={y} r="4" />}
-            <circle className="spark-dot" style={{ "--j": index } as React.CSSProperties} cx={x} cy={y} r="4" fill="#d9e7ff" stroke="#2467d6" strokeWidth="2" />
-          </g>;
-        })}
-      </svg>
-      <div className="sparkline-axis">{["May", "Jun", "Jul", "Aug", "Sep"].map((month) => <span key={month}>{t(month)}</span>)}</div>
-    </div>
-  );
-}
-
-function RaceRow({ race, index }: { race: Race; index: number }) {
-  const t = useT();
-  const isDem = race.leader === "D";
-  return (
-    <Link className="race-row" style={{ "--i": index } as React.CSSProperties} href={`/races/${raceSlug(race)}`} aria-label={t("{state}: {leader} leads by {margin} points", { state: t(race.state), leader: race.leader, margin: race.margin })}>
-      <span className="race-state"><b>{race.code}</b><span>{t(race.state)}</span></span>
-      <span className="race-meter" aria-hidden="true"><i className={isDem ? "dem" : "rep"} style={{ width: `${Math.min(100, race.winProbability)}%` }} /></span>
-      <span className={`race-lead ${isDem ? "dem-text" : "rep-text"}`}>{race.leader}+{race.margin.toFixed(1)}</span>
-      <span className="race-prob">{race.winProbability}%</span>
-      <span className="arrow">↗</span>
-    </Link>
-  );
-}
-
-function getFallbackAnswer(question: string) {
-  const normalized = question.toLowerCase();
-  if (normalized.includes("senate") || normalized.includes("senado") || normalized.includes("closest")) {
-    return "Iowa is the closest Senate contest in this snapshot: Republicans lead the benchmark by 2.7 points with a 55% win probability. Alaska and Maine remain inside four points, so correlated national movement could change control quickly.";
-  }
-  if (normalized.includes("62") || normalized.includes("probab")) {
-    return "A 62% chance is an edge, not a call. In repeated elections under comparable assumptions, Democrats would win the Senate majority about six times in ten and fail about four times in ten. The uncertainty is concentrated in Iowa, Maine, Texas and Alaska.";
-  }
-  return "The House signal is being driven by a Democratic generic-ballot advantage of 7.4 points and a public benchmark projecting 231 Democratic seats. The main caveat is district geography: national vote movement does not translate evenly into all 435 seats.";
+  const intl = useIntlLocale();
+  const one = (value: number) => value.toLocaleString(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const odds = (p: number) => `${Math.round((p >= .5 ? p : 1 - p) * 100)}% ${p >= .5 ? "D" : "R"}`;
+  if (!data) return <article className="panel home-reading"><p className="eyebrow">{label}</p><div className="race-readings-wait" aria-busy="true" /></article>;
+  const leaders = data.pollLeaders;
+  const notUp = data.notUp;
+  const rows: { label: string; value: string; tone: string; detail: string; href?: string }[] = [
+    chamber === "house" && data.polls
+      ? { label: t("Polls"), value: `${data.polls.margin >= 0 ? "D" : "R"}+${one(Math.abs(data.polls.margin))}`, tone: data.polls.margin >= 0 ? "dem-text" : "rep-text", detail: t("Generic ballot average") }
+      : leaders && notUp
+        ? { label: t("Polls"), value: `${notUp.D + leaders.D} – ${notUp.R + leaders.R}`, tone: notUp.D + leaders.D >= 51 ? "dem-text" : notUp.R + leaders.R >= 50 ? "rep-text" : "", detail: t("D–R seats if every poll leader wins ({none} races without polls)", { none: leaders.none }) }
+        : { label: t("Polls"), value: "—", tone: "", detail: "" },
+    data.market
+      ? { label: t("Markets"), value: odds(data.market.p), tone: data.market.p >= .5 ? "dem-text" : "rep-text", detail: t("Polymarket: chance of control"), href: data.market.url }
+      : { label: t("Markets"), value: "—", tone: "", detail: t("No market") },
+    {
+      label: t("Ratings"), value: `${(notUp?.D ?? 0) + data.ratings.D} · ${data.ratings.toss} · ${(notUp?.R ?? 0) + data.ratings.R}`, tone: "",
+      detail: notUp ? t("D seats · toss-ups · R seats, with the {d} D and {r} R seats not up (Cook, IE, Sabato)", { d: notUp.D, r: notUp.R }) : t("Seats favouring D · toss-ups · favouring R (Cook, IE, Sabato)"),
+    },
+  ];
+  return <article className="panel home-reading">
+    <div className="panel-head"><div><p className="eyebrow">{label}</p><h3>{t("{n} seats for a majority", { n: data.majority })}</h3></div></div>
+    <div className="readings card"><dl>{rows.map((row) => <div key={row.label}><dt>{row.label}</dt><dd><strong className={row.tone}>{row.value}</strong><small>{row.href ? <a href={row.href} target="_blank" rel="noopener">{row.detail} ↗</a> : row.detail}</small></dd></div>)}</dl></div>
+  </article>;
 }
 
 export default function Home() {
-  const electionContext = useElectionContext();
   const t = useT();
-  const intlLocale = useIntlLocale();
-  const [chamber, setChamber] = useState<"house" | "senate">("senate");
-  const [swing, setSwing] = useState(0);
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [liveForecast, setLiveForecast] = useState<LiveForecast | null>(null);
-  const baselineRaces: (Race | ForecastRace)[] = liveForecast?.races || electionSnapshot.races;
-  const senateRaces = useMemo(() => (liveForecast?.races || []).filter((race) => race.chamber === "senate"), [liveForecast]);
-  const displayedRaces = useMemo(() => baselineRaces.filter((race) => race.chamber === chamber).sort((a, b) => a.margin - b.margin).slice(0, 6), [baselineRaces, chamber]);
-  const house = liveForecast?.house || electionSnapshot.house;
-  const senate = liveForecast?.senate || electionSnapshot.senate;
-  const ballot = liveForecast?.genericBallot || electionSnapshot.genericBallot;
+  const [overview, setOverview] = useState<Overview | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/model").then((response) => {
-      if (!response.ok) throw new Error("Forecast feed unavailable");
-      return response.json() as Promise<LiveForecast>;
-    }).then((payload) => { if (!cancelled) setLiveForecast(payload); }).catch(() => undefined);
+    fetch("/api/overview").then((response) => response.ok ? response.json() as Promise<Overview> : null).then((payload) => { if (!cancelled && payload) setOverview(payload); }).catch(() => undefined);
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    const context = document.modelContext;
-    if (!context?.registerTool) return;
-    const lifecycle = new AbortController();
-    const register = (tool: Parameters<typeof context.registerTool>[0]) => {
-      void Promise.resolve(context.registerTool(tool, { signal: lifecycle.signal })).catch(() => undefined);
-    };
-
-    register({
-      name: "set_national_swing",
-      title: "Set national swing",
-      description: "Set the national swing (R+5 to D+5) that recolours the district map, the House chamber and the tipping-point ladder.",
-      inputSchema: { type: "object", properties: { swing: { type: "integer", minimum: -5, maximum: 5 } }, required: ["swing"], additionalProperties: false },
-      annotations: { readOnlyHint: false, untrustedContentHint: false },
-      execute(input) {
-        const value = (input as { swing?: unknown })?.swing;
-        if (!Number.isInteger(value) || Number(value) < -5 || Number(value) > 5) throw new Error("swing must be an integer from -5 to 5");
-        const next = Number(value);
-        setSwing(next);
-        return { swing: next, districtShift: next * 0.7 };
-      },
-    });
-
-    register({
-      name: "select_race_chamber",
-      title: "Select race chamber",
-      description: "Switch the visible race board between Senate and House contests.",
-      inputSchema: { type: "object", properties: { chamber: { type: "string", enum: ["senate", "house"] } }, required: ["chamber"], additionalProperties: false },
-      annotations: { readOnlyHint: false, untrustedContentHint: false },
-      execute(input) {
-        const value = (input as { chamber?: unknown })?.chamber;
-        if (value !== "senate" && value !== "house") throw new Error("chamber must be senate or house");
-        setChamber(value);
-        return { chamber: value, visibleRaces: electionSnapshot.races.filter((race) => race.chamber === value).length };
-      },
-    });
-
-    return () => lifecycle.abort();
-  }, []);
-
-  const analystEnabled = useAnalystEnabled();
-
-  async function askAnalyst(event: FormEvent) {
-    event.preventDefault();
-    if (!question.trim()) return;
-    setLoading(true);
-    try {
-      const response = await fetch("/api/analyst", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, context: { geography: stateByCode.get(electionContext.stateCode)?.name || "United States", cycle: electionContext.cycle, chamber: electionContext.chamber, scenario: { swing } } }),
-      });
-      if (!response.ok) throw new Error("Analyst unavailable");
-      const data = (await response.json()) as { answer: string };
-      setAnswer(data.answer);
-    } catch {
-      setAnswer(getFallbackAnswer(question));
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <main className="page-main home-main">
-      <PulseStory races={baselineRaces} live={Boolean(liveForecast)} house={house} senate={senate} ballotMargin={ballot.margin} swing={swing} onSwing={setSwing} />
+      <PulseStory races={overview?.races || []} house={overview?.house || null} senate={overview?.senate || null} />
       <section className="dashboard-shell" id="top">
-        <RaceTicker races={baselineRaces} live={Boolean(liveForecast)} />
+        <RaceTicker races={overview?.races || []} />
 
-        <section className="signals-grid" id="signals" aria-label={t("Control forecast: model versus prediction markets")}>
-          <SignalGauges house={house} senate={senate} />
-          <article className="signal-card ballot-card" id="polls">
-            <div className="card-kicker"><span>{t("GENERIC BALLOT")}</span><small>{t("polling average")}</small></div>
-            <div className="ballot-value"><strong>{ballot.margin >= 0 ? "D" : "R"}+<CountUp value={Math.abs(ballot.margin)} decimals={1} delay={200} /></strong><span>{liveForecast ? t(liveForecast.genericBallot.effectivePolls === 1 ? "{count} input" : "{count} polls", { count: liveForecast.genericBallot.effectivePolls }) : t("dated snapshot")}</span></div>
-            <PartyBar democratic={ballot.dem} republican={ballot.rep} />
-            <div className="ballot-labels"><b>D {ballot.dem.toFixed(1)}%</b><span>{t("two-party margin")}</span><b>R {ballot.rep.toFixed(1)}%</b></div>
-            <Sparkline currentMargin={ballot.margin} />
-            <p className="source-note">{liveForecast ? t("{version} · {simulations} simulations · {date}", { version: liveForecast.version, simulations: liveForecast.simulations.toLocaleString(intlLocale), date: liveForecast.runDate }) : t("Dated local snapshot")}</p>
-          </article>
+        <section className="home-readings" id="signals" aria-label={t("Polls, markets and ratings")}>
+          <div className="home-readings-head"><p className="eyebrow">{t("POLLS, MARKETS AND RATINGS")}</p><h2>{t("What the voters, the money and the experts say")}</h2></div>
+          <div className="home-readings-grid">
+            <ChamberOutlook chamber="house" label={t("U.S. HOUSE")} data={overview?.house || null} />
+            <ChamberOutlook chamber="senate" label={t("U.S. SENATE")} data={overview?.senate || null} />
+          </div>
         </section>
 
-        <SenateBuilder races={senateRaces} />
-
-        <section className={`workbench-grid${analystEnabled ? "" : " solo"}`}>
-          <article className="panel races-panel" id="races">
-            <div className="panel-head">
-              <div><p className="eyebrow">{t("RACE BOARD")}</p><h2>{t("Closest contests")}</h2></div>
-              <div className="segmented" role="group" aria-label={t("Choose chamber")}><button className={chamber === "senate" ? "selected" : ""} onClick={() => setChamber("senate")}>{t("Senate")}</button><button className={chamber === "house" ? "selected" : ""} onClick={() => setChamber("house")}>{t("House")}</button></div>
-            </div>
-            <div className="race-header"><span>{t("Race")}</span><span>{t("Model confidence")}</span><span>{t("Margin")}</span><span>{t("Win prob.")}</span><span /></div>
-            <div className="race-list" key={chamber}>{displayedRaces.map((race, index) => <RaceRow key={race.code} race={race} index={index} />)}</div>
-            <Link className="text-button" href="/races">{t("Open complete race directory")} <span>→</span></Link>
-          </article>
-
-          {analystEnabled && <aside className="panel analyst-panel">
-            <div className="analyst-title"><div className="pulse-orb"><span /></div><div><p className="eyebrow">{t("AI ANALYST")}</p><h2>{t("Ask the election desk")}</h2></div></div>
-            <div className="answer-box"><p>{loading ? t("Reading the current snapshot…") : answer ?? t("Ask about the model, a race, or what changed. Every answer is constrained to the current snapshot.")}</p><span>{t("Sources: current snapshot · methodology notes")}</span></div>
-            <div className="suggestions">{suggestedQuestions.map((item) => <button key={item} type="button" onClick={() => setQuestion(t(item))}>{t(item)}</button>)}</div>
-            <form onSubmit={askAnalyst}>
-              <label className="sr-only" htmlFor="analyst-question">{t("Question for the AI analyst")}</label>
-              <input id="analyst-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder={t("Ask about a race or the model…")} />
-              <button aria-label={t("Ask analyst")} disabled={loading}>↗</button>
-            </form>
-          </aside>}
-        </section>
+        <nav className="home-explore" aria-label={t("Explore")}>
+          {[
+            { href: "/key-races", title: "Key races", note: "Calle 14's guide, with the four readings" },
+            { href: "/races", title: "Every race", note: "Map and list of the 470 House and Senate races" },
+            { href: "/model", title: "MP-26", note: "My forecast from polls and fundamentals" },
+            { href: "/census", title: "Census-26", note: "My forecast from demographics alone, no polls" },
+            { href: "/election-night", title: "Election night", note: "Poll closings hour by hour, and the results live" },
+          ].map((item) => <Link key={item.href} href={item.href} className="panel home-explore-card"><b>{t(item.title)}</b><span>{t(item.note)}</span><i aria-hidden="true">→</i></Link>)}
+        </nav>
 
         <SiteFooter />
       </section>

@@ -15,13 +15,14 @@ type Props = {
   ticks: number[];
   format: (value: number) => string;
   baseline?: number;
-  reference?: { value: number; label: string };
+  // Dashed reference lines (the models), each with its own colour.
+  references?: { value: number; label: string; color: string }[];
   tone?: "margin" | "market";
   ariaLabel: string;
   /** Legend names for the dots and the line; when given, the legend toggles each series. */
   legend?: { dots?: string; line: string };
 };
-type Series = "dots" | "line" | "reference";
+type Series = string;
 
 const VW = 720;
 const VH = 260;
@@ -29,9 +30,9 @@ const PAD = { left: 50, right: 24, top: 18, bottom: 30 };
 const time = (date: string) => Date.parse(`${date}T00:00:00Z`);
 const NEAR = 7;
 
-// Time series for polls (dots + weighted trend) and market prices (line + area), with a model reference.
+// Time series for polls (dots + weighted trend) and market prices (line + area), with model reference lines.
 // A crosshair scrubs the line (pointer, touch or arrow keys) and lists the polls released around that date.
-export function SignalChart({ dots = [], line, domain, ticks, format, baseline, reference, tone = "margin", ariaLabel, legend }: Props) {
+export function SignalChart({ dots = [], line, domain, ticks, format, baseline, references = [], tone = "margin", ariaLabel, legend }: Props) {
   const t = useT();
   const locale = useIntlLocale();
   const [ref, inView] = useInView<HTMLDivElement>();
@@ -81,7 +82,7 @@ export function SignalChart({ dots = [], line, domain, ticks, format, baseline, 
     title: new Date(time(hovered.date)).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }),
     rows: [
       { label: legend?.line || (tone === "market" ? t("Price") : t("Trend")), value: format(hovered.value), tone: tone === "market" ? "muted" as const : hovered.value >= 0 ? "dem" as const : "rep" as const, swatch: tone === "market" ? "#9fb8ff" : "#fff" },
-      ...(reference && !hidden.has("reference") ? [{ label: t("Gap to the model"), value: tone === "market" ? `${hovered.value - reference.value >= 0 ? "+" : "−"}${Math.abs(hovered.value - reference.value).toFixed(1)} ${t("pts")}` : format(hovered.value - reference.value), tone: "muted" as const, swatch: "#f5d06f" }] : []),
+      ...references.flatMap((reference, index) => hidden.has(`ref-${index}`) ? [] : [{ label: t("Gap to {name}", { name: reference.label.split(" ")[0] }), value: tone === "market" ? `${hovered.value - reference.value >= 0 ? "+" : "−"}${Math.abs(hovered.value - reference.value).toFixed(1)} ${t("pts")}` : format(hovered.value - reference.value), tone: "muted" as const, swatch: reference.color }]),
     ],
     note: near.size ? [...near].sort((left, right) => Math.abs(dotX[left] - cx) - Math.abs(dotX[right] - cx)).slice(0, 3).map((index) => dots[index].title.split(" · ").filter((_, part) => part !== 1).join(" · ")).join("\n") + (near.size > 3 ? `\n${t("+{count} more", { count: near.size - 3 })}` : "") : undefined,
   } : null;
@@ -93,7 +94,7 @@ export function SignalChart({ dots = [], line, domain, ticks, format, baseline, 
         {ticks.map((tick) => <g key={tick} className="grid"><line x1={PAD.left} x2={VW - PAD.right} y1={y(tick)} y2={y(tick)} className={tick === baseline ? "zero" : undefined} /><text x={PAD.left - 8} y={y(tick) + 4}>{format(tick)}</text></g>)}
         {months.map((month) => <text key={month.x} className="x-tick" x={month.x} y={VH - 9}>{month.label}</text>)}
         {tone === "market" && area && <path className={`signal-area mpb-series${hidden.has("line") ? " off" : ""}`} d={area} />}
-        {reference && <g className={`reference mpb-series${hidden.has("reference") ? " off" : ""}`}><line x1={PAD.left} x2={VW - PAD.right} y1={y(reference.value)} y2={y(reference.value)} /><text x={VW - PAD.right} y={y(reference.value) - 6}>{reference.label}</text></g>}
+        {references.map((reference, index) => <g key={reference.label} className={`reference mpb-series${hidden.has(`ref-${index}`) ? " off" : ""}`} style={{ "--ref": reference.color } as React.CSSProperties}><line x1={PAD.left} x2={VW - PAD.right} y1={y(reference.value)} y2={y(reference.value)} /><text x={VW - PAD.right - index * 150} y={y(reference.value) - 6}>{reference.label}</text></g>)}
         <g className={`mpb-series${hidden.has("dots") ? " off" : ""}`}>
           {dots.map((dot, index) => <circle key={index} className={`signal-dot ${dot.tone}${near.has(index) ? " near" : ""}`} cx={dotX[index]} cy={y(dot.value)} r={near.has(index) ? 5 : 3.4} style={{ "--i": index } as React.CSSProperties}><title>{dot.title}</title></circle>)}
         </g>
@@ -112,7 +113,7 @@ export function SignalChart({ dots = [], line, domain, ticks, format, baseline, 
       {legend && <div className="chart-legend mpb-legend">
         {dots.length > 0 && legend.dots && <button type="button" className={hidden.has("dots") ? "off" : undefined} aria-pressed={!hidden.has("dots")} onClick={() => toggle("dots")}><i className="dot split" />{legend.dots}</button>}
         <button type="button" className={hidden.has("line") ? "off" : undefined} aria-pressed={!hidden.has("line")} onClick={() => toggle("line")}><i className={`swatch-line ${tone}`} />{legend.line}</button>
-        {reference && <button type="button" className={hidden.has("reference") ? "off" : undefined} aria-pressed={!hidden.has("reference")} onClick={() => toggle("reference")}><i className="swatch-ref" />{reference.label}</button>}
+        {references.map((reference, index) => <button key={reference.label} type="button" className={hidden.has(`ref-${index}`) ? "off" : undefined} aria-pressed={!hidden.has(`ref-${index}`)} onClick={() => toggle(`ref-${index}`)}><i className="swatch-ref" style={{ "--ref": reference.color } as React.CSSProperties} />{reference.label}</button>)}
       </div>}
     </div>
   );

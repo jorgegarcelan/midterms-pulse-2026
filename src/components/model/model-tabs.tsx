@@ -12,12 +12,12 @@ export const MODEL_TABS = [
   { href: "/methodology", label: "Sources" },
 ];
 
-// One "Model" section with four tabs instead of four separate pages in the menu.
+// MP-26's own section: four tabs under one menu entry.
 export function ModelTabs() {
   const t = useT();
   const path = stripLocale(usePathname());
-  return <nav className="model-tabs" aria-label={t("The model")}>
-    <span className="model-tabs-title">{t("The model")}</span>
+  return <nav className="model-tabs" aria-label="MP-26">
+    <span className="model-tabs-title">MP-26</span>
     <div>{MODEL_TABS.map((tab) => <Link key={tab.href} href={tab.href} className={path === tab.href ? "active" : ""} aria-current={path === tab.href ? "page" : undefined}>{t(tab.label)}</Link>)}</div>
   </nav>;
 }

@@ -8,6 +8,7 @@ import { ChartTooltip } from "@/components/motion/chart-tooltip";
 import { useChartScrub } from "@/components/motion/chart-scrub";
 import { useInView } from "@/components/explainer/use-in-view";
 import { useT } from "@/components/i18n/locale-provider";
+import { SenateBuilder } from "@/components/senate/senate-builder";
 
 type T = ReturnType<typeof useT>;
 type Bucket = { seats: number; frequency: number };
@@ -83,11 +84,14 @@ function Distribution({ data, baseline, threshold, total, pad, median, shifted, 
 export function ModelDashboard() {
   const t = useT();
   const [model, setModel] = useState<ModelResult | null>(null);
+  const [benchmark, setBenchmark] = useState<{ house: { demMajority: number }; senate: { demMajority: number }; updated: string } | null>(null);
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/model", { signal: controller.signal }).then((response) => response.json() as Promise<ModelResult>).then(setModel).catch(() => undefined);
+    fetch("/api/forecast", { signal: controller.signal }).then((response) => response.json()).then(setBenchmark).catch(() => undefined);
     return () => controller.abort();
   }, []);
+  const senateRaces = useMemo(() => (model?.races || []).filter((race) => race.chamber === "senate"), [model]);
   const scenario = useMemo(() => model ? published(model) : null, [model]);
 
   if (!model || !scenario) return <section className="panel model-loading">{t("Running 50,000 deterministic simulations…")}</section>;
@@ -98,6 +102,15 @@ export function ModelDashboard() {
     <section className="page-intro model-intro">
       <div><p className="eyebrow">{t("MIDTERM PULSE MODEL")} · {model.version}</p><h1>{t("A forecast you can inspect")}</h1><p>{t("An experimental, reproducible model that combines a weighted generic ballot, a public seat-level benchmark and correlated uncertainty. Every assumption is exposed below.")}</p></div>
       <div className="model-status"><span>{t("Experimental")}</span><strong><CountUp value={model.simulations} locale duration={1600} /></strong><small>{t("simulations")} · {model.runDate}</small></div>
+    </section>
+    <section className="panel model-origin">
+      <div className="panel-head"><div><p className="eyebrow">{t("WHERE MP-26 STARTS")}</p><h2>{t("From a public benchmark to my own forecast")}</h2></div></div>
+      <div className="model-origin-grid">
+        <div><b>1</b><h3>{t("The starting point: Vote-Scope")}</h3><p>{t("Every race starts from the margin of Vote-Scope, a public forecast that publishes an expected vote for all 470 races.")}</p></div>
+        <div><b>2</b><h3>{t("What MP-26 adds")}</h3><p>{t("Between Vote-Scope runs it moves every race by how much the generic-ballot polls have changed since (70% of the national move). Today that move is {move}.", { move: `${model.genericBallot.movement >= 0 ? "D" : "R"}+${Math.abs(model.genericBallot.movement).toFixed(1)}` })}</p></div>
+        <div><b>3</b><h3>{t("Its own odds")}</h3><p>{t("Its probabilities come from its own 50,000 simulations with a shared national error, validated on 2018 and 2022; on election night they update with every race called.")}</p></div>
+      </div>
+      {benchmark && <p className="model-origin-compare">{t("Vote-Scope today: House {h}% D, Senate {s}% D. MP-26: House {mh}% D, Senate {ms}% D.", { h: benchmark.house.demMajority, s: benchmark.senate.demMajority, mh: scenario.houseProbability, ms: scenario.senateProbability })}</p>}
     </section>
     <section className="model-control-grid">
       <article className="model-control-card dem-card"><p className="eyebrow">{t("HOUSE CONTROL")}</p><strong><CountUp value={scenario.houseProbability} />%</strong><span>{t("Democratic majority")}</span><div><b>D <CountUp value={scenario.houseSeats} /></b><i>218</i><b><CountUp value={435 - scenario.houseSeats} /> R</b></div><small>{t("80% interval: {low}–{high} D seats", { low: model.house.interval80[0], high: model.house.interval80[1] })}</small></article>
@@ -111,6 +124,7 @@ export function ModelDashboard() {
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("HOUSE DISTRIBUTION")}</p><h2>{t("Democratic seats")}</h2></div><span className="panel-tag">{shifted ? t("10K draws · scenario") : t("50K draws")}</span></div><Distribution data={scenario.houseDistribution} baseline={model.house.distribution} threshold={218} total={435} pad={24} median={scenario.houseSeats} shifted={shifted} step={2} /></article>
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("SENATE DISTRIBUTION")}</p><h2>{t("Democratic seats")}</h2></div><span className="panel-tag">{t("50K draws")}{shifted ? ` · ${t("scenario")}` : ""}</span></div><Distribution data={scenario.senateDistribution} baseline={model.senate.distribution} threshold={51} total={100} pad={4} median={scenario.senateSeats} shifted={shifted} /></article>
     </section>
+    {senateRaces.length > 0 && <SenateBuilder races={senateRaces} />}
     <section className="model-method-grid">
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("CURRENT INPUTS")}</p><h2>{t("What moved the model")}</h2></div><span className="panel-tag">{t("auditable")}</span></div><div className="model-input-list">{model.inputs.map((input) => <div key={input.label}><span>{t(input.label)}</span><strong>{translateNumbers(t, input.value)}</strong><small>{translateNumbers(t, input.source)}</small></div>)}</div></article>
       <article className="panel"><div className="panel-head"><div><p className="eyebrow">{t("ASSUMPTIONS")}</p><h2>{t("What {version} assumes", { version: model.version.replace("MP-26 ", "") })}</h2></div></div><ol className="assumption-list">{model.assumptions.map((item) => <li key={item}>{translateNumbers(t, item)}</li>)}</ol><p className="model-warning">{t("Experimental: the probability engine is backtested on 2018 and 2022, but read it as one signal, not an election call.")}</p><div className="model-actions"><Link href="/how-it-works">{t("How the model works")} →</Link><Link href="/validation">{t("Model validation")} →</Link><Link href="/methodology">{t("Read methodology")} →</Link></div></article>

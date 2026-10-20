@@ -11,3 +11,8 @@
 .race-map path.no-race { fill: #1c1f27 !important; }
 .race-map .race-map-state-line { fill: none; stroke: rgba(9,11,14,.9); stroke-width: 1.1; pointer-events: none; vector-effect: non-scaling-stroke; }
 .races-map-layout .text-button { border: 0; background: none; cursor: pointer; font: inherit; }
+
+/* Ratings colouring and the polls / markets cells */
+.district-legend i.toss { background: color-mix(in srgb, #e5d7a8 70%, #141722); }
+.race-directory-table b small { display: block; color: #7e8790; font-size: 10px; font-weight: 400; }
+.race-directory-table .muted-cell { color: #5d626d; }

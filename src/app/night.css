@@ -126,3 +126,4 @@
   .desk-race-actions { grid-row: 1 / span 3; grid-column: 2; }
   .desk-head { top: 56px; }
 }
+.night-odds-model { font-family: var(--font-mono); font-size: .75em; letter-spacing: .06em; color: #8e97a0; font-weight: 500; }

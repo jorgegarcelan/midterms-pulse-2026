@@ -1,5 +1,3 @@
-import type { ForecastRace } from "@/lib/forecast";
-import { expertBook, type ExpertBook } from "@/lib/expert-ratings";
 
 /*
   General-election candidates (scripts/build-candidates.mjs → public/data/candidates-2026.json).
@@ -75,30 +73,6 @@ export function initials(name: string) {
 // CSS modifier for the party colour: dem / rep / ind (independents and third parties).
 export const partyTone = (party: CandidateParty) => party === "D" ? "dem" : party === "R" ? "rep" : party === "I" ? "ind" : "other";
 export const PARTY_NAMES: Record<CandidateParty, string> = { D: "Democratic", R: "Republican", I: "Independent", L: "Libertarian", G: "Green", O: "Other parties" };
-
-// Democratic win probability (0–100) from the model's leader probability.
-export const demProbability = (race: Pick<ForecastRace, "leader" | "winProbability">) => race.leader === "D" ? race.winProbability : 100 - race.winProbability;
-
-// A party's chance in this race; null for third parties and when the party has several candidates.
-export function partyProbability(candidate: Pick<Candidate, "party">, race: ForecastRace | undefined, sharedParty: boolean) {
-  if (!race || sharedParty || (candidate.party !== "D" && candidate.party !== "R")) return null;
-  return candidate.party === "D" ? demProbability(race) : 100 - demProbability(race);
-}
-
-const CLOSE_RATINGS = /Toss-up|Tilt|Lean/;
-// Competitive: the model gives either side 25–75 %, or any handicapper rates it Lean, Tilt or Toss-up.
-export function isCompetitive(race: ForecastRace | undefined) {
-  if (!race) return false;
-  const p = demProbability(race);
-  if (p >= 25 && p <= 75) return true;
-  const book = expertBook(race)?.book;
-  return Boolean(book && Object.values(book).some((rating) => rating && CLOSE_RATINGS.test(rating)));
-}
-
-export const expertRatings = (race: ForecastRace | undefined): ExpertBook | null => race ? expertBook(race)?.book || null : null;
-
-// Distance from a coin flip: 0 = dead even, 50 = certain. Unknown races sort last.
-export const competitiveness = (race: ForecastRace | undefined) => race ? Math.abs(demProbability(race) - 50) : 99;
 
 // Another candidate of the same party is on this ballot (top-two, top-four or jungle races): the model
 // forecasts parties, so its probability cannot be read as this person's chance.
