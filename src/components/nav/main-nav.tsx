@@ -17,6 +17,7 @@ export const NAV_GROUPS: Group[] = [
   ] },
   { key: "races", label: "Races", items: [
     { href: "/races", label: "Races: map and list", note: "All 470 House and Senate races" },
+    { href: "/key-races", label: "Key races", note: "Calle 14's guide, with the model alongside" },
     { href: "/states", label: "States", note: "Each state's Senate race and House districts" },
     { href: "/candidates", label: "Candidates", note: "Every 2026 nominee" },
   ] },
