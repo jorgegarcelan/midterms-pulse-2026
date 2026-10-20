@@ -57,6 +57,8 @@ export function CallDesk() {
     try {
       const response = await fetch("/api/night", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const json = await response.json();
+      // A rejected token goes back to the login form instead of polling with it every five seconds.
+      if (response.status === 401) { writeToken(""); setToken(""); setDesk(null); }
       if (!response.ok) throw new Error(json.error || response.statusText);
       setDesk(json);
       setSlot(json.mode);
@@ -108,6 +110,7 @@ export function CallDesk() {
     <p className="eyebrow">{t("CALL DESK")}</p>
     <h1>{t("Desk token")}</h1>
     <p>{t("The token is the DESK_TOKEN variable set on the server. It stays in this browser only.")}</p>
+    {error && <p className="desk-error" role="alert">{t(error)}</p>}
     <form onSubmit={(event) => { event.preventDefault(); writeToken(draft.trim()); setToken(draft.trim()); }}>
       <input type="password" autoComplete="off" value={draft} onChange={(event) => setDraft(event.target.value)} aria-label={t("Desk token")} />
       <button type="submit">{t("Enter")}</button>

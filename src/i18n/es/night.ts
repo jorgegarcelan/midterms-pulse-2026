@@ -41,6 +41,7 @@ export const night: Record<string, string> = {
   "The store has no live calls, but this browser kept {n}. If the database was wiped, put them back:": "El almacén no tiene proyecciones en directo, pero este navegador guardó {n}. Si la base de datos se ha borrado, recupéralas:",
   "Restore {n} calls": "Recuperar {n} proyecciones",
   "Discard the copy": "Descartar la copia",
+  "Wrong desk token.": "La clave no coincide con la DESK_TOKEN del servidor.",
   "Rehearsal running": "Ensayo en marcha",
   "scenario: {name}": "escenario: {name}",
   "{n} scripted calls still to come": "quedan {n} proyecciones simuladas",

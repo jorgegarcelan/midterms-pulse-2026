@@ -45,10 +45,12 @@ export async function GET(request: NextRequest) {
 }
 
 const digest = (value: string) => createHash("sha256").update(value).digest();
+// Tokens are pasted by hand into Vercel and the desk: stray whitespace or quotes around them do not count.
+const clean = (value: string) => value.trim().replace(/^["']|["']$/g, "").trim();
 function authorized(request: NextRequest) {
-  const expected = process.env.DESK_TOKEN;
-  const given = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
-  return Boolean(expected) && timingSafeEqual(digest(given), digest(expected!));
+  const expected = clean(process.env.DESK_TOKEN ?? "");
+  const given = clean(request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "");
+  return Boolean(expected) && timingSafeEqual(digest(given), digest(expected));
 }
 
 type Action =
@@ -65,7 +67,7 @@ type Action =
 const fail = (status: number, error: string) => NextResponse.json({ error }, { status, headers: { "Cache-Control": "no-store" } });
 
 export async function POST(request: NextRequest) {
-  if (!process.env.DESK_TOKEN) return fail(503, "DESK_TOKEN is not set on the server.");
+  if (!process.env.DESK_TOKEN?.trim()) return fail(503, "DESK_TOKEN is not set on the server.");
   if (!authorized(request)) return fail(401, "Wrong desk token.");
   const body = await request.json().catch(() => null) as Action | null;
   if (!body?.action) return fail(400, "Missing action.");
