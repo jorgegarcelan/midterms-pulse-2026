@@ -2,7 +2,7 @@
   "meta": {
     "run_date": "2026-10-20",
     "election_cycle": "us_senate_2026",
-    "n_polls": 510,
+    "n_polls": 505,
     "mode": "race_model_v1",
     "majority_threshold": 51,
     "total_seats": 100,
@@ -25,38 +25,38 @@
       "label_fr": "Démocrate",
       "color": "#1f77d0",
       "seats_projected": 51,
-      "seats_mean": 51.6,
-      "seats_median": 52.0,
+      "seats_mean": 51.5,
+      "seats_median": 51.0,
       "seats_ci_low_80": 48.0,
       "seats_ci_high_80": 55.0,
       "seats_ci_low_95": 46.0,
       "seats_ci_high_95": 57.0,
-      "p_majority": 0.6549,
-      "p_largest": 0.7215
+      "p_majority": 0.6347,
+      "p_largest": 0.6751
     },
     {
       "party": "us_rep",
       "label_en": "Republican",
       "label_fr": "Républicain",
       "color": "#c62828",
-      "seats_projected": 48,
-      "seats_mean": 47.7,
+      "seats_projected": 49,
+      "seats_mean": 48.2,
       "seats_median": 48.0,
       "seats_ci_low_80": 44.0,
       "seats_ci_high_80": 52.0,
-      "seats_ci_low_95": 42.0,
+      "seats_ci_low_95": 43.0,
       "seats_ci_high_95": 54.0,
-      "p_majority": 0.1767,
-      "p_largest": 0.2274
+      "p_majority": 0.2129,
+      "p_largest": 0.244
     },
     {
       "party": "us_oth",
       "label_en": "Other",
       "label_fr": "Autre",
       "color": "#888888",
-      "seats_projected": 1,
-      "seats_mean": 0.6,
-      "seats_median": 1.0,
+      "seats_projected": 0,
+      "seats_mean": 0.4,
+      "seats_median": 0.0,
       "seats_ci_low_80": 0.0,
       "seats_ci_high_80": 1.0,
       "seats_ci_low_95": 0.0,
@@ -96,7 +96,7 @@
       "side": "tossup",
       "label_en": "Toss Up",
       "label_fr": "Toss-up",
-      "count": 7
+      "count": 6
     },
     {
       "code": "lean_rep",
@@ -110,7 +110,7 @@
       "side": "rep",
       "label_en": "Likely Republican",
       "label_fr": "Républicain probable",
-      "count": 3
+      "count": 4
     },
     {
       "code": "solid_rep",
@@ -129,22 +129,22 @@
       "region": "us_sen_ak",
       "incumbent_party": "us_rep",
       "is_special": false,
-      "poll_count": 24,
-      "recent_poll_count": 9,
+      "poll_count": 25,
+      "recent_poll_count": 10,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.6325,
-        "mean_margin": 4.87,
-        "p_close_race": 0.5995,
-        "margin_sd_local": 5.19,
+        "p_winner": 0.6674,
+        "mean_margin": 5.0,
+        "p_close_race": 0.5862,
+        "margin_sd_local": 5.13,
         "vote_mean": {
-          "us_dem": 48.88,
-          "us_rep": 50.72,
+          "us_dem": 48.61,
+          "us_rep": 50.99,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.3675,
-          "us_rep": 0.6325,
+          "us_dem": 0.3326,
+          "us_rep": 0.6674,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -178,12 +178,12 @@
       "projection": {
         "winner": "us_rep",
         "p_winner": 0.9912,
-        "mean_margin": 18.85,
-        "p_close_race": 0.0283,
+        "mean_margin": 18.89,
+        "p_close_race": 0.0281,
         "margin_sd_local": 6.82,
         "vote_mean": {
-          "us_dem": 40.41,
-          "us_rep": 59.19,
+          "us_dem": 40.39,
+          "us_rep": 59.21,
           "us_oth": 0.4
         },
         "win_prob": {
@@ -222,12 +222,12 @@
       "projection": {
         "winner": "us_rep",
         "p_winner": 0.9884,
-        "mean_margin": 20.61,
-        "p_close_race": 0.029,
+        "mean_margin": 20.63,
+        "p_close_race": 0.0288,
         "margin_sd_local": 8.0,
         "vote_mean": {
-          "us_dem": 39.55,
-          "us_rep": 60.04,
+          "us_dem": 39.54,
+          "us_rep": 60.06,
           "us_oth": 0.4
         },
         "win_prob": {
@@ -265,18 +265,18 @@
       "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.972,
-        "mean_margin": 17.41,
-        "p_close_race": 0.0707,
+        "p_winner": 0.9714,
+        "mean_margin": 17.31,
+        "p_close_race": 0.0723,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 57.4,
-          "us_rep": 40.26,
+          "us_dem": 57.35,
+          "us_rep": 40.32,
           "us_oth": 2.34
         },
         "win_prob": {
-          "us_dem": 0.972,
-          "us_rep": 0.028,
+          "us_dem": 0.9714,
+          "us_rep": 0.0286,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -309,18 +309,18 @@
       "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9979,
-        "mean_margin": 29.43,
-        "p_close_race": 0.0052,
+        "p_winner": 0.9978,
+        "mean_margin": 29.32,
+        "p_close_race": 0.0053,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 63.37,
-          "us_rep": 33.97,
+          "us_dem": 63.31,
+          "us_rep": 34.02,
           "us_oth": 2.67
         },
         "win_prob": {
-          "us_dem": 0.9979,
-          "us_rep": 0.0021,
+          "us_dem": 0.9978,
+          "us_rep": 0.0022,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -349,22 +349,22 @@
       "region": "us_sen_ga",
       "incumbent_party": "us_dem",
       "is_special": false,
-      "poll_count": 24,
-      "recent_poll_count": 8,
+      "poll_count": 23,
+      "recent_poll_count": 7,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9243,
-        "mean_margin": 8.79,
-        "p_close_race": 0.2641,
-        "margin_sd_local": 5.26,
+        "p_winner": 0.921,
+        "mean_margin": 8.77,
+        "p_close_race": 0.2675,
+        "margin_sd_local": 5.34,
         "vote_mean": {
-          "us_dem": 53.95,
-          "us_rep": 45.63,
-          "us_oth": 0.42
+          "us_dem": 53.92,
+          "us_rep": 45.65,
+          "us_oth": 0.43
         },
         "win_prob": {
-          "us_dem": 0.9243,
-          "us_rep": 0.0757,
+          "us_dem": 0.921,
+          "us_rep": 0.079,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -397,19 +397,19 @@
       "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9577,
-        "mean_margin": 21.75,
-        "p_close_race": 0.0717,
+        "p_winner": 0.9578,
+        "mean_margin": 21.79,
+        "p_close_race": 0.0715,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 19.75,
-          "us_rep": 51.83,
+          "us_dem": 19.72,
+          "us_rep": 51.86,
           "us_oth": 28.42
         },
         "win_prob": {
           "us_dem": 0.0009,
-          "us_rep": 0.9577,
-          "us_oth": 0.0414
+          "us_rep": 0.9578,
+          "us_oth": 0.0413
         },
         "oth_is_contender": true,
         "oth_ballot_share": null,
@@ -441,18 +441,18 @@
       "recent_poll_count": 1,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9777,
-        "mean_margin": 18.38,
-        "p_close_race": 0.0556,
+        "p_winner": 0.9774,
+        "mean_margin": 18.33,
+        "p_close_race": 0.0561,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 58.88,
-          "us_rep": 40.71,
+          "us_dem": 58.85,
+          "us_rep": 40.74,
           "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.9777,
-          "us_rep": 0.0223,
+          "us_dem": 0.9774,
+          "us_rep": 0.0226,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -485,18 +485,18 @@
       "recent_poll_count": 21,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.5388,
-        "mean_margin": 4.4,
-        "p_close_race": 0.6465,
+        "p_winner": 0.5454,
+        "mean_margin": 4.41,
+        "p_close_race": 0.6457,
         "margin_sd_local": 4.87,
         "vote_mean": {
-          "us_dem": 49.56,
-          "us_rep": 50.04,
+          "us_dem": 49.51,
+          "us_rep": 50.09,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.4612,
-          "us_rep": 0.5388,
+          "us_dem": 0.4546,
+          "us_rep": 0.5454,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -525,22 +525,22 @@
       "region": "us_sen_ks",
       "incumbent_party": "us_rep",
       "is_special": false,
-      "poll_count": 15,
-      "recent_poll_count": 10,
+      "poll_count": 14,
+      "recent_poll_count": 9,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.5294,
-        "mean_margin": 4.6,
-        "p_close_race": 0.626,
-        "margin_sd_local": 5.13,
+        "p_winner": 0.533,
+        "mean_margin": 4.64,
+        "p_close_race": 0.6219,
+        "margin_sd_local": 5.19,
         "vote_mean": {
-          "us_dem": 49.6,
-          "us_rep": 50.0,
+          "us_dem": 49.57,
+          "us_rep": 50.03,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.4706,
-          "us_rep": 0.5294,
+          "us_dem": 0.467,
+          "us_rep": 0.533,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -573,18 +573,18 @@
       "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9278,
-        "mean_margin": 13.33,
-        "p_close_race": 0.1557,
+        "p_winner": 0.9286,
+        "mean_margin": 13.38,
+        "p_close_race": 0.1546,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 43.48,
-          "us_rep": 56.12,
+          "us_dem": 43.46,
+          "us_rep": 56.14,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.0722,
-          "us_rep": 0.9278,
+          "us_dem": 0.0714,
+          "us_rep": 0.9286,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -617,18 +617,18 @@
       "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9359,
-        "mean_margin": 13.8,
-        "p_close_race": 0.1407,
+        "p_winner": 0.9366,
+        "mean_margin": 13.85,
+        "p_close_race": 0.1397,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 43.21,
-          "us_rep": 56.38,
+          "us_dem": 43.18,
+          "us_rep": 56.41,
           "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.0641,
-          "us_rep": 0.9359,
+          "us_dem": 0.0634,
+          "us_rep": 0.9366,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -657,22 +657,22 @@
       "region": "us_sen_me",
       "incumbent_party": "us_rep",
       "is_special": false,
-      "poll_count": 49,
-      "recent_poll_count": 18,
+      "poll_count": 47,
+      "recent_poll_count": 17,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.5861,
+        "p_winner": 0.5787,
         "mean_margin": 4.48,
-        "p_close_race": 0.6393,
-        "margin_sd_local": 4.91,
+        "p_close_race": 0.6401,
+        "margin_sd_local": 4.93,
         "vote_mean": {
-          "us_dem": 50.38,
-          "us_rep": 49.22,
+          "us_dem": 50.34,
+          "us_rep": 49.27,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.5861,
-          "us_rep": 0.4139,
+          "us_dem": 0.5787,
+          "us_rep": 0.4213,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -706,12 +706,12 @@
       "projection": {
         "winner": "us_dem",
         "p_winner": 0.9986,
-        "mean_margin": 30.0,
+        "mean_margin": 29.98,
         "p_close_race": 0.004,
         "margin_sd_local": 8.0,
         "vote_mean": {
-          "us_dem": 64.01,
-          "us_rep": 34.02,
+          "us_dem": 64.0,
+          "us_rep": 34.03,
           "us_oth": 1.97
         },
         "win_prob": {
@@ -745,22 +745,22 @@
       "region": "us_sen_mi",
       "incumbent_party": "us_dem",
       "is_special": false,
-      "poll_count": 54,
-      "recent_poll_count": 27,
+      "poll_count": 52,
+      "recent_poll_count": 26,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.7963,
-        "mean_margin": 5.78,
-        "p_close_race": 0.4984,
-        "margin_sd_local": 4.81,
+        "p_winner": 0.7851,
+        "mean_margin": 5.67,
+        "p_close_race": 0.51,
+        "margin_sd_local": 4.82,
         "vote_mean": {
-          "us_dem": 52.02,
-          "us_rep": 47.58,
+          "us_dem": 51.92,
+          "us_rep": 47.68,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.7963,
-          "us_rep": 0.2037,
+          "us_dem": 0.7851,
+          "us_rep": 0.2149,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -793,18 +793,18 @@
       "recent_poll_count": 11,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.8525,
-        "mean_margin": 6.86,
-        "p_close_race": 0.4024,
+        "p_winner": 0.8516,
+        "mean_margin": 6.85,
+        "p_close_race": 0.4038,
         "margin_sd_local": 5.09,
         "vote_mean": {
-          "us_dem": 52.02,
-          "us_rep": 46.12,
+          "us_dem": 52.01,
+          "us_rep": 46.13,
           "us_oth": 1.87
         },
         "win_prob": {
-          "us_dem": 0.8525,
-          "us_rep": 0.1475,
+          "us_dem": 0.8516,
+          "us_rep": 0.1484,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -833,31 +833,31 @@
       "region": "us_sen_ms",
       "incumbent_party": "us_rep",
       "is_special": false,
-      "poll_count": 4,
-      "recent_poll_count": 1,
+      "poll_count": 3,
+      "recent_poll_count": 0,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.7057,
-        "mean_margin": 7.82,
-        "p_close_race": 0.3957,
+        "p_winner": 0.8006,
+        "mean_margin": 9.12,
+        "p_close_race": 0.3207,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 47.57,
-          "us_rep": 52.02,
+          "us_dem": 46.3,
+          "us_rep": 53.29,
           "us_oth": 0.41
         },
         "win_prob": {
-          "us_dem": 0.2943,
-          "us_rep": 0.7057,
+          "us_dem": 0.1994,
+          "us_rep": 0.8006,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
-        "oth_ballot_share": 0.0001,
+        "oth_ballot_share": 0.0019,
         "rating": {
-          "code": "lean_rep",
+          "code": "likely_rep",
           "side": "rep",
-          "label_en": "Lean Republican",
-          "label_fr": "Avantage républicain"
+          "label_en": "Likely Republican",
+          "label_fr": "Républicain probable"
         },
         "projection_cycle": "us_senate_2026"
       },
@@ -877,26 +877,26 @@
       "region": "us_sen_mt",
       "incumbent_party": "us_rep",
       "is_special": false,
-      "poll_count": 16,
-      "recent_poll_count": 6,
+      "poll_count": 17,
+      "recent_poll_count": 7,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.8488,
-        "mean_margin": 9.61,
-        "p_close_race": 0.2903,
+        "p_winner": 0.8596,
+        "mean_margin": 9.87,
+        "p_close_race": 0.2757,
         "margin_sd_local": 8.0,
         "vote_mean": {
-          "us_dem": 38.61,
-          "us_rep": 46.76,
-          "us_oth": 14.62
+          "us_dem": 37.19,
+          "us_rep": 45.72,
+          "us_oth": 17.09
         },
         "win_prob": {
-          "us_dem": 0.1512,
-          "us_rep": 0.8488,
+          "us_dem": 0.1404,
+          "us_rep": 0.8596,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
-        "oth_ballot_share": 0.973,
+        "oth_ballot_share": 0.9836,
         "rating": {
           "code": "likely_rep",
           "side": "rep",
@@ -925,18 +925,18 @@
       "recent_poll_count": 5,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9006,
-        "mean_margin": 8.44,
-        "p_close_race": 0.2963,
+        "p_winner": 0.897,
+        "mean_margin": 8.34,
+        "p_close_race": 0.3027,
         "margin_sd_local": 5.6,
         "vote_mean": {
-          "us_dem": 45.92,
-          "us_rep": 53.68,
+          "us_dem": 45.98,
+          "us_rep": 53.62,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.0994,
-          "us_rep": 0.9006,
+          "us_dem": 0.103,
+          "us_rep": 0.897,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -965,22 +965,22 @@
       "region": "us_sen_nh",
       "incumbent_party": "us_dem",
       "is_special": false,
-      "poll_count": 28,
-      "recent_poll_count": 9,
+      "poll_count": 29,
+      "recent_poll_count": 10,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9577,
-        "mean_margin": 10.4,
-        "p_close_race": 0.1739,
-        "margin_sd_local": 5.19,
+        "p_winner": 0.9599,
+        "mean_margin": 10.49,
+        "p_close_race": 0.1681,
+        "margin_sd_local": 5.13,
         "vote_mean": {
-          "us_dem": 54.78,
-          "us_rep": 44.64,
-          "us_oth": 0.58
+          "us_dem": 54.86,
+          "us_rep": 44.62,
+          "us_oth": 0.52
         },
         "win_prob": {
-          "us_dem": 0.9577,
-          "us_rep": 0.0423,
+          "us_dem": 0.9599,
+          "us_rep": 0.0401,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1013,18 +1013,18 @@
       "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9933,
-        "mean_margin": 24.13,
-        "p_close_race": 0.0173,
+        "p_winner": 0.9932,
+        "mean_margin": 24.03,
+        "p_close_race": 0.0176,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 61.1,
-          "us_rep": 37.03,
+          "us_dem": 61.05,
+          "us_rep": 37.08,
           "us_oth": 1.87
         },
         "win_prob": {
-          "us_dem": 0.9933,
-          "us_rep": 0.0067,
+          "us_dem": 0.9932,
+          "us_rep": 0.0068,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1057,18 +1057,18 @@
       "recent_poll_count": 3,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9854,
-        "mean_margin": 15.54,
-        "p_close_race": 0.0548,
+        "p_winner": 0.9852,
+        "mean_margin": 15.51,
+        "p_close_race": 0.0553,
         "margin_sd_local": 6.18,
         "vote_mean": {
-          "us_dem": 57.51,
-          "us_rep": 42.08,
+          "us_dem": 57.5,
+          "us_rep": 42.1,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.9854,
-          "us_rep": 0.0146,
+          "us_dem": 0.9852,
+          "us_rep": 0.0148,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1101,18 +1101,18 @@
       "recent_poll_count": 17,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9332,
-        "mean_margin": 8.74,
-        "p_close_race": 0.2537,
+        "p_winner": 0.9327,
+        "mean_margin": 8.72,
+        "p_close_race": 0.2547,
         "margin_sd_local": 4.93,
         "vote_mean": {
-          "us_dem": 53.97,
-          "us_rep": 45.62,
+          "us_dem": 53.96,
+          "us_rep": 45.64,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.9332,
-          "us_rep": 0.0668,
+          "us_dem": 0.9327,
+          "us_rep": 0.0673,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1145,18 +1145,18 @@
       "recent_poll_count": 0,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9924,
-        "mean_margin": 23.53,
-        "p_close_race": 0.0183,
+        "p_winner": 0.9926,
+        "mean_margin": 23.59,
+        "p_close_race": 0.0182,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 34.27,
-          "us_rep": 57.72,
+          "us_dem": 34.24,
+          "us_rep": 57.75,
           "us_oth": 8.0
         },
         "win_prob": {
-          "us_dem": 0.0076,
-          "us_rep": 0.9924,
+          "us_dem": 0.0074,
+          "us_rep": 0.9926,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1189,18 +1189,18 @@
       "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9953,
-        "mean_margin": 25.45,
-        "p_close_race": 0.012,
+        "p_winner": 0.9952,
+        "mean_margin": 25.35,
+        "p_close_race": 0.0122,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 60.82,
-          "us_rep": 35.42,
+          "us_dem": 60.77,
+          "us_rep": 35.47,
           "us_oth": 3.76
         },
         "win_prob": {
-          "us_dem": 0.9953,
-          "us_rep": 0.0047,
+          "us_dem": 0.9952,
+          "us_rep": 0.0048,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1234,12 +1234,12 @@
       "projection": {
         "winner": "us_dem",
         "p_winner": 0.9998,
-        "mean_margin": 32.1,
+        "mean_margin": 32.06,
         "p_close_race": 0.0007,
         "margin_sd_local": 6.11,
         "vote_mean": {
-          "us_dem": 63.33,
-          "us_rep": 31.24,
+          "us_dem": 63.31,
+          "us_rep": 31.26,
           "us_oth": 5.43
         },
         "win_prob": {
@@ -1277,18 +1277,18 @@
       "recent_poll_count": 6,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.6382,
+        "p_winner": 0.64,
         "mean_margin": 5.09,
-        "p_close_race": 0.5782,
+        "p_close_race": 0.5778,
         "margin_sd_local": 5.45,
         "vote_mean": {
-          "us_dem": 48.78,
-          "us_rep": 50.82,
+          "us_dem": 48.77,
+          "us_rep": 50.83,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.3618,
-          "us_rep": 0.6382,
+          "us_dem": 0.36,
+          "us_rep": 0.64,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1317,31 +1317,31 @@
       "region": "us_sen_sd",
       "incumbent_party": "us_rep",
       "is_special": false,
-      "poll_count": 9,
-      "recent_poll_count": 3,
+      "poll_count": 10,
+      "recent_poll_count": 4,
       "projection": {
-        "winner": "us_oth",
-        "p_winner": 0.5789,
-        "mean_margin": 10.4,
-        "p_close_race": 0.3008,
+        "winner": "us_rep",
+        "p_winner": 0.6756,
+        "mean_margin": 11.14,
+        "p_close_race": 0.2783,
         "margin_sd_local": 8.0,
         "vote_mean": {
-          "us_dem": 9.66,
-          "us_rep": 43.88,
-          "us_oth": 46.46
+          "us_dem": 11.79,
+          "us_rep": 47.0,
+          "us_oth": 41.21
         },
         "win_prob": {
-          "us_dem": 0.0,
-          "us_rep": 0.4211,
-          "us_oth": 0.5789
+          "us_dem": 0.0001,
+          "us_rep": 0.6756,
+          "us_oth": 0.3243
         },
         "oth_is_contender": true,
         "oth_ballot_share": 1.0,
         "rating": {
-          "code": "tossup",
-          "side": "tossup",
-          "label_en": "Toss Up",
-          "label_fr": "Toss-up"
+          "code": "lean_rep",
+          "side": "rep",
+          "label_en": "Lean Republican",
+          "label_fr": "Avantage républicain"
         },
         "projection_cycle": "us_senate_2026"
       },
@@ -1365,18 +1365,18 @@
       "recent_poll_count": 1,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.9925,
-        "mean_margin": 23.46,
-        "p_close_race": 0.0196,
+        "p_winner": 0.9926,
+        "mean_margin": 23.51,
+        "p_close_race": 0.0194,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 35.81,
-          "us_rep": 59.19,
+          "us_dem": 35.78,
+          "us_rep": 59.22,
           "us_oth": 5.0
         },
         "win_prob": {
-          "us_dem": 0.0075,
-          "us_rep": 0.9925,
+          "us_dem": 0.0074,
+          "us_rep": 0.9926,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1405,22 +1405,22 @@
       "region": "us_sen_tx",
       "incumbent_party": "us_rep",
       "is_special": false,
-      "poll_count": 63,
+      "poll_count": 62,
       "recent_poll_count": 30,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.5499,
+        "p_winner": 0.5517,
         "mean_margin": 4.38,
-        "p_close_race": 0.6491,
+        "p_close_race": 0.6487,
         "margin_sd_local": 4.79,
         "vote_mean": {
-          "us_dem": 50.13,
-          "us_rep": 49.47,
+          "us_dem": 50.14,
+          "us_rep": 49.46,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.5499,
-          "us_rep": 0.4501,
+          "us_dem": 0.5517,
+          "us_rep": 0.4483,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1453,18 +1453,18 @@
       "recent_poll_count": 0,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.9367,
-        "mean_margin": 13.78,
-        "p_close_race": 0.1394,
+        "p_winner": 0.936,
+        "mean_margin": 13.74,
+        "p_close_race": 0.1407,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 56.37,
-          "us_rep": 43.23,
+          "us_dem": 56.34,
+          "us_rep": 43.25,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.9367,
-          "us_rep": 0.0633,
+          "us_dem": 0.936,
+          "us_rep": 0.064,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1498,12 +1498,12 @@
       "projection": {
         "winner": "us_rep",
         "p_winner": 0.9995,
-        "mean_margin": 38.3,
+        "mean_margin": 38.41,
         "p_close_race": 0.0007,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 29.5,
-          "us_rep": 67.79,
+          "us_dem": 29.45,
+          "us_rep": 67.84,
           "us_oth": 2.71
         },
         "win_prob": {
@@ -1542,12 +1542,12 @@
       "projection": {
         "winner": "us_rep",
         "p_winner": 0.9996,
-        "mean_margin": 40.01,
+        "mean_margin": 40.11,
         "p_close_race": 0.0006,
         "margin_sd_local": 8.48,
         "vote_mean": {
-          "us_dem": 28.63,
-          "us_rep": 68.63,
+          "us_dem": 28.58,
+          "us_rep": 68.68,
           "us_oth": 2.74
         },
         "win_prob": {
@@ -1585,18 +1585,18 @@
       "recent_poll_count": 14,
       "projection": {
         "winner": "us_rep",
-        "p_winner": 0.903,
-        "mean_margin": 8.36,
-        "p_close_race": 0.2984,
+        "p_winner": 0.9037,
+        "mean_margin": 8.37,
+        "p_close_race": 0.2971,
         "margin_sd_local": 5.5,
         "vote_mean": {
-          "us_dem": 45.95,
-          "us_rep": 53.65,
+          "us_dem": 45.94,
+          "us_rep": 53.66,
           "us_oth": 0.4
         },
         "win_prob": {
-          "us_dem": 0.097,
-          "us_rep": 0.903,
+          "us_dem": 0.0963,
+          "us_rep": 0.9037,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
@@ -1625,26 +1625,26 @@
       "region": "us_sen_oh",
       "incumbent_party": "us_rep",
       "is_special": true,
-      "poll_count": 33,
+      "poll_count": 32,
       "recent_poll_count": 16,
       "projection": {
         "winner": "us_dem",
-        "p_winner": 0.7051,
-        "mean_margin": 5.5,
-        "p_close_race": 0.5386,
+        "p_winner": 0.7038,
+        "mean_margin": 5.49,
+        "p_close_race": 0.5396,
         "margin_sd_local": 5.5,
         "vote_mean": {
-          "us_dem": 51.08,
-          "us_rep": 47.93,
+          "us_dem": 51.07,
+          "us_rep": 47.94,
           "us_oth": 0.99
         },
         "win_prob": {
-          "us_dem": 0.7051,
-          "us_rep": 0.2949,
+          "us_dem": 0.7038,
+          "us_rep": 0.2962,
           "us_oth": 0.0
         },
         "oth_is_contender": false,
-        "oth_ballot_share": 0.1449,
+        "oth_ballot_share": 0.1461,
         "rating": {
           "code": "lean_dem",
           "side": "dem",
@@ -2269,8 +2269,8 @@
       "region": "ME",
       "n": 783,
       "weight": null,
-      "us_dem": 41.7,
-      "us_rep": 45.8,
+      "us_dem": 44.8,
+      "us_rep": 40.9,
       "us_oth": 0.0
     },
     {
@@ -2370,7 +2370,7 @@
       "n": 820,
       "weight": null,
       "us_dem": 43.0,
-      "us_rep": 43.0,
+      "us_rep": 42.0,
       "us_oth": 0.0
     },
     {
@@ -2639,8 +2639,8 @@
       "region": "ME",
       "n": 1105,
       "weight": null,
-      "us_dem": 41.0,
-      "us_rep": 40.0,
+      "us_dem": 49.0,
+      "us_rep": 38.0,
       "us_oth": 0.0
     },
     {
@@ -2690,7 +2690,7 @@
       "n": 810,
       "weight": null,
       "us_dem": 44.0,
-      "us_rep": 44.0,
+      "us_rep": 40.0,
       "us_oth": 0.0
     },
     {
@@ -2719,8 +2719,8 @@
       "region": "ME",
       "n": 800,
       "weight": null,
-      "us_dem": 43.0,
-      "us_rep": 44.6,
+      "us_dem": 48.6,
+      "us_rep": 41.8,
       "us_oth": 0.0
     },
     {
@@ -2736,21 +2736,21 @@
     {
       "date": "2026-03-11 00:00:00",
       "firm": "",
-      "region": "ME",
-      "n": 600,
-      "weight": null,
-      "us_dem": 42.0,
-      "us_rep": 42.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-03-11 00:00:00",
-      "firm": "",
       "region": "OH",
       "n": 600,
       "weight": null,
       "us_dem": 47.0,
       "us_rep": 45.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-03-11 00:00:00",
+      "firm": "",
+      "region": "ME",
+      "n": 600,
+      "weight": null,
+      "us_dem": 44.0,
+      "us_rep": 42.0,
       "us_oth": 0.0
     },
     {
@@ -2839,8 +2839,8 @@
       "region": "ME",
       "n": 1075,
       "weight": null,
-      "us_dem": 46.2,
-      "us_rep": 42.5,
+      "us_dem": 47.8,
+      "us_rep": 40.6,
       "us_oth": 0.0
     },
     {
@@ -2886,21 +2886,21 @@
     {
       "date": "2026-04-02 00:00:00",
       "firm": "",
-      "region": "FL",
-      "n": 1125,
-      "weight": null,
-      "us_dem": 36.3,
-      "us_rep": 47.3,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-04-02 00:00:00",
-      "firm": "",
       "region": "NC",
       "n": 987,
       "weight": null,
       "us_dem": 48.6,
       "us_rep": 43.8,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-04-02 00:00:00",
+      "firm": "",
+      "region": "FL",
+      "n": 1125,
+      "weight": null,
+      "us_dem": 36.3,
+      "us_rep": 47.3,
       "us_oth": 0.0
     },
     {
@@ -2926,21 +2926,21 @@
     {
       "date": "2026-04-13 00:00:00",
       "firm": "",
-      "region": "IA",
-      "n": 1200,
-      "weight": null,
-      "us_dem": 42.0,
-      "us_rep": 48.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-04-13 00:00:00",
-      "firm": "",
       "region": "FL",
       "n": 1834,
       "weight": null,
       "us_dem": 42.2,
       "us_rep": 43.4,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-04-13 00:00:00",
+      "firm": "",
+      "region": "IA",
+      "n": 1200,
+      "weight": null,
+      "us_dem": 42.0,
+      "us_rep": 48.0,
       "us_oth": 0.0
     },
     {
@@ -3019,8 +3019,8 @@
       "region": "ME",
       "n": 378,
       "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 46.0,
+      "us_dem": 51.0,
+      "us_rep": 45.0,
       "us_oth": 0.0
     },
     {
@@ -3031,26 +3031,6 @@
       "weight": null,
       "us_dem": 45.0,
       "us_rep": 51.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-04-23 00:00:00",
-      "firm": "",
-      "region": "AK",
-      "n": 1946,
-      "weight": null,
-      "us_dem": 49.1,
-      "us_rep": 47.7,
-      "us_oth": 3.2
-    },
-    {
-      "date": "2026-04-23 00:00:00",
-      "firm": "",
-      "region": "MA",
-      "n": 600,
-      "weight": null,
-      "us_dem": 55.0,
-      "us_rep": 32.0,
       "us_oth": 0.0
     },
     {
@@ -3071,6 +3051,26 @@
       "weight": null,
       "us_dem": 52.0,
       "us_rep": 34.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-04-23 00:00:00",
+      "firm": "",
+      "region": "AK",
+      "n": 1946,
+      "weight": null,
+      "us_dem": 49.1,
+      "us_rep": 47.7,
+      "us_oth": 3.2
+    },
+    {
+      "date": "2026-04-23 00:00:00",
+      "firm": "",
+      "region": "MA",
+      "n": 600,
+      "weight": null,
+      "us_dem": 55.0,
+      "us_rep": 32.0,
       "us_oth": 0.0
     },
     {
@@ -3137,20 +3137,20 @@
       "date": "2026-05-12 00:00:00",
       "firm": "",
       "region": "MI",
-      "n": 600,
+      "n": 606,
       "weight": null,
-      "us_dem": 39.8,
-      "us_rep": 44.7,
+      "us_dem": 41.0,
+      "us_rep": 42.0,
       "us_oth": 0.0
     },
     {
       "date": "2026-05-12 00:00:00",
       "firm": "",
       "region": "MI",
-      "n": 606,
+      "n": 600,
       "weight": null,
-      "us_dem": 41.0,
-      "us_rep": 42.0,
+      "us_dem": 39.8,
+      "us_rep": 44.7,
       "us_oth": 0.0
     },
     {
@@ -3236,21 +3236,21 @@
     {
       "date": "2026-05-27 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 643,
-      "weight": null,
-      "us_dem": 44.0,
-      "us_rep": 39.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-05-27 00:00:00",
-      "firm": "",
       "region": "ME",
       "n": 1250,
       "weight": null,
       "us_dem": 51.0,
       "us_rep": 42.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-05-27 00:00:00",
+      "firm": "",
+      "region": "TX",
+      "n": 643,
+      "weight": null,
+      "us_dem": 44.0,
+      "us_rep": 39.0,
       "us_oth": 0.0
     },
     {
@@ -3389,8 +3389,8 @@
       "region": "ME",
       "n": 1642,
       "weight": null,
-      "us_dem": 52.0,
-      "us_rep": 48.0,
+      "us_dem": 51.0,
+      "us_rep": 49.0,
       "us_oth": 0.0
     },
     {
@@ -3584,16 +3584,6 @@
       "us_oth": 0.0
     },
     {
-      "date": "2026-06-29 00:00:00",
-      "firm": "",
-      "region": "MI",
-      "n": 602,
-      "weight": null,
-      "us_dem": 49.0,
-      "us_rep": 44.0,
-      "us_oth": 0.0
-    },
-    {
       "date": "2026-06-30 00:00:00",
       "firm": "",
       "region": "MA",
@@ -3666,6 +3656,16 @@
     {
       "date": "2026-07-01 00:00:00",
       "firm": "",
+      "region": "NC",
+      "n": 601,
+      "weight": null,
+      "us_dem": 50.0,
+      "us_rep": 43.2,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-07-01 00:00:00",
+      "firm": "",
       "region": "OH",
       "n": 601,
       "weight": null,
@@ -3691,26 +3691,6 @@
       "weight": null,
       "us_dem": 47.0,
       "us_rep": 41.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-07-01 00:00:00",
-      "firm": "",
-      "region": "NC",
-      "n": 601,
-      "weight": null,
-      "us_dem": 50.0,
-      "us_rep": 43.2,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-07-01 00:00:00",
-      "firm": "",
-      "region": "MI",
-      "n": 947,
-      "weight": null,
-      "us_dem": 45.2,
-      "us_rep": 44.1,
       "us_oth": 0.0
     },
     {
@@ -3754,6 +3734,16 @@
       "us_oth": 0.0
     },
     {
+      "date": "2026-07-01 00:00:00",
+      "firm": "",
+      "region": "MI",
+      "n": 947,
+      "weight": null,
+      "us_dem": 45.2,
+      "us_rep": 44.1,
+      "us_oth": 0.0
+    },
+    {
       "date": "2026-07-06 00:00:00",
       "firm": "",
       "region": "ME",
@@ -3761,16 +3751,6 @@
       "weight": null,
       "us_dem": 52.0,
       "us_rep": 48.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-07-06 00:00:00",
-      "firm": "",
-      "region": "ME",
-      "n": 405,
-      "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 43.0,
       "us_oth": 0.0
     },
     {
@@ -3789,8 +3769,8 @@
       "region": "ME",
       "n": 785,
       "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 45.0,
+      "us_dem": 41.0,
+      "us_rep": 48.0,
       "us_oth": 0.0
     },
     {
@@ -3836,21 +3816,21 @@
     {
       "date": "2026-07-21 00:00:00",
       "firm": "",
-      "region": "ME",
-      "n": 1178,
-      "weight": null,
-      "us_dem": 49.0,
-      "us_rep": 46.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-07-21 00:00:00",
-      "firm": "",
       "region": "MT",
       "n": 800,
       "weight": null,
       "us_dem": 44.0,
       "us_rep": 48.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-07-21 00:00:00",
+      "firm": "",
+      "region": "ME",
+      "n": 1178,
+      "weight": null,
+      "us_dem": 49.0,
+      "us_rep": 46.0,
       "us_oth": 0.0
     },
     {
@@ -3876,20 +3856,10 @@
     {
       "date": "2026-07-28 00:00:00",
       "firm": "",
-      "region": "MI",
-      "n": 600,
+      "region": "TX",
+      "n": 1048,
       "weight": null,
-      "us_dem": 38.7,
-      "us_rep": 49.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-07-28 00:00:00",
-      "firm": "",
-      "region": "MT",
-      "n": 500,
-      "weight": null,
-      "us_dem": 44.0,
+      "us_dem": 45.0,
       "us_rep": 40.0,
       "us_oth": 0.0
     },
@@ -3906,10 +3876,20 @@
     {
       "date": "2026-07-28 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 1048,
+      "region": "MI",
+      "n": 600,
       "weight": null,
-      "us_dem": 45.0,
+      "us_dem": 38.7,
+      "us_rep": 49.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-07-28 00:00:00",
+      "firm": "",
+      "region": "MT",
+      "n": 500,
+      "weight": null,
+      "us_dem": 44.0,
       "us_rep": 40.0,
       "us_oth": 0.0
     },
@@ -3954,16 +3934,6 @@
       "us_oth": 0.0
     },
     {
-      "date": "2026-08-02 00:00:00",
-      "firm": "",
-      "region": "TX",
-      "n": 800,
-      "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 46.0,
-      "us_oth": 0.0
-    },
-    {
       "date": "2026-08-03 00:00:00",
       "firm": "",
       "region": "MI",
@@ -3996,16 +3966,6 @@
     {
       "date": "2026-08-06 00:00:00",
       "firm": "",
-      "region": "ME",
-      "n": 802,
-      "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 46.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-08-06 00:00:00",
-      "firm": "",
       "region": "TX",
       "n": 1001,
       "weight": null,
@@ -4026,12 +3986,32 @@
     {
       "date": "2026-08-06 00:00:00",
       "firm": "",
+      "region": "ME",
+      "n": 802,
+      "weight": null,
+      "us_dem": 48.0,
+      "us_rep": 46.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-08-06 00:00:00",
+      "firm": "",
       "region": "SD",
       "n": 500,
       "weight": null,
       "us_dem": 0.0,
       "us_rep": 55.0,
       "us_oth": 34.0
+    },
+    {
+      "date": "2026-08-07 00:00:00",
+      "firm": "",
+      "region": "TX",
+      "n": 619,
+      "weight": null,
+      "us_dem": 47.0,
+      "us_rep": 43.0,
+      "us_oth": 0.0
     },
     {
       "date": "2026-08-07 00:00:00",
@@ -4051,16 +4031,6 @@
       "weight": null,
       "us_dem": 42.0,
       "us_rep": 48.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-08-07 00:00:00",
-      "firm": "",
-      "region": "TX",
-      "n": 619,
-      "weight": null,
-      "us_dem": 47.0,
-      "us_rep": 43.0,
       "us_oth": 0.0
     },
     {
@@ -4146,16 +4116,6 @@
     {
       "date": "2026-08-13 00:00:00",
       "firm": "",
-      "region": "OH",
-      "n": 1008,
-      "weight": null,
-      "us_dem": 53.0,
-      "us_rep": 45.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-08-13 00:00:00",
-      "firm": "",
       "region": "NC",
       "n": 600,
       "weight": null,
@@ -4166,22 +4126,22 @@
     {
       "date": "2026-08-13 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 1000,
+      "region": "MI",
+      "n": 1006,
       "weight": null,
-      "us_dem": 46.2,
-      "us_rep": 47.2,
+      "us_dem": 47.0,
+      "us_rep": 51.0,
       "us_oth": 0.0
     },
     {
       "date": "2026-08-13 00:00:00",
       "firm": "",
-      "region": "ID",
-      "n": 608,
+      "region": "OH",
+      "n": 1008,
       "weight": null,
-      "us_dem": 0.0,
-      "us_rep": 33.0,
-      "us_oth": 38.0
+      "us_dem": 53.0,
+      "us_rep": 45.0,
+      "us_oth": 0.0
     },
     {
       "date": "2026-08-13 00:00:00",
@@ -4196,21 +4156,31 @@
     {
       "date": "2026-08-13 00:00:00",
       "firm": "",
-      "region": "MI",
-      "n": 1006,
+      "region": "ID",
+      "n": 608,
       "weight": null,
-      "us_dem": 47.0,
-      "us_rep": 51.0,
+      "us_dem": 0.0,
+      "us_rep": 33.0,
+      "us_oth": 38.0
+    },
+    {
+      "date": "2026-08-13 00:00:00",
+      "firm": "",
+      "region": "TX",
+      "n": 1000,
+      "weight": null,
+      "us_dem": 46.2,
+      "us_rep": 47.2,
       "us_oth": 0.0
     },
     {
       "date": "2026-08-14 00:00:00",
       "firm": "",
-      "region": "OH",
-      "n": 800,
+      "region": "LA",
+      "n": 518,
       "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 44.0,
+      "us_dem": 36.0,
+      "us_rep": 42.0,
       "us_oth": 0.0
     },
     {
@@ -4222,16 +4192,6 @@
       "us_dem": 0.0,
       "us_rep": 51.0,
       "us_oth": 28.0
-    },
-    {
-      "date": "2026-08-14 00:00:00",
-      "firm": "",
-      "region": "LA",
-      "n": 518,
-      "weight": null,
-      "us_dem": 36.0,
-      "us_rep": 42.0,
-      "us_oth": 0.0
     },
     {
       "date": "2026-08-15 00:00:00",
@@ -4476,16 +4436,6 @@
     {
       "date": "2026-08-30 00:00:00",
       "firm": "",
-      "region": "IA",
-      "n": 600,
-      "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 50.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-08-30 00:00:00",
-      "firm": "",
       "region": "MI",
       "n": 600,
       "weight": null,
@@ -4516,16 +4466,6 @@
     {
       "date": "2026-08-31 00:00:00",
       "firm": "",
-      "region": "MI",
-      "n": 332,
-      "weight": null,
-      "us_dem": 41.0,
-      "us_rep": 35.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-08-31 00:00:00",
-      "firm": "",
       "region": "OH",
       "n": 306,
       "weight": null,
@@ -4536,11 +4476,11 @@
     {
       "date": "2026-08-31 00:00:00",
       "firm": "",
-      "region": "IA",
-      "n": 323,
+      "region": "MI",
+      "n": 332,
       "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 41.0,
+      "us_dem": 41.0,
+      "us_rep": 35.0,
       "us_oth": 0.0
     },
     {
@@ -4551,6 +4491,16 @@
       "weight": null,
       "us_dem": 50.0,
       "us_rep": 42.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-08-31 00:00:00",
+      "firm": "",
+      "region": "IA",
+      "n": 323,
+      "weight": null,
+      "us_dem": 48.0,
+      "us_rep": 41.0,
       "us_oth": 0.0
     },
     {
@@ -4846,16 +4796,6 @@
     {
       "date": "2026-09-13 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 649,
-      "weight": null,
-      "us_dem": 50.0,
-      "us_rep": 45.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-13 00:00:00",
-      "firm": "",
       "region": "GA",
       "n": 1091,
       "weight": null,
@@ -4871,6 +4811,16 @@
       "weight": null,
       "us_dem": 49.2,
       "us_rep": 41.3,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-13 00:00:00",
+      "firm": "",
+      "region": "TX",
+      "n": 649,
+      "weight": null,
+      "us_dem": 50.0,
+      "us_rep": 45.0,
       "us_oth": 0.0
     },
     {
@@ -4956,32 +4906,12 @@
     {
       "date": "2026-09-16 00:00:00",
       "firm": "",
-      "region": "NE",
-      "n": 500,
-      "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 52.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-16 00:00:00",
-      "firm": "",
       "region": "OH",
       "n": 1000,
       "weight": null,
       "us_dem": 48.0,
       "us_rep": 45.0,
       "us_oth": 3.0
-    },
-    {
-      "date": "2026-09-17 00:00:00",
-      "firm": "",
-      "region": "MT",
-      "n": 625,
-      "weight": null,
-      "us_dem": 26.1,
-      "us_rep": 45.3,
-      "us_oth": 24.4
     },
     {
       "date": "2026-09-17 00:00:00",
@@ -5016,21 +4946,21 @@
     {
       "date": "2026-09-17 00:00:00",
       "firm": "",
+      "region": "MT",
+      "n": 625,
+      "weight": null,
+      "us_dem": 26.1,
+      "us_rep": 45.3,
+      "us_oth": 24.4
+    },
+    {
+      "date": "2026-09-17 00:00:00",
+      "firm": "",
       "region": "NC",
       "n": 608,
       "weight": null,
       "us_dem": 49.2,
       "us_rep": 34.1,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-17 00:00:00",
-      "firm": "",
-      "region": "AK",
-      "n": 799,
-      "weight": null,
-      "us_dem": 46.0,
-      "us_rep": 50.0,
       "us_oth": 0.0
     },
     {
@@ -5056,11 +4986,61 @@
     {
       "date": "2026-09-17 00:00:00",
       "firm": "",
+      "region": "AK",
+      "n": 799,
+      "weight": null,
+      "us_dem": 46.0,
+      "us_rep": 50.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-17 00:00:00",
+      "firm": "",
       "region": "MI",
       "n": 803,
       "weight": null,
       "us_dem": 48.0,
       "us_rep": 45.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-18 00:00:00",
+      "firm": "",
+      "region": "FL",
+      "n": 913,
+      "weight": null,
+      "us_dem": 44.8,
+      "us_rep": 45.2,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-18 00:00:00",
+      "firm": "",
+      "region": "GA",
+      "n": 645,
+      "weight": null,
+      "us_dem": 49.0,
+      "us_rep": 44.9,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-18 00:00:00",
+      "firm": "",
+      "region": "KS",
+      "n": 750,
+      "weight": null,
+      "us_dem": 44.8,
+      "us_rep": 43.3,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-18 00:00:00",
+      "firm": "",
+      "region": "MI",
+      "n": 1200,
+      "weight": null,
+      "us_dem": 46.6,
+      "us_rep": 44.7,
       "us_oth": 0.0
     },
     {
@@ -5086,51 +5066,11 @@
     {
       "date": "2026-09-18 00:00:00",
       "firm": "",
-      "region": "MI",
-      "n": 1200,
-      "weight": null,
-      "us_dem": 46.6,
-      "us_rep": 44.7,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-18 00:00:00",
-      "firm": "",
       "region": "TX",
       "n": 1079,
       "weight": null,
       "us_dem": 47.4,
       "us_rep": 44.2,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-18 00:00:00",
-      "firm": "",
-      "region": "GA",
-      "n": 645,
-      "weight": null,
-      "us_dem": 49.0,
-      "us_rep": 44.9,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-18 00:00:00",
-      "firm": "",
-      "region": "FL",
-      "n": 913,
-      "weight": null,
-      "us_dem": 44.8,
-      "us_rep": 45.2,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-18 00:00:00",
-      "firm": "",
-      "region": "KS",
-      "n": 750,
-      "weight": null,
-      "us_dem": 44.8,
-      "us_rep": 43.3,
       "us_oth": 0.0
     },
     {
@@ -5176,21 +5116,21 @@
     {
       "date": "2026-09-22 00:00:00",
       "firm": "",
-      "region": "AK",
-      "n": 1352,
-      "weight": null,
-      "us_dem": 48.4,
-      "us_rep": 51.5,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-22 00:00:00",
-      "firm": "",
       "region": "IA",
       "n": 1050,
       "weight": null,
       "us_dem": 50.0,
       "us_rep": 42.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-22 00:00:00",
+      "firm": "",
+      "region": "AK",
+      "n": 1352,
+      "weight": null,
+      "us_dem": 48.4,
+      "us_rep": 51.5,
       "us_oth": 0.0
     },
     {
@@ -5256,12 +5196,22 @@
     {
       "date": "2026-09-24 00:00:00",
       "firm": "",
-      "region": "ME",
-      "n": 619,
+      "region": "RI",
+      "n": 595,
       "weight": null,
-      "us_dem": 45.9,
-      "us_rep": 48.7,
-      "us_oth": 0.0
+      "us_dem": 53.0,
+      "us_rep": 33.0,
+      "us_oth": 5.0
+    },
+    {
+      "date": "2026-09-24 00:00:00",
+      "firm": "",
+      "region": "OH",
+      "n": 695,
+      "weight": null,
+      "us_dem": 47.3,
+      "us_rep": 46.8,
+      "us_oth": 2.0
     },
     {
       "date": "2026-09-24 00:00:00",
@@ -5306,21 +5256,11 @@
     {
       "date": "2026-09-24 00:00:00",
       "firm": "",
-      "region": "MI",
-      "n": 605,
+      "region": "ME",
+      "n": 1301,
       "weight": null,
-      "us_dem": 49.5,
-      "us_rep": 44.5,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-24 00:00:00",
-      "firm": "",
-      "region": "MA",
-      "n": 556,
-      "weight": null,
-      "us_dem": 53.0,
-      "us_rep": 30.0,
+      "us_dem": 51.0,
+      "us_rep": 47.0,
       "us_oth": 0.0
     },
     {
@@ -5336,21 +5276,21 @@
     {
       "date": "2026-09-24 00:00:00",
       "firm": "",
-      "region": "OH",
-      "n": 695,
+      "region": "ME",
+      "n": 619,
       "weight": null,
-      "us_dem": 47.3,
-      "us_rep": 46.8,
-      "us_oth": 2.0
+      "us_dem": 45.9,
+      "us_rep": 48.7,
+      "us_oth": 0.0
     },
     {
       "date": "2026-09-24 00:00:00",
       "firm": "",
-      "region": "KS",
-      "n": 500,
+      "region": "MA",
+      "n": 556,
       "weight": null,
-      "us_dem": 50.0,
-      "us_rep": 48.0,
+      "us_dem": 53.0,
+      "us_rep": 30.0,
       "us_oth": 0.0
     },
     {
@@ -5366,61 +5306,21 @@
     {
       "date": "2026-09-24 00:00:00",
       "firm": "",
-      "region": "ME",
-      "n": 1301,
-      "weight": null,
-      "us_dem": 51.0,
-      "us_rep": 47.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-24 00:00:00",
-      "firm": "",
-      "region": "RI",
-      "n": 595,
-      "weight": null,
-      "us_dem": 53.0,
-      "us_rep": 33.0,
-      "us_oth": 5.0
-    },
-    {
-      "date": "2026-09-25 00:00:00",
-      "firm": "",
-      "region": "NC",
-      "n": 857,
-      "weight": null,
-      "us_dem": 51.7,
-      "us_rep": 43.5,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-25 00:00:00",
-      "firm": "",
       "region": "MI",
-      "n": 725,
+      "n": 605,
       "weight": null,
-      "us_dem": 45.4,
-      "us_rep": 41.0,
+      "us_dem": 49.5,
+      "us_rep": 44.5,
       "us_oth": 0.0
     },
     {
       "date": "2026-09-25 00:00:00",
       "firm": "",
-      "region": "NE",
-      "n": 800,
+      "region": "TX",
+      "n": 1007,
       "weight": null,
-      "us_dem": 47.0,
-      "us_rep": 46.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-25 00:00:00",
-      "firm": "",
-      "region": "GA",
-      "n": 1200,
-      "weight": null,
-      "us_dem": 50.0,
-      "us_rep": 42.0,
+      "us_dem": 49.0,
+      "us_rep": 44.0,
       "us_oth": 0.0
     },
     {
@@ -5436,6 +5336,16 @@
     {
       "date": "2026-09-25 00:00:00",
       "firm": "",
+      "region": "GA",
+      "n": 1200,
+      "weight": null,
+      "us_dem": 50.0,
+      "us_rep": 42.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-25 00:00:00",
+      "firm": "",
       "region": "MI",
       "n": 643,
       "weight": null,
@@ -5446,11 +5356,31 @@
     {
       "date": "2026-09-25 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 1007,
+      "region": "MI",
+      "n": 725,
       "weight": null,
-      "us_dem": 49.0,
-      "us_rep": 44.0,
+      "us_dem": 45.4,
+      "us_rep": 41.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-25 00:00:00",
+      "firm": "",
+      "region": "NC",
+      "n": 857,
+      "weight": null,
+      "us_dem": 51.7,
+      "us_rep": 43.5,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-25 00:00:00",
+      "firm": "",
+      "region": "NE",
+      "n": 800,
+      "weight": null,
+      "us_dem": 47.0,
+      "us_rep": 46.0,
       "us_oth": 0.0
     },
     {
@@ -5476,21 +5406,21 @@
     {
       "date": "2026-09-26 00:00:00",
       "firm": "",
-      "region": "IA",
-      "n": 1200,
-      "weight": null,
-      "us_dem": 47.4,
-      "us_rep": 45.7,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-26 00:00:00",
-      "firm": "",
       "region": "AK",
       "n": 1079,
       "weight": null,
       "us_dem": 46.5,
       "us_rep": 49.3,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-26 00:00:00",
+      "firm": "",
+      "region": "IA",
+      "n": 1200,
+      "weight": null,
+      "us_dem": 47.4,
+      "us_rep": 45.7,
       "us_oth": 0.0
     },
     {
@@ -5506,11 +5436,41 @@
     {
       "date": "2026-09-28 00:00:00",
       "firm": "",
-      "region": "FL",
-      "n": 1063,
+      "region": "TX",
+      "n": 865,
+      "weight": null,
+      "us_dem": 49.0,
+      "us_rep": 47.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-28 00:00:00",
+      "firm": "",
+      "region": "NH",
+      "n": 1082,
+      "weight": null,
+      "us_dem": 48.4,
+      "us_rep": 39.5,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-28 00:00:00",
+      "firm": "",
+      "region": "NE",
+      "n": 800,
       "weight": null,
       "us_dem": 47.0,
-      "us_rep": 48.0,
+      "us_rep": 47.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-28 00:00:00",
+      "firm": "",
+      "region": "NE",
+      "n": 800,
+      "weight": null,
+      "us_dem": 46.0,
+      "us_rep": 45.0,
       "us_oth": 0.0
     },
     {
@@ -5536,91 +5496,21 @@
     {
       "date": "2026-09-28 00:00:00",
       "firm": "",
+      "region": "FL",
+      "n": 1063,
+      "weight": null,
+      "us_dem": 47.0,
+      "us_rep": 48.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-28 00:00:00",
+      "firm": "",
       "region": "NC",
       "n": 1115,
       "weight": null,
       "us_dem": 53.0,
       "us_rep": 42.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-28 00:00:00",
-      "firm": "",
-      "region": "NE",
-      "n": 800,
-      "weight": null,
-      "us_dem": 46.0,
-      "us_rep": 45.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-28 00:00:00",
-      "firm": "",
-      "region": "NE",
-      "n": 800,
-      "weight": null,
-      "us_dem": 47.0,
-      "us_rep": 47.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-28 00:00:00",
-      "firm": "",
-      "region": "NH",
-      "n": 1082,
-      "weight": null,
-      "us_dem": 48.4,
-      "us_rep": 39.5,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-28 00:00:00",
-      "firm": "",
-      "region": "TX",
-      "n": 865,
-      "weight": null,
-      "us_dem": 49.0,
-      "us_rep": 47.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-29 00:00:00",
-      "firm": "",
-      "region": "TX",
-      "n": 800,
-      "weight": null,
-      "us_dem": 46.0,
-      "us_rep": 47.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-29 00:00:00",
-      "firm": "",
-      "region": "OH",
-      "n": 1298,
-      "weight": null,
-      "us_dem": 51.0,
-      "us_rep": 43.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-29 00:00:00",
-      "firm": "",
-      "region": "OH",
-      "n": 680,
-      "weight": null,
-      "us_dem": 45.2,
-      "us_rep": 41.2,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-29 00:00:00",
-      "firm": "",
-      "region": "MI",
-      "n": 600,
-      "weight": null,
-      "us_dem": 45.0,
-      "us_rep": 40.0,
       "us_oth": 0.0
     },
     {
@@ -5636,6 +5526,16 @@
     {
       "date": "2026-09-29 00:00:00",
       "firm": "",
+      "region": "MI",
+      "n": 600,
+      "weight": null,
+      "us_dem": 45.0,
+      "us_rep": 40.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-29 00:00:00",
+      "firm": "",
       "region": "OH",
       "n": 500,
       "weight": null,
@@ -5644,33 +5544,53 @@
       "us_oth": 1.0
     },
     {
-      "date": "2026-09-30 00:00:00",
+      "date": "2026-09-29 00:00:00",
       "firm": "",
-      "region": "IA",
-      "n": 738,
+      "region": "OH",
+      "n": 680,
       "weight": null,
-      "us_dem": 46.6,
-      "us_rep": 48.5,
+      "us_dem": 45.2,
+      "us_rep": 41.2,
       "us_oth": 0.0
     },
     {
-      "date": "2026-09-30 00:00:00",
+      "date": "2026-09-29 00:00:00",
       "firm": "",
-      "region": "ME",
-      "n": 1240,
-      "weight": null,
-      "us_dem": 46.0,
-      "us_rep": 48.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-09-30 00:00:00",
-      "firm": "",
-      "region": "MI",
-      "n": 1235,
+      "region": "OH",
+      "n": 1298,
       "weight": null,
       "us_dem": 51.0,
-      "us_rep": 44.0,
+      "us_rep": 43.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-29 00:00:00",
+      "firm": "",
+      "region": "TX",
+      "n": 800,
+      "weight": null,
+      "us_dem": 46.0,
+      "us_rep": 47.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-30 00:00:00",
+      "firm": "",
+      "region": "SD",
+      "n": 500,
+      "weight": null,
+      "us_dem": 0.0,
+      "us_rep": 53.0,
+      "us_oth": 47.0
+    },
+    {
+      "date": "2026-09-30 00:00:00",
+      "firm": "",
+      "region": "NC",
+      "n": 885,
+      "weight": null,
+      "us_dem": 48.0,
+      "us_rep": 37.0,
       "us_oth": 0.0
     },
     {
@@ -5696,91 +5616,31 @@
     {
       "date": "2026-09-30 00:00:00",
       "firm": "",
-      "region": "NC",
-      "n": 885,
+      "region": "ME",
+      "n": 1240,
       "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 37.0,
+      "us_dem": 46.0,
+      "us_rep": 48.0,
       "us_oth": 0.0
     },
     {
       "date": "2026-09-30 00:00:00",
       "firm": "",
-      "region": "SD",
-      "n": 500,
-      "weight": null,
-      "us_dem": 0.0,
-      "us_rep": 53.0,
-      "us_oth": 47.0
-    },
-    {
-      "date": "2026-10-01 00:00:00",
-      "firm": "",
-      "region": "NC",
-      "n": 642,
-      "weight": null,
-      "us_dem": 50.8,
-      "us_rep": 38.5,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-01 00:00:00",
-      "firm": "",
-      "region": "SD",
-      "n": 500,
-      "weight": null,
-      "us_dem": 0.0,
-      "us_rep": 41.0,
-      "us_oth": 51.0
-    },
-    {
-      "date": "2026-10-01 00:00:00",
-      "firm": "",
-      "region": "OH",
-      "n": 1200,
-      "weight": null,
-      "us_dem": 43.8,
-      "us_rep": 42.5,
-      "us_oth": 2.2
-    },
-    {
-      "date": "2026-10-01 00:00:00",
-      "firm": "",
-      "region": "ME",
-      "n": 400,
-      "weight": null,
-      "us_dem": 52.0,
-      "us_rep": 48.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-01 00:00:00",
-      "firm": "",
-      "region": "TX",
-      "n": 881,
-      "weight": null,
-      "us_dem": 53.0,
-      "us_rep": 46.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-01 00:00:00",
-      "firm": "",
-      "region": "KS",
-      "n": 800,
-      "weight": null,
-      "us_dem": 46.0,
-      "us_rep": 44.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-01 00:00:00",
-      "firm": "",
       "region": "IA",
-      "n": 1204,
+      "n": 738,
       "weight": null,
-      "us_dem": 49.0,
-      "us_rep": 47.0,
+      "us_dem": 46.6,
+      "us_rep": 48.5,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-09-30 00:00:00",
+      "firm": "",
+      "region": "MI",
+      "n": 1235,
+      "weight": null,
+      "us_dem": 51.0,
+      "us_rep": 44.0,
       "us_oth": 0.0
     },
     {
@@ -5796,6 +5656,26 @@
     {
       "date": "2026-10-01 00:00:00",
       "firm": "",
+      "region": "IA",
+      "n": 1204,
+      "weight": null,
+      "us_dem": 49.0,
+      "us_rep": 47.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-01 00:00:00",
+      "firm": "",
+      "region": "KS",
+      "n": 800,
+      "weight": null,
+      "us_dem": 46.0,
+      "us_rep": 44.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-01 00:00:00",
+      "firm": "",
       "region": "ME",
       "n": 982,
       "weight": null,
@@ -5804,24 +5684,84 @@
       "us_oth": 0.0
     },
     {
-      "date": "2026-10-02 00:00:00",
+      "date": "2026-10-01 00:00:00",
       "firm": "",
-      "region": "AK",
-      "n": 758,
+      "region": "NC",
+      "n": 642,
       "weight": null,
-      "us_dem": 46.5,
-      "us_rep": 49.9,
+      "us_dem": 50.8,
+      "us_rep": 38.5,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-01 00:00:00",
+      "firm": "",
+      "region": "OH",
+      "n": 1200,
+      "weight": null,
+      "us_dem": 43.8,
+      "us_rep": 42.5,
+      "us_oth": 2.2
+    },
+    {
+      "date": "2026-10-01 00:00:00",
+      "firm": "",
+      "region": "SD",
+      "n": 500,
+      "weight": null,
+      "us_dem": 0.0,
+      "us_rep": 41.0,
+      "us_oth": 51.0
+    },
+    {
+      "date": "2026-10-01 00:00:00",
+      "firm": "",
+      "region": "TX",
+      "n": 881,
+      "weight": null,
+      "us_dem": 53.0,
+      "us_rep": 46.0,
       "us_oth": 0.0
     },
     {
       "date": "2026-10-02 00:00:00",
       "firm": "",
-      "region": "ID",
-      "n": 500,
+      "region": "MN",
+      "n": 622,
       "weight": null,
-      "us_dem": 0.0,
-      "us_rep": 48.0,
-      "us_oth": 28.0
+      "us_dem": 45.8,
+      "us_rep": 43.6,
+      "us_oth": 5.4
+    },
+    {
+      "date": "2026-10-02 00:00:00",
+      "firm": "",
+      "region": "SC",
+      "n": 1200,
+      "weight": null,
+      "us_dem": 45.0,
+      "us_rep": 46.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-02 00:00:00",
+      "firm": "",
+      "region": "NE",
+      "n": 1113,
+      "weight": null,
+      "us_dem": 44.0,
+      "us_rep": 47.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-02 00:00:00",
+      "firm": "",
+      "region": "MI",
+      "n": 1085,
+      "weight": null,
+      "us_dem": 47.9,
+      "us_rep": 44.1,
+      "us_oth": 0.0
     },
     {
       "date": "2026-10-02 00:00:00",
@@ -5856,41 +5796,21 @@
     {
       "date": "2026-10-02 00:00:00",
       "firm": "",
-      "region": "MI",
-      "n": 1085,
+      "region": "ID",
+      "n": 500,
       "weight": null,
-      "us_dem": 47.9,
-      "us_rep": 44.1,
-      "us_oth": 0.0
+      "us_dem": 0.0,
+      "us_rep": 48.0,
+      "us_oth": 28.0
     },
     {
       "date": "2026-10-02 00:00:00",
       "firm": "",
-      "region": "MN",
-      "n": 622,
+      "region": "AK",
+      "n": 758,
       "weight": null,
-      "us_dem": 45.8,
-      "us_rep": 43.6,
-      "us_oth": 5.4
-    },
-    {
-      "date": "2026-10-02 00:00:00",
-      "firm": "",
-      "region": "NE",
-      "n": 1113,
-      "weight": null,
-      "us_dem": 44.0,
-      "us_rep": 47.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-02 00:00:00",
-      "firm": "",
-      "region": "SC",
-      "n": 1200,
-      "weight": null,
-      "us_dem": 45.0,
-      "us_rep": 46.0,
+      "us_dem": 46.5,
+      "us_rep": 49.9,
       "us_oth": 0.0
     },
     {
@@ -5944,16 +5864,6 @@
       "us_oth": 0.0
     },
     {
-      "date": "2026-10-04 00:00:00",
-      "firm": "",
-      "region": "GA",
-      "n": 600,
-      "weight": null,
-      "us_dem": 55.0,
-      "us_rep": 45.0,
-      "us_oth": 0.0
-    },
-    {
       "date": "2026-10-05 00:00:00",
       "firm": "",
       "region": "ME",
@@ -5981,6 +5891,16 @@
       "weight": null,
       "us_dem": 54.0,
       "us_rep": 36.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-06 00:00:00",
+      "firm": "",
+      "region": "NH",
+      "n": 1042,
+      "weight": null,
+      "us_dem": 51.0,
+      "us_rep": 44.0,
       "us_oth": 0.0
     },
     {
@@ -6016,20 +5936,30 @@
     {
       "date": "2026-10-06 00:00:00",
       "firm": "",
-      "region": "NH",
-      "n": 1042,
+      "region": "NE",
+      "n": 1808,
       "weight": null,
-      "us_dem": 51.0,
-      "us_rep": 44.0,
+      "us_dem": 48.0,
+      "us_rep": 47.0,
       "us_oth": 0.0
     },
     {
       "date": "2026-10-06 00:00:00",
       "firm": "",
-      "region": "NE",
-      "n": 1808,
+      "region": "AK",
+      "n": 1512,
       "weight": null,
-      "us_dem": 48.0,
+      "us_dem": 47.0,
+      "us_rep": 53.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-06 00:00:00",
+      "firm": "",
+      "region": "ME",
+      "n": 1505,
+      "weight": null,
+      "us_dem": 51.0,
       "us_rep": 47.0,
       "us_oth": 0.0
     },
@@ -6041,16 +5971,6 @@
       "weight": null,
       "us_dem": 48.0,
       "us_rep": 45.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-06 00:00:00",
-      "firm": "",
-      "region": "ME",
-      "n": 1505,
-      "weight": null,
-      "us_dem": 51.0,
-      "us_rep": 47.0,
       "us_oth": 0.0
     },
     {
@@ -6076,16 +5996,6 @@
     {
       "date": "2026-10-06 00:00:00",
       "firm": "",
-      "region": "AK",
-      "n": 1512,
-      "weight": null,
-      "us_dem": 47.0,
-      "us_rep": 53.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-06 00:00:00",
-      "firm": "",
       "region": "MI",
       "n": 3947,
       "weight": null,
@@ -6106,16 +6016,6 @@
     {
       "date": "2026-10-07 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 800,
-      "weight": null,
-      "us_dem": 47.0,
-      "us_rep": 44.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-07 00:00:00",
-      "firm": "",
       "region": "MI",
       "n": 800,
       "weight": null,
@@ -6126,11 +6026,11 @@
     {
       "date": "2026-10-07 00:00:00",
       "firm": "",
-      "region": "FL",
-      "n": 625,
+      "region": "TX",
+      "n": 800,
       "weight": null,
-      "us_dem": 40.0,
-      "us_rep": 50.0,
+      "us_dem": 47.0,
+      "us_rep": 44.0,
       "us_oth": 0.0
     },
     {
@@ -6146,6 +6046,16 @@
     {
       "date": "2026-10-07 00:00:00",
       "firm": "",
+      "region": "FL",
+      "n": 625,
+      "weight": null,
+      "us_dem": 40.0,
+      "us_rep": 50.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-07 00:00:00",
+      "firm": "",
       "region": "KS",
       "n": 600,
       "weight": null,
@@ -6156,30 +6066,10 @@
     {
       "date": "2026-10-08 00:00:00",
       "firm": "",
-      "region": "FL",
-      "n": 836,
+      "region": "OH",
+      "n": 760,
       "weight": null,
-      "us_dem": 44.9,
-      "us_rep": 46.8,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-08 00:00:00",
-      "firm": "",
-      "region": "IA",
-      "n": 801,
-      "weight": null,
-      "us_dem": 43.0,
-      "us_rep": 45.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-08 00:00:00",
-      "firm": "",
-      "region": "NC",
-      "n": 810,
-      "weight": null,
-      "us_dem": 50.0,
+      "us_dem": 49.0,
       "us_rep": 43.0,
       "us_oth": 0.0
     },
@@ -6196,21 +6086,41 @@
     {
       "date": "2026-10-08 00:00:00",
       "firm": "",
-      "region": "OH",
-      "n": 760,
-      "weight": null,
-      "us_dem": 49.0,
-      "us_rep": 43.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-08 00:00:00",
-      "firm": "",
       "region": "TX",
       "n": 850,
       "weight": null,
       "us_dem": 45.0,
       "us_rep": 45.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-08 00:00:00",
+      "firm": "",
+      "region": "IA",
+      "n": 801,
+      "weight": null,
+      "us_dem": 43.0,
+      "us_rep": 45.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-08 00:00:00",
+      "firm": "",
+      "region": "FL",
+      "n": 836,
+      "weight": null,
+      "us_dem": 44.9,
+      "us_rep": 46.8,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-08 00:00:00",
+      "firm": "",
+      "region": "NC",
+      "n": 810,
+      "weight": null,
+      "us_dem": 50.0,
+      "us_rep": 43.0,
       "us_oth": 0.0
     },
     {
@@ -6226,41 +6136,11 @@
     {
       "date": "2026-10-09 00:00:00",
       "firm": "",
-      "region": "MN",
-      "n": 1000,
+      "region": "AR",
+      "n": 550,
       "weight": null,
-      "us_dem": 45.0,
-      "us_rep": 41.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-09 00:00:00",
-      "firm": "",
-      "region": "MI",
-      "n": 607,
-      "weight": null,
-      "us_dem": 53.0,
-      "us_rep": 47.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-09 00:00:00",
-      "firm": "",
-      "region": "MI",
-      "n": 483,
-      "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 43.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-09 00:00:00",
-      "firm": "",
-      "region": "IA",
-      "n": 650,
-      "weight": null,
-      "us_dem": 45.0,
-      "us_rep": 46.6,
+      "us_dem": 40.0,
+      "us_rep": 49.0,
       "us_oth": 0.0
     },
     {
@@ -6276,11 +6156,11 @@
     {
       "date": "2026-10-09 00:00:00",
       "firm": "",
-      "region": "AR",
-      "n": 550,
+      "region": "IA",
+      "n": 650,
       "weight": null,
-      "us_dem": 40.0,
-      "us_rep": 49.0,
+      "us_dem": 45.0,
+      "us_rep": 46.6,
       "us_oth": 0.0
     },
     {
@@ -6294,13 +6174,23 @@
       "us_oth": 0.0
     },
     {
-      "date": "2026-10-10 00:00:00",
+      "date": "2026-10-09 00:00:00",
       "firm": "",
-      "region": "GA",
-      "n": 1101,
+      "region": "MI",
+      "n": 483,
       "weight": null,
-      "us_dem": 52.0,
-      "us_rep": 42.0,
+      "us_dem": 48.0,
+      "us_rep": 43.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-09 00:00:00",
+      "firm": "",
+      "region": "MN",
+      "n": 1000,
+      "weight": null,
+      "us_dem": 45.0,
+      "us_rep": 41.0,
       "us_oth": 0.0
     },
     {
@@ -6311,6 +6201,16 @@
       "weight": null,
       "us_dem": 48.1,
       "us_rep": 42.6,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-10 00:00:00",
+      "firm": "",
+      "region": "GA",
+      "n": 1101,
+      "weight": null,
+      "us_dem": 52.0,
+      "us_rep": 42.0,
       "us_oth": 0.0
     },
     {
@@ -6376,11 +6276,31 @@
     {
       "date": "2026-10-13 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 617,
+      "region": "FL",
+      "n": 716,
       "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 44.0,
+      "us_dem": 41.0,
+      "us_rep": 52.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-13 00:00:00",
+      "firm": "",
+      "region": "NC",
+      "n": 829,
+      "weight": null,
+      "us_dem": 49.0,
+      "us_rep": 41.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-13 00:00:00",
+      "firm": "",
+      "region": "NC",
+      "n": 643,
+      "weight": null,
+      "us_dem": 54.0,
+      "us_rep": 40.0,
       "us_oth": 0.0
     },
     {
@@ -6397,40 +6317,20 @@
       "date": "2026-10-13 00:00:00",
       "firm": "",
       "region": "TX",
+      "n": 617,
+      "weight": null,
+      "us_dem": 48.0,
+      "us_rep": 44.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-13 00:00:00",
+      "firm": "",
+      "region": "TX",
       "n": 854,
       "weight": null,
       "us_dem": 46.7,
       "us_rep": 47.2,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-13 00:00:00",
-      "firm": "",
-      "region": "NC",
-      "n": 829,
-      "weight": null,
-      "us_dem": 49.0,
-      "us_rep": 41.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-13 00:00:00",
-      "firm": "",
-      "region": "FL",
-      "n": 716,
-      "weight": null,
-      "us_dem": 41.0,
-      "us_rep": 52.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-13 00:00:00",
-      "firm": "",
-      "region": "NC",
-      "n": 643,
-      "weight": null,
-      "us_dem": 54.0,
-      "us_rep": 40.0,
       "us_oth": 0.0
     },
     {
@@ -6446,11 +6346,11 @@
     {
       "date": "2026-10-14 00:00:00",
       "firm": "",
-      "region": "MS",
-      "n": 511,
+      "region": "TX",
+      "n": 861,
       "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 52.0,
+      "us_dem": 50.0,
+      "us_rep": 47.0,
       "us_oth": 0.0
     },
     {
@@ -6466,11 +6366,11 @@
     {
       "date": "2026-10-14 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 861,
+      "region": "FL",
+      "n": 2351,
       "weight": null,
-      "us_dem": 50.0,
-      "us_rep": 47.0,
+      "us_dem": 42.4,
+      "us_rep": 47.6,
       "us_oth": 0.0
     },
     {
@@ -6481,16 +6381,6 @@
       "weight": null,
       "us_dem": 47.0,
       "us_rep": 46.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-14 00:00:00",
-      "firm": "",
-      "region": "FL",
-      "n": 2351,
-      "weight": null,
-      "us_dem": 42.4,
-      "us_rep": 47.6,
       "us_oth": 0.0
     },
     {
@@ -6546,32 +6436,12 @@
     {
       "date": "2026-10-16 00:00:00",
       "firm": "",
-      "region": "TX",
-      "n": 1200,
+      "region": "AR",
+      "n": 709,
       "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 49.0,
+      "us_dem": 41.0,
+      "us_rep": 50.0,
       "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-16 00:00:00",
-      "firm": "",
-      "region": "OH",
-      "n": 1000,
-      "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 42.0,
-      "us_oth": 5.0
-    },
-    {
-      "date": "2026-10-16 00:00:00",
-      "firm": "",
-      "region": "MT",
-      "n": 500,
-      "weight": null,
-      "us_dem": 29.7,
-      "us_rep": 43.0,
-      "us_oth": 12.3
     },
     {
       "date": "2026-10-16 00:00:00",
@@ -6586,16 +6456,6 @@
     {
       "date": "2026-10-16 00:00:00",
       "firm": "",
-      "region": "AR",
-      "n": 709,
-      "weight": null,
-      "us_dem": 41.0,
-      "us_rep": 50.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-16 00:00:00",
-      "firm": "",
       "region": "ME",
       "n": 1200,
       "weight": null,
@@ -6604,14 +6464,44 @@
       "us_oth": 0.0
     },
     {
+      "date": "2026-10-16 00:00:00",
+      "firm": "",
+      "region": "MT",
+      "n": 500,
+      "weight": null,
+      "us_dem": 29.7,
+      "us_rep": 43.0,
+      "us_oth": 12.3
+    },
+    {
+      "date": "2026-10-16 00:00:00",
+      "firm": "",
+      "region": "OH",
+      "n": 1000,
+      "weight": null,
+      "us_dem": 48.0,
+      "us_rep": 42.0,
+      "us_oth": 5.0
+    },
+    {
+      "date": "2026-10-16 00:00:00",
+      "firm": "",
+      "region": "TX",
+      "n": 1200,
+      "weight": null,
+      "us_dem": 48.0,
+      "us_rep": 49.0,
+      "us_oth": 0.0
+    },
+    {
       "date": "2026-10-17 00:00:00",
       "firm": "",
-      "region": "FL",
-      "n": 400,
+      "region": "MN",
+      "n": 1079,
       "weight": null,
-      "us_dem": 46.9,
-      "us_rep": 53.1,
-      "us_oth": 0.0
+      "us_dem": 49.1,
+      "us_rep": 43.6,
+      "us_oth": 0.8
     },
     {
       "date": "2026-10-17 00:00:00",
@@ -6626,12 +6516,12 @@
     {
       "date": "2026-10-17 00:00:00",
       "firm": "",
-      "region": "MN",
-      "n": 1079,
+      "region": "FL",
+      "n": 400,
       "weight": null,
-      "us_dem": 49.1,
-      "us_rep": 43.6,
-      "us_oth": 0.8
+      "us_dem": 46.9,
+      "us_rep": 53.1,
+      "us_oth": 0.0
     },
     {
       "date": "2026-10-18 00:00:00",
@@ -6661,16 +6551,6 @@
       "weight": null,
       "us_dem": 51.0,
       "us_rep": 49.0,
-      "us_oth": 0.0
-    },
-    {
-      "date": "2026-10-19 00:00:00",
-      "firm": "",
-      "region": "TX",
-      "n": 2000,
-      "weight": null,
-      "us_dem": 48.0,
-      "us_rep": 46.0,
       "us_oth": 0.0
     },
     {
@@ -6714,13 +6594,23 @@
       "us_oth": 6.0
     },
     {
+      "date": "2026-10-19 00:00:00",
+      "firm": "",
+      "region": "TX",
+      "n": 2000,
+      "weight": null,
+      "us_dem": 48.0,
+      "us_rep": 46.0,
+      "us_oth": 0.0
+    },
+    {
       "date": "2026-10-20 00:00:00",
       "firm": "",
-      "region": "NC",
+      "region": "NE",
       "n": 800,
       "weight": null,
-      "us_dem": 54.0,
-      "us_rep": 43.0,
+      "us_dem": 47.0,
+      "us_rep": 48.0,
       "us_oth": 0.0
     },
     {
@@ -6736,12 +6626,32 @@
     {
       "date": "2026-10-20 00:00:00",
       "firm": "",
-      "region": "AL",
+      "region": "NH",
       "n": 600,
       "weight": null,
-      "us_dem": 35.0,
-      "us_rep": 56.0,
+      "us_dem": 51.0,
+      "us_rep": 44.0,
       "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-20 00:00:00",
+      "firm": "",
+      "region": "NC",
+      "n": 747,
+      "weight": null,
+      "us_dem": 54.0,
+      "us_rep": 43.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-20 00:00:00",
+      "firm": "",
+      "region": "RI",
+      "n": 815,
+      "weight": null,
+      "us_dem": 55.0,
+      "us_rep": 32.0,
+      "us_oth": 4.0
     },
     {
       "date": "2026-10-20 00:00:00",
@@ -6756,12 +6666,52 @@
     {
       "date": "2026-10-20 00:00:00",
       "firm": "",
-      "region": "RI",
-      "n": 815,
+      "region": "IA",
+      "n": 678,
       "weight": null,
-      "us_dem": 55.0,
-      "us_rep": 32.0,
-      "us_oth": 4.0
+      "us_dem": 45.0,
+      "us_rep": 46.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-20 00:00:00",
+      "firm": "",
+      "region": "AL",
+      "n": 600,
+      "weight": null,
+      "us_dem": 35.0,
+      "us_rep": 56.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-20 00:00:00",
+      "firm": "",
+      "region": "AK",
+      "n": 671,
+      "weight": null,
+      "us_dem": 47.0,
+      "us_rep": 49.0,
+      "us_oth": 0.0
+    },
+    {
+      "date": "2026-10-20 00:00:00",
+      "firm": "",
+      "region": "MT",
+      "n": 667,
+      "weight": null,
+      "us_dem": 29.4,
+      "us_rep": 45.6,
+      "us_oth": 21.2
+    },
+    {
+      "date": "2026-10-20 00:00:00",
+      "firm": "",
+      "region": "SD",
+      "n": 500,
+      "weight": null,
+      "us_dem": 0.0,
+      "us_rep": 53.0,
+      "us_oth": 38.0
     }
   ],
   "tipping_points": [],
